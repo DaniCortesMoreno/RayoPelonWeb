@@ -143,9 +143,9 @@ export const AdminMediaManager: React.FC = () => {
     setLoading(true);
     try {
       const [featRes, galRes, clipRes] = await Promise.all([
-        fetch('${API_BASE}/media/featured-match').then(r => r.json()),
-        fetch('${API_BASE}/media/gallery').then(r => r.json()),
-        fetch('${API_BASE}/media/clips').then(r => r.json())
+        fetch(`${API_BASE}/media/featured-match`).then(r => r.json()),
+        fetch(`${API_BASE}/media/gallery`).then(r => r.json()),
+        fetch(`${API_BASE}/media/clips`).then(r => r.json())
       ]);
       setFeaturedMatch(featRes);
       setGallery(galRes || []);
@@ -173,7 +173,7 @@ export const AdminMediaManager: React.FC = () => {
       const reader = new FileReader();
       reader.onload = async () => {
         const base64Data = reader.result as string;
-        const res = await fetch('${API_BASE}/upload/media-file', {
+        const res = await fetch(`${API_BASE}/upload/media-file`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
           body: JSON.stringify({
@@ -210,7 +210,7 @@ export const AdminMediaManager: React.FC = () => {
     if (!featuredMatch) return;
     setLoading(true);
     try {
-      const res = await fetch('${API_BASE}/media/featured-match', {
+      const res = await fetch(`${API_BASE}/media/featured-match`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify(featuredMatch)
@@ -314,7 +314,7 @@ export const AdminMediaManager: React.FC = () => {
         }
       } else {
         // Create
-        const res = await fetch('${API_BASE}/media/gallery', {
+        const res = await fetch(`${API_BASE}/media/gallery`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
           body: JSON.stringify(photoForm)
@@ -415,7 +415,7 @@ export const AdminMediaManager: React.FC = () => {
         }
       } else {
         // Create
-        const res = await fetch('${API_BASE}/media/clips', {
+        const res = await fetch(`${API_BASE}/media/clips`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
           body: JSON.stringify({ ...clipForm, imageUrl: finalImageUrl })
