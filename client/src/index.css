@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  /* 3D Flip Card Mechanics */
+  .perspective-1000 {
+    perspective: 1200px;
+  }
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
+  .backface-hidden {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+
+  .player-card:hover .card-inner,
+  .player-card:focus-within .card-inner,
+  .player-card.is-flipped .card-inner {
+    transform: rotateY(180deg);
+  }
+
+  /* Glassmorphism Galáctico Volt */
+  .elite-card {
+    background: linear-gradient(180deg, rgba(20, 22, 45, 0.72) 0%, rgba(11, 12, 26, 0.88) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .elite-gold-card {
+    background: linear-gradient(180deg, rgba(28, 29, 56, 0.85) 0%, rgba(14, 15, 32, 0.95) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(197, 160, 89, 0.35);
+  }
+
+  .text-champagne-gradient {
+    background: linear-gradient(135deg, #FBF4D8 0%, #D8B76E 50%, #A67C37 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #07070F;
+}
+::-webkit-scrollbar-thumb {
+  background: #2A2D48;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C5A059;
+}

@@ -1,0 +1,1520 @@
+{
+  "clubInfo": {
+    "name": "Rayo Pelón F7",
+    "league": "Liga Plata Ibi F7 • Liga Comarcal",
+    "season": "Temporada 2026/27",
+    "stadium": "Polideportivo Municipal de Ibi (Campos F7 Hierba Artificial)",
+    "address": "Calle Jaén s/n, 03440 Ibi (Alicante)",
+    "email": "contacto@rayopelonf7.es",
+    "emailAlt": "directiva.rayopelon@gmail.com",
+    "schedule": "Lunes y Miércoles: 20:30h - 22:30h"
+  },
+  "matchCenter": {
+    "lastMatch": {
+      "matchday": 0,
+      "homeTeam": "RAYO PELÓN",
+      "awayTeam": "",
+      "score": "PRETEMPORADA",
+      "notes": "",
+      "statusText": "ÚLTIMA JORNADA (J0)"
+    },
+    "nextMatch": {
+      "matchday": 1,
+      "homeTeam": "RAYO PELÓN FC",
+      "awayTeam": "DECEROACIEN FC",
+      "location": "Climent B",
+      "dayTime": "Domingo 10:00h",
+      "statusText": "PRÓXIMO COMPROMISO (J1)",
+      "countdown": "8d 20h",
+      "fechaIso": "2026-10-04",
+      "hora": "10:00",
+      "campo": "Climent B",
+      "diaSemana": "domingo",
+      "fecha": "4 oct"
+    }
+  },
+  "players": [
+    {
+      "id": "p1",
+      "name": "Albert Pons",
+      "nickname": "Albert Pons",
+      "number": 5,
+      "position": "DEF",
+      "age": 27,
+      "avatarInitials": "AP",
+      "avatarColorGradient": "from-amber-400 to-amber-200",
+      "photoUrl": "/players/albertcartaweb_1790269970446.png",
+      "rating": 80,
+      "roleDescription": "Seguridad atrás",
+      "attributes": {
+        "ritmo": 80,
+        "tiro": 80,
+        "pase": 80,
+        "regate": 80,
+        "defensa": 80,
+        "fisico": 80
+      },
+      "seasonStats": {
+        "matches": 0,
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 0,
+        "redCards": 0,
+        "mvpCount": 0
+      },
+      "status": "Apto",
+      "statusDetail": "",
+      "featured": true
+    },
+    {
+      "id": "p2",
+      "name": "Rafael Muñoz",
+      "nickname": "Felo",
+      "number": 7,
+      "position": "DEF",
+      "age": 23,
+      "avatarInitials": "RM",
+      "avatarColorGradient": "from-amber-400 to-amber-200",
+      "photoUrl": "/players/rafacartaweb_1790266948791.png",
+      "rating": 80,
+      "roleDescription": "+80kg de puro musculo rovellao",
+      "attributes": {
+        "ritmo": 80,
+        "tiro": 80,
+        "pase": 80,
+        "regate": 80,
+        "defensa": 80,
+        "fisico": 80
+      },
+      "seasonStats": {
+        "matches": 0,
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 0,
+        "redCards": 0,
+        "mvpCount": 0
+      },
+      "status": "Apto",
+      "statusDetail": "",
+      "featured": true
+    },
+    {
+      "id": "p3",
+      "name": "Sergio Requena",
+      "nickname": "El Mosquito",
+      "number": 8,
+      "position": "DEL",
+      "age": 23,
+      "avatarInitials": "SR",
+      "avatarColorGradient": "from-amber-400 to-amber-200",
+      "photoUrl": "/players/sergiocartaweb_1790266079423.png",
+      "rating": 80,
+      "roleDescription": "Que rico se mueve con esa zurdita",
+      "attributes": {
+        "ritmo": 80,
+        "tiro": 80,
+        "pase": 80,
+        "regate": 80,
+        "defensa": 80,
+        "fisico": 80
+      },
+      "seasonStats": {
+        "matches": 0,
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 0,
+        "redCards": 0,
+        "mvpCount": 0
+      },
+      "status": "Apto",
+      "statusDetail": "",
+      "featured": true
+    },
+    {
+      "id": "p4",
+      "name": "Javier Campuzano",
+      "nickname": "El Gabo",
+      "number": 9,
+      "position": "DEL",
+      "age": 23,
+      "avatarInitials": "JC",
+      "avatarColorGradient": "from-amber-400 to-amber-200",
+      "photoUrl": "/players/javicartaweb_1790265730118.png",
+      "rating": 80,
+      "roleDescription": "El Anti Nine",
+      "attributes": {
+        "ritmo": 80,
+        "tiro": 80,
+        "pase": 80,
+        "regate": 80,
+        "defensa": 80,
+        "fisico": 80
+      },
+      "seasonStats": {
+        "matches": 0,
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 0,
+        "redCards": 0,
+        "mvpCount": 0
+      },
+      "status": "Apto",
+      "statusDetail": "",
+      "featured": true
+    },
+    {
+      "id": "p5",
+      "name": "Adrià Callado",
+      "nickname": "Silenciao",
+      "number": 10,
+      "position": "POR",
+      "age": 23,
+      "avatarInitials": "AC",
+      "avatarColorGradient": "from-amber-400 to-amber-200",
+      "photoUrl": "/players/adriawebcarta_1790249126199.png",
+      "rating": 80,
+      "roleDescription": "Nalgón pero ágil bajo palos",
+      "attributes": {
+        "reflejos": 80,
+        "estirada": 80,
+        "saque": 80
+      },
+      "seasonStats": {
+        "matches": 0,
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 0,
+        "redCards": 0,
+        "mvpCount": 0,
+        "cleanSheets": 0,
+        "penaltiesSaved": "0 / 0"
+      },
+      "status": "Apto",
+      "statusDetail": "",
+      "featured": true
+    },
+    {
+      "id": "p6",
+      "name": "Pablo Martínez",
+      "nickname": "Shiquitoo",
+      "number": 11,
+      "position": "DEL",
+      "age": 22,
+      "avatarInitials": "PM",
+      "avatarColorGradient": "from-amber-400 to-amber-200",
+      "photoUrl": "/players/pablocartaweb_1790267748332.png",
+      "rating": 80,
+      "roleDescription": "No la suelta pero es medio bueno",
+      "attributes": {
+        "ritmo": 80,
+        "tiro": 80,
+        "pase": 80,
+        "regate": 80,
+        "defensa": 80,
+        "fisico": 80
+      },
+      "seasonStats": {
+        "matches": 0,
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 0,
+        "redCards": 0,
+        "mvpCount": 0
+      },
+      "status": "En duda",
+      "statusDetail": "Tobillo",
+      "featured": true
+    },
+    {
+      "id": "p7",
+      "name": "Aarón Bravo",
+      "nickname": "El Kaiser",
+      "number": 13,
+      "position": "DEF",
+      "age": 25,
+      "avatarInitials": "AB",
+      "avatarColorGradient": "from-amber-400 to-amber-200",
+      "photoUrl": "/players/aaroncartaweb_1790270274710.png",
+      "rating": 80,
+      "roleDescription": "El Kaiser",
+      "attributes": {
+        "ritmo": 80,
+        "tiro": 80,
+        "pase": 80,
+        "regate": 80,
+        "defensa": 80,
+        "fisico": 80
+      },
+      "seasonStats": {
+        "matches": 0,
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 0,
+        "redCards": 0,
+        "mvpCount": 0
+      },
+      "status": "Apto",
+      "statusDetail": "",
+      "featured": false
+    },
+    {
+      "id": "p8",
+      "name": "Julen Rosauro",
+      "nickname": "Julen Rosauro",
+      "number": 14,
+      "position": "DEL",
+      "age": 27,
+      "avatarInitials": "JR",
+      "avatarColorGradient": "from-amber-400 to-amber-200",
+      "photoUrl": "/players/julencartaweb_1790269145429.png",
+      "rating": 80,
+      "roleDescription": "Veteranía en el gol",
+      "attributes": {
+        "ritmo": 80,
+        "tiro": 80,
+        "pase": 80,
+        "regate": 80,
+        "defensa": 80,
+        "fisico": 80
+      },
+      "seasonStats": {
+        "matches": 0,
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 0,
+        "redCards": 0,
+        "mvpCount": 0
+      },
+      "status": "Apto",
+      "statusDetail": "",
+      "featured": false
+    },
+    {
+      "id": "p9",
+      "name": "Hamudí Hamudi",
+      "nickname": "Hamudi",
+      "number": 15,
+      "position": "MED",
+      "age": 25,
+      "avatarInitials": "HH",
+      "avatarColorGradient": "from-amber-400 to-amber-200",
+      "photoUrl": "/players/hamudicartaweb_1790268856009.png",
+      "rating": 80,
+      "roleDescription": "Definición nativa de carrilero",
+      "attributes": {
+        "ritmo": 80,
+        "tiro": 80,
+        "pase": 80,
+        "regate": 80,
+        "defensa": 80,
+        "fisico": 80
+      },
+      "seasonStats": {
+        "matches": 0,
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 0,
+        "redCards": 0,
+        "mvpCount": 0
+      },
+      "status": "Apto",
+      "statusDetail": "",
+      "featured": false
+    },
+    {
+      "id": "p10",
+      "name": "Mauro Amorós",
+      "nickname": "Gordinbabuer",
+      "number": 17,
+      "position": "DEF",
+      "age": 26,
+      "avatarInitials": "MA",
+      "avatarColorGradient": "from-amber-400 to-amber-200",
+      "photoUrl": "/players/maurocartaweb_1790264840989.png",
+      "rating": 80,
+      "roleDescription": "Polivalencia sobre el campo",
+      "attributes": {
+        "ritmo": 80,
+        "tiro": 80,
+        "pase": 80,
+        "regate": 80,
+        "defensa": 80,
+        "fisico": 80
+      },
+      "seasonStats": {
+        "matches": 0,
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 0,
+        "redCards": 0,
+        "mvpCount": 0
+      },
+      "status": "Apto",
+      "statusDetail": "",
+      "featured": false
+    },
+    {
+      "id": "p11",
+      "name": "Iván Vicens",
+      "nickname": "Magician",
+      "number": 18,
+      "position": "MED",
+      "age": 20,
+      "avatarInitials": "IV",
+      "avatarColorGradient": "from-amber-400 to-amber-200",
+      "photoUrl": "/players/ivancartaweb_1790268557519.png",
+      "rating": 80,
+      "roleDescription": "El cerebro del campo",
+      "attributes": {
+        "ritmo": 80,
+        "tiro": 80,
+        "pase": 80,
+        "regate": 80,
+        "defensa": 80,
+        "fisico": 80
+      },
+      "seasonStats": {
+        "matches": 0,
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 0,
+        "redCards": 0,
+        "mvpCount": 0
+      },
+      "status": "Apto",
+      "statusDetail": "",
+      "featured": false
+    },
+    {
+      "id": "p12",
+      "name": "Jonathan Martínez",
+      "nickname": "Jona",
+      "number": 22,
+      "position": "MED",
+      "age": 22,
+      "avatarInitials": "JM",
+      "avatarColorGradient": "from-amber-400 to-amber-200",
+      "photoUrl": "/players/jonacartaweb_1790268076808.png",
+      "rating": 80,
+      "roleDescription": "Todoterreno nato",
+      "attributes": {
+        "ritmo": 80,
+        "tiro": 80,
+        "pase": 80,
+        "regate": 80,
+        "defensa": 80,
+        "fisico": 80
+      },
+      "seasonStats": {
+        "matches": 0,
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 0,
+        "redCards": 0,
+        "mvpCount": 0
+      },
+      "status": "Apto",
+      "statusDetail": "",
+      "featured": false
+    },
+    {
+      "id": "p13",
+      "name": "Jorge Ríos",
+      "nickname": "Ríos",
+      "number": 23,
+      "position": "MED",
+      "age": 24,
+      "avatarInitials": "JR",
+      "avatarColorGradient": "from-amber-400 to-amber-200",
+      "photoUrl": "/players/jorgecartaweb_1790264617215.png",
+      "rating": 80,
+      "roleDescription": "El pulmones de obsidiana",
+      "attributes": {
+        "ritmo": 80,
+        "tiro": 80,
+        "pase": 80,
+        "regate": 80,
+        "defensa": 80,
+        "fisico": 80
+      },
+      "seasonStats": {
+        "matches": 0,
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 0,
+        "redCards": 0,
+        "mvpCount": 0
+      },
+      "status": "Apto",
+      "statusDetail": "",
+      "featured": false
+    },
+    {
+      "id": "p14",
+      "name": "Daniel Cortés",
+      "nickname": "Dani",
+      "number": 29,
+      "position": "DEF",
+      "age": 23,
+      "avatarInitials": "DC",
+      "avatarColorGradient": "from-amber-400 to-amber-200",
+      "photoUrl": "/players/daniwebcarta_1790249133541.png",
+      "rating": 80,
+      "roleDescription": "Llegada al área sin gol",
+      "attributes": {
+        "ritmo": 80,
+        "tiro": 80,
+        "pase": 80,
+        "regate": 80,
+        "defensa": 80,
+        "fisico": 80
+      },
+      "seasonStats": {
+        "matches": 0,
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 0,
+        "redCards": 0,
+        "mvpCount": 0
+      },
+      "status": "Apto",
+      "statusDetail": "",
+      "featured": false
+    },
+    {
+      "id": "p15",
+      "name": "Martín Escrivá",
+      "nickname": "Martínx",
+      "number": 67,
+      "position": "MED",
+      "age": 22,
+      "avatarInitials": "ME",
+      "avatarColorGradient": "from-amber-400 to-amber-200",
+      "photoUrl": "/players/martinxcartaweb_1790267277728.png",
+      "rating": 80,
+      "roleDescription": "No sabe ni de que juega pero juega de todo",
+      "attributes": {
+        "ritmo": 80,
+        "tiro": 80,
+        "pase": 80,
+        "regate": 80,
+        "defensa": 80,
+        "fisico": 80
+      },
+      "seasonStats": {
+        "matches": 0,
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 0,
+        "redCards": 0,
+        "mvpCount": 0
+      },
+      "status": "Apto",
+      "statusDetail": "",
+      "featured": false
+    },
+    {
+      "id": "p16",
+      "name": "Sinuhé Moreno",
+      "nickname": "Sinu",
+      "number": 69,
+      "position": "MED",
+      "age": 21,
+      "avatarInitials": "SM",
+      "photoUrl": "/players/sinuhe-moreno.png",
+      "rating": 80,
+      "roleDescription": "El expresso de Jumilla",
+      "attributes": {
+        "ritmo": 80,
+        "pase": 80,
+        "fisico": 80
+      },
+      "seasonStats": {
+        "matches": 0,
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 0,
+        "redCards": 0,
+        "mvpCount": 0
+      },
+      "status": "Apto",
+      "featured": false
+    },
+    {
+      "id": "p17",
+      "name": "Adolfo Sebastián Saldaña",
+      "nickname": "Cuntti",
+      "number": 78,
+      "position": "DEF",
+      "age": 25,
+      "avatarInitials": "AS",
+      "avatarColorGradient": "from-amber-400 to-amber-200",
+      "photoUrl": "/players/adolfowebcarta_1790248877871.png",
+      "rating": 80,
+      "roleDescription": "La locomotora de la zaga",
+      "attributes": {
+        "ritmo": 80,
+        "tiro": 80,
+        "pase": 80,
+        "regate": 80,
+        "defensa": 80,
+        "fisico": 80
+      },
+      "seasonStats": {
+        "matches": 0,
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 0,
+        "redCards": 0,
+        "mvpCount": 0
+      },
+      "status": "Apto",
+      "statusDetail": "",
+      "featured": false
+    }
+  ],
+  "standings": [
+    {
+      "position": 1,
+      "teamCode": "1T",
+      "teamName": "131 Town FC",
+      "isRayo": false,
+      "matchesPlayed": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "goalsFor": 0,
+      "goalsAgainst": 0,
+      "goalDifference": 0,
+      "points": 0,
+      "form": [
+        "V",
+        "V",
+        "E"
+      ],
+      "badgeUrl": "https://ligacomarcal.com/api/media/public/escudo/2026/241ef212-e851-4cd8-b555-00ae49244f75.webp"
+    },
+    {
+      "position": 2,
+      "teamCode": "AB",
+      "teamName": "Aston Birra FC",
+      "isRayo": false,
+      "matchesPlayed": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "goalsFor": 0,
+      "goalsAgainst": 0,
+      "goalDifference": 0,
+      "points": 0,
+      "form": [
+        "V",
+        "V",
+        "E"
+      ],
+      "badgeUrl": "https://ligacomarcal.com/api/media/public/escudo/2026/9431a3e0-6d49-4217-a008-052cfe3010ed.webp"
+    },
+    {
+      "position": 3,
+      "teamCode": "BA",
+      "teamName": "Bankales FC",
+      "isRayo": false,
+      "matchesPlayed": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "goalsFor": 0,
+      "goalsAgainst": 0,
+      "goalDifference": 0,
+      "points": 0,
+      "form": [
+        "V",
+        "V",
+        "E"
+      ],
+      "badgeUrl": "https://ligacomarcal.com/api/media/public/escudo/2026/77b47507-ecab-47e2-8de3-6dffe455c33d.webp"
+    },
+    {
+      "position": 4,
+      "teamCode": "DE",
+      "teamName": "Deceroacien FC",
+      "isRayo": false,
+      "matchesPlayed": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "goalsFor": 0,
+      "goalsAgainst": 0,
+      "goalDifference": 0,
+      "points": 0,
+      "form": [
+        "V",
+        "V",
+        "E"
+      ],
+      "badgeUrl": "https://ligacomarcal.com/api/media/public/escudo/2026/0973e847-5017-40bf-9cca-bc6a2dda77a8.webp"
+    },
+    {
+      "position": 5,
+      "teamCode": "GL",
+      "teamName": "Glorios",
+      "isRayo": false,
+      "matchesPlayed": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "goalsFor": 0,
+      "goalsAgainst": 0,
+      "goalDifference": 0,
+      "points": 0,
+      "form": [
+        "V",
+        "V",
+        "E"
+      ],
+      "badgeUrl": "https://ligacomarcal.com/api/media/public/escudo/2026/06f6a87b-baa2-4b10-a041-499f3ec2a3d6.webp"
+    },
+    {
+      "position": 6,
+      "teamCode": "JM",
+      "teamName": "JM.S FC",
+      "isRayo": false,
+      "matchesPlayed": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "goalsFor": 0,
+      "goalsAgainst": 0,
+      "goalDifference": 0,
+      "points": 0,
+      "form": [
+        "V",
+        "V",
+        "E"
+      ],
+      "badgeUrl": "https://ligacomarcal.com/api/media/public/escudo/2026/cbe3be5a-072b-4e00-bef7-f68adf39807f.webp"
+    },
+    {
+      "position": 7,
+      "teamCode": "NP",
+      "teamName": "Nottingham Por",
+      "isRayo": false,
+      "matchesPlayed": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "goalsFor": 0,
+      "goalsAgainst": 0,
+      "goalDifference": 0,
+      "points": 0,
+      "form": [
+        "V",
+        "V",
+        "E"
+      ],
+      "badgeUrl": "https://ligacomarcal.com/api/media/public/escudo/2026/d7e520cc-e154-42d6-a1eb-157f79c161d8.webp"
+    },
+    {
+      "position": 8,
+      "teamCode": "RP",
+      "teamName": "Rayo Pelón FC",
+      "isRayo": true,
+      "matchesPlayed": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "goalsFor": 0,
+      "goalsAgainst": 0,
+      "goalDifference": 0,
+      "points": 0,
+      "form": [
+        "V",
+        "V",
+        "E"
+      ],
+      "badgeUrl": "https://ligacomarcal.com/api/media/public/escudo/2026/807d5522-2aa5-4264-b9eb-af286eac1055.webp"
+    },
+    {
+      "position": 9,
+      "teamCode": "RA",
+      "teamName": "Royal Academy",
+      "isRayo": false,
+      "matchesPlayed": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "goalsFor": 0,
+      "goalsAgainst": 0,
+      "goalDifference": 0,
+      "points": 0,
+      "form": [
+        "V",
+        "V",
+        "E"
+      ],
+      "badgeUrl": "https://ligacomarcal.com/api/media/public/escudo/2026/527e7e62-bdde-4607-9d9d-1c2ed45a8f09.webp"
+    },
+    {
+      "position": 10,
+      "teamCode": "SE",
+      "teamName": "Sera FC",
+      "isRayo": false,
+      "matchesPlayed": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "goalsFor": 0,
+      "goalsAgainst": 0,
+      "goalDifference": 0,
+      "points": 0,
+      "form": [
+        "V",
+        "V",
+        "E"
+      ],
+      "badgeUrl": "https://ligacomarcal.com/api/media/public/escudo/2026/a576807c-124e-4d64-afdd-ea825d12ec38.webp"
+    },
+    {
+      "position": 11,
+      "teamCode": "UL",
+      "teamName": "Ultimate",
+      "isRayo": false,
+      "matchesPlayed": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "goalsFor": 0,
+      "goalsAgainst": 0,
+      "goalDifference": 0,
+      "points": 0,
+      "form": [
+        "V",
+        "V",
+        "E"
+      ],
+      "badgeUrl": "https://ligacomarcal.com/api/media/public/escudo/2026/f8bd4e73-33c1-42af-a91b-6735bc094a88.webp"
+    },
+    {
+      "position": 12,
+      "teamCode": "VI",
+      "teamName": "Viejentus",
+      "isRayo": false,
+      "matchesPlayed": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "goalsFor": 0,
+      "goalsAgainst": 0,
+      "goalDifference": 0,
+      "points": 0,
+      "form": [
+        "V",
+        "V",
+        "E"
+      ],
+      "badgeUrl": "https://ligacomarcal.com/api/media/public/escudo/2026/c6452596-d6f5-4e4e-a552-6684522c033c.webp"
+    }
+  ],
+  "news": [
+    {
+      "id": "n1",
+      "title": "Parte médico oficial: Evolución del tobillo de Álex \"Galgo\" para el debut liguero",
+      "category": "MEDICO",
+      "categoryLabel": "PARTE MÉDICO OFICIAL",
+      "dateText": "Hace 2 días",
+      "publishedAt": "23 de Septiembre, 2026",
+      "readTime": "3 min",
+      "featured": true,
+      "author": "Servicios Médicos Rayo Pelón",
+      "authorRole": "Cuerpo Médico & Fisioterapia",
+      "imageUrl": "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=1000&q=80",
+      "excerpt": "Tras las exploraciones ecográficas realizadas en la mañana de ayer, se descarta rotura ósea y se confirma un esguince leve de grado 1 en el ligamento lateral externo del tobillo derecho.",
+      "content": "Tras las exploraciones ecográficas y pruebas diagnósticas realizadas en la mañana de ayer a nuestro jugador Álex López (\"Galgo\"), los servicios médicos del club emiten el siguiente informe oficial:\n\n1. Diagnóstico Clínico: Esguince de grado 1 en el ligamento lateral externo del tobillo derecho, producido durante una disputa fortuita de balón en el último entrenamiento preparatorio.\n\n2. Tratamiento y Readaptación: El futbolista ha comenzado sesiones intensivas de fisioterapia, crioterapia y readaptación funcional con el equipo médico del club. Se descarta cualquier tipo de afectación ósea o rotura ligamentosa de mayor gravedad.\n\n3. Plazos de recuperación y Estado Competitivo: Se prevé un período de readaptación de 5 a 7 días. El cuerpo técnico y los servicios médicos valorarán su inclusión en la convocatoria en el entrenamiento previo al trascendental debut de la Jornada 1 frente a Deceroacien FC.\n\nEl club agradece el interés y las muestras de apoyo recibidas por la afición y desea a Álex una pronta y plena vuelta a los terrenos de juego.",
+      "medicalDetails": {
+        "player": "Álex López (\"Galgo\")",
+        "dorsal": 11,
+        "injury": "Esguince de grado 1 en tobillo derecho",
+        "recoveryTime": "5 - 7 días",
+        "currentStatus": "Duda hasta última hora"
+      }
+    },
+    {
+      "id": "n2",
+      "title": "Crónica de Pretemporada: Buenas sensaciones y pólvora afinada antes de la Jornada 1",
+      "category": "CRONICA",
+      "categoryLabel": "CRÓNICA DE PARTIDO",
+      "dateText": "Hace 4 días",
+      "publishedAt": "21 de Septiembre, 2026",
+      "readTime": "4 min",
+      "featured": false,
+      "author": "Gabinete de Prensa",
+      "authorRole": "Comunicación y Redacción",
+      "imageUrl": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1000&q=80",
+      "excerpt": "El Rayo Pelón F7 cierra su fase de preparación veraniega con un balance impecable de solidez táctica y ritmo competitivo de cara al inicio de la Liga Plata.",
+      "content": "El Rayo Pelón F7 ha puesto el punto final a su pretemporada 2026 con sensaciones inmejorables. Sobre el césped del Polideportivo Municipal de Ibi, el equipo dirigido por el cuerpo técnico mostró una intensidad asfixiante y un juego asociativo de muchos quilates.\n\nLos ensayos tácticos han servido para acoplar a las nuevas incorporaciones con la columna vertebral del vestuario. El ritmo de balón en transiciones rápidas y la contundencia en los balones parados auguran una temporada ilusionante para toda la familia del Rayo.\n\nEl vestuario ya cuenta los días para el estreno oficial en la Jornada 1 frente a Deceroacien FC en el campo Climent B. ¡Que empiece a rodar el balón!"
+    },
+    {
+      "id": "n3",
+      "title": "Comunicado Oficial: Apertura del programa de patrocinadores comarcales 26/27",
+      "category": "OFICIAL",
+      "categoryLabel": "COMUNICADO OFICIAL",
+      "dateText": "Hace 1 semana",
+      "publishedAt": "18 de Septiembre, 2026",
+      "readTime": "3 min",
+      "featured": false,
+      "author": "Junta Directiva",
+      "authorRole": "Dirección Institucional",
+      "imageUrl": "https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=1000&q=80",
+      "excerpt": "La junta directiva de Rayo Pelón F7 abre el programa de esponsorización para empresas de Ibi, Castalla, Onil y comarca para la nueva temporada regular 26/27.",
+      "content": "La Junta Directiva del Rayo Pelón F7 hace pública la apertura oficial de la campaña de patrocinio comarcal para la temporada deportiva 2026/2027.\n\nBajo el lema \"Sentimiento, Garra y Rayo\", el club pone a disposición de las empresas y comercios de la Foia de Castalla diferentes modalidades de patrocinio: presencia en las equipaciones oficiales de juego, visibilidad preferente en el portal web y redes sociales del club, y menciones en las crónicas de cada jornada.\n\nLas empresas interesadas pueden ponerse en contacto con la directiva a través del formulario de contacto oficial o vía correo electrónico en contacto@rayopelonf7.es."
+    },
+    {
+      "id": "n4",
+      "title": "Novedades & Fichajes: Presentación de la plantilla definitiva para la Liga Plata",
+      "category": "NOVEDAD",
+      "categoryLabel": "NOVEDADES & FICHAJES",
+      "dateText": "Hace 2 semanas",
+      "publishedAt": "11 de Septiembre, 2026",
+      "readTime": "3 min",
+      "featured": false,
+      "author": "Secretaría Técnica",
+      "authorRole": "Área Deportiva",
+      "imageUrl": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1000&q=80",
+      "excerpt": "El club confirma la inscripción de los 17 guerreros que defenderán la elástica del Rayo Pelón en los 22 compromisos ligueros de la temporada.",
+      "content": "La dirección deportiva del Rayo Pelón F7 confirma que la plantilla para la temporada 2026/2027 queda cerrada con 17 futbolistas inscritos para disputar la Liga Plata de Ibi.\n\nUn bloque equilibrado que combina experiencia, velocidad en bandas y contundencia defensiva. El cuerpo técnico ha destacado el compromiso absoluto de todos los integrantes durante las semanas de preparación estival.\n\nLa plantilla completa ya está disponible para su consulta interactiva con fichas de atributos y estadísticas individuales en la sección oficial de Plantilla."
+    }
+  ],
+  "sponsors": [
+    {
+      "id": "s1",
+      "name": "IBI TOYS FACTORY",
+      "category": "Industria",
+      "icon": "sports_motorsports"
+    },
+    {
+      "id": "s2",
+      "name": "CERVECERÍA LA PLAZA",
+      "category": "Hostelería",
+      "icon": "local_bar"
+    },
+    {
+      "id": "s3",
+      "name": "GYM COMARCAL IBI",
+      "category": "Fitness",
+      "icon": "fitness_center"
+    },
+    {
+      "id": "s4",
+      "name": "MATRICERÍA FOIA",
+      "category": "Ingeniería",
+      "icon": "precision_manufacturing"
+    },
+    {
+      "id": "s5",
+      "name": "ASADOR EL TERCER TIEMPO",
+      "category": "Gastronomía",
+      "icon": "restaurant"
+    },
+    {
+      "id": "s6",
+      "name": "MOTOR IBI SPORT",
+      "category": "Automoción",
+      "icon": "directions_car"
+    }
+  ],
+  "contactMessages": [],
+  "featuredMatch": {
+    "id": "last-match-recap",
+    "matchday": 13,
+    "competition": "Liga Plata de Ibi F7 • Temporada 26/27",
+    "date": "Lunes 18 de Noviembre • 21:00h",
+    "location": "Campo 1 • Polideportivo Municipal de Ibi",
+    "homeTeam": {
+      "name": "RAYO PELÓN F7",
+      "badge": "/escudo.png",
+      "score": 4
+    },
+    "awayTeam": {
+      "name": "IBENSE CF VETERANOS",
+      "badge": "",
+      "score": 2
+    },
+    "mediaType": "video",
+    "videoSourceType": "url",
+    "videoUrl": "",
+    "videoTitle": "Resumen Oficial: Remontada y Goleada del Rayo (4 - 2)",
+    "videoDuration": "06:45",
+    "videoThumbnail": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1200&h=675&q=80",
+    "carouselImages": [
+      "https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1200&h=675&q=80",
+      "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1200&h=675&q=80",
+      "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=1200&h=675&q=80"
+    ],
+    "views": "1.8K visualizaciones",
+    "mvp": "Dani Pérez (3 Goles)",
+    "timeline": [
+      {
+        "minute": "12'",
+        "player": "Dani Pérez",
+        "type": "GOL",
+        "team": "rayo",
+        "text": "Zurdazo cruzado tras asistencia al espacio de El Chino (1-0)"
+      },
+      {
+        "minute": "25'",
+        "player": "Carlos \"El Chino\"",
+        "type": "GOLAZO",
+        "team": "rayo",
+        "text": "Falta directa teledirigida a la mismísima escuadra derecha (2-0)"
+      },
+      {
+        "minute": "31'",
+        "player": "Ibense CF",
+        "type": "GOL",
+        "team": "rival",
+        "text": "Aprovechan un rechace en el área pequeña (2-1)"
+      },
+      {
+        "minute": "38'",
+        "player": "Dani Pérez",
+        "type": "GOL",
+        "team": "rayo",
+        "text": "Remate de cabeza impecable a centro de Javi Verdú (3-1)"
+      },
+      {
+        "minute": "44'",
+        "player": "Marc Alonso",
+        "type": "PARADÓN",
+        "team": "rayo",
+        "text": "Mano a mano salvador estirando el pie derecho"
+      },
+      {
+        "minute": "49'",
+        "player": "Dani Pérez",
+        "type": "HAT-TRICK",
+        "team": "rayo",
+        "text": "Recorte seco ante el central y definición con clase (4-1)"
+      },
+      {
+        "minute": "52'",
+        "player": "Ibense CF",
+        "type": "GOL",
+        "team": "rival",
+        "text": "Disparo lejano ajustado al poste (4-2)"
+      }
+    ],
+    "stats": {
+      "shots": {
+        "home": 16,
+        "away": 8
+      },
+      "shotsOnTarget": {
+        "home": 11,
+        "away": 5
+      },
+      "possession": {
+        "home": "58%",
+        "away": "42%"
+      },
+      "corners": {
+        "home": 7,
+        "away": 3
+      },
+      "fouls": {
+        "home": 5,
+        "away": 9
+      }
+    }
+  },
+  "gallery": [
+    {
+      "id": "fg1",
+      "type": "foto",
+      "title": "Euforia en la grada tras el gol de la victoria",
+      "tag": "J13 vs Ibense",
+      "category": "celebraciones",
+      "date": "18 Nov 2024",
+      "imageUrl": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80",
+      "description": "La afición del Rayo Pelón se volcó bajo los focos de Ibi en el tramo final del encuentro."
+    },
+    {
+      "id": "fg2",
+      "type": "foto",
+      "title": "Disputa aérea en el corazón del área",
+      "tag": "J13 vs Ibense",
+      "category": "partidos",
+      "date": "18 Nov 2024",
+      "imageUrl": "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=800&q=80",
+      "description": "Samu \"Káiser\" imponiendo su ley aérea ante el delantero rival."
+    },
+    {
+      "id": "fg3",
+      "type": "foto",
+      "title": "Piña de equipo antes del pitido inicial",
+      "tag": "Espíritu de Club",
+      "category": "vestuario",
+      "date": "18 Nov 2024",
+      "imageUrl": "https://images.unsplash.com/photo-1526232761682-d26e03ac148e?auto=format&fit=crop&w=800&q=80",
+      "description": "Concentración absoluta y conjura de la plantilla para asegurar los tres puntos."
+    },
+    {
+      "id": "fg4",
+      "type": "foto",
+      "title": "Carlos \"El Chino\" ejecutando la falta magistral",
+      "tag": "Momento Clave",
+      "category": "partidos",
+      "date": "18 Nov 2024",
+      "imageUrl": "https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=800&q=80",
+      "description": "Instante exacto del impacto del balón que acabó alojándose en la escuadra."
+    },
+    {
+      "id": "fg5",
+      "type": "foto",
+      "title": "Celebración del hat-trick con dedicatoria especial",
+      "tag": "Dani Pérez #9",
+      "category": "celebraciones",
+      "date": "18 Nov 2024",
+      "imageUrl": "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?auto=format&fit=crop&w=800&q=80",
+      "description": "Dani señalando el escudo ante los seguidores congregados en el campo 1."
+    },
+    {
+      "id": "fg6",
+      "type": "foto",
+      "title": "Calentamiento de intensidad previa al partido",
+      "tag": "Sesión Nocturna",
+      "category": "entrenos",
+      "date": "15 Nov 2024",
+      "imageUrl": "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?auto=format&fit=crop&w=800&q=80",
+      "description": "Activación muscular y rondos a alta velocidad en el Polideportivo de Ibi."
+    },
+    {
+      "id": "fg7",
+      "type": "foto",
+      "title": "Marc \"El Gato\" volando hacia la cruceta",
+      "tag": "Zamora en Acción",
+      "category": "partidos",
+      "date": "11 Nov 2024",
+      "imageUrl": "https://images.unsplash.com/photo-1551958219-acbc608c6377?auto=format&fit=crop&w=800&q=80",
+      "description": "Estirada fotogénica de nuestro portero titular salvando un disparo a bocajarro."
+    },
+    {
+      "id": "fg8",
+      "type": "foto",
+      "title": "Alegría en el vestuario tras la victoria",
+      "tag": "Tercer Tiempo",
+      "category": "vestuario",
+      "date": "18 Nov 2024",
+      "imageUrl": "https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=800&q=80",
+      "description": "Cánticos y piña de todo el equipo celebrando el 2º puesto en solitario."
+    }
+  ],
+  "clips": [
+    {
+      "id": "c1",
+      "type": "video",
+      "title": "Falta directa a la escuadra de \"El Chino\"",
+      "tag": "GOLAZO DEL MES",
+      "description": "Golazo elegido por la organización de la Liga Plata como el mejor gol de la Jornada 13.",
+      "imageUrl": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80",
+      "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "sourceType": "youtube",
+      "duration": "00:45",
+      "match": "J13 vs Ibense CF",
+      "views": "2.4K views"
+    },
+    {
+      "id": "c2",
+      "type": "video",
+      "title": "Doble parada salvadora de Marc \"El Gato\"",
+      "tag": "PARADÓN DE LA JORNADA",
+      "description": "Mano a mano a quemarropa y reacción instantánea para despejar sobre la misma línea de gol.",
+      "imageUrl": "https://images.unsplash.com/photo-1551958219-acbc608c6377?auto=format&fit=crop&w=800&q=80",
+      "videoUrl": "",
+      "sourceType": "url",
+      "duration": "00:38",
+      "match": "J13 vs Ibense CF",
+      "views": "1.9K views"
+    },
+    {
+      "id": "c3",
+      "type": "video",
+      "title": "El Hat-trick de Dani Pérez con sus 3 definiciones",
+      "tag": "RECITADO GOLEADOR",
+      "description": "Los tres tantos de nuestro pichichi: disparo cruzado, testarazo y recorte de lujo.",
+      "imageUrl": "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?auto=format&fit=crop&w=800&q=80",
+      "videoUrl": "",
+      "sourceType": "url",
+      "duration": "01:25",
+      "match": "J13 vs Ibense CF",
+      "views": "3.1K views"
+    },
+    {
+      "id": "c4",
+      "type": "video",
+      "title": "Sprint de 40 metros y vaselina de Álex \"Galgo\"",
+      "tag": "VELOCIDAD PURA",
+      "description": "Contragolpe letal conducido a más de 30 km/h finalizado con una sutil vaselina.",
+      "imageUrl": "https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=800&q=80",
+      "videoUrl": "",
+      "sourceType": "url",
+      "duration": "00:52",
+      "match": "J11 vs Penya La Foia",
+      "views": "1.6K views"
+    },
+    {
+      "id": "c5",
+      "type": "video",
+      "title": "Recital de regates de Raúl \"El Mago\" en una baldosa",
+      "tag": "CALIDAD F7",
+      "description": "Ruleta marsellesa y caño en banda para habilitar el centro del gol.",
+      "imageUrl": "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=800&q=80",
+      "videoUrl": "",
+      "sourceType": "url",
+      "duration": "00:40",
+      "match": "J12 vs Sporting Foia",
+      "views": "2.1K views"
+    }
+  ],
+  "users": [
+    {
+      "id": "u_dani",
+      "username": "Dani",
+      "passwordHash": "$2b$10$xxkOY5GGA2Q94kXaXGaUUuUalXTQfr7Y.ayhbYNcuVPRQvcalUMGa",
+      "role": "ADMIN",
+      "createdAt": "2026-09-24T19:30:00.000Z",
+      "lastLogin": "2026-09-25T10:59:55.462Z"
+    }
+  ],
+  "matches": [
+    {
+      "id": "m1",
+      "jornada": 1,
+      "local": "Rayo Pelón FC",
+      "visitante": "Deceroacien FC",
+      "dia_semana": "domingo",
+      "fecha": "4 oct",
+      "fecha_iso": "2026-10-04",
+      "hora": "10:00",
+      "campo": "Climent B",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m2",
+      "jornada": 2,
+      "local": "JM.S FC",
+      "visitante": "Rayo Pelón FC",
+      "dia_semana": "domingo",
+      "fecha": "18 oct",
+      "fecha_iso": "2026-10-18",
+      "hora": "10:00",
+      "campo": "Fco Vilaplana Mariel B",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m3",
+      "jornada": 3,
+      "local": "Rayo Pelón FC",
+      "visitante": "Aston Birra FC",
+      "dia_semana": "domingo",
+      "fecha": "25 oct",
+      "fecha_iso": "2026-10-25",
+      "hora": "09:00",
+      "campo": "Fco Vilaplana Mariel B",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m4",
+      "jornada": 4,
+      "local": "Glorios",
+      "visitante": "Rayo Pelón FC",
+      "dia_semana": "domingo",
+      "fecha": "8 nov",
+      "fecha_iso": "2026-11-08",
+      "hora": "10:00",
+      "campo": "Climent B",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m5",
+      "jornada": 5,
+      "local": "Rayo Pelón FC",
+      "visitante": "Bankales FC",
+      "dia_semana": "domingo",
+      "fecha": "15 nov",
+      "fecha_iso": "2026-11-15",
+      "hora": "09:00",
+      "campo": "Fco Vilaplana Mariel B",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m6",
+      "jornada": 6,
+      "local": "Ultimate",
+      "visitante": "Rayo Pelón FC",
+      "dia_semana": "domingo",
+      "fecha": "22 nov",
+      "fecha_iso": "2026-11-22",
+      "hora": "10:00",
+      "campo": "Climent A",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m7",
+      "jornada": 7,
+      "local": "Rayo Pelón FC",
+      "visitante": "Royal Academy",
+      "dia_semana": "viernes",
+      "fecha": "27 nov",
+      "fecha_iso": "2026-11-27",
+      "hora": "22:00",
+      "campo": "Fco Vilaplana Mariel B",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m8",
+      "jornada": 8,
+      "local": "Sera FC",
+      "visitante": "Rayo Pelón FC",
+      "dia_semana": "domingo",
+      "fecha": "13 dic",
+      "fecha_iso": "2026-12-13",
+      "hora": "09:00",
+      "campo": "Fco Vilaplana Mariel A",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m9",
+      "jornada": 9,
+      "local": "Nottingham Por",
+      "visitante": "Rayo Pelón FC",
+      "dia_semana": "domingo",
+      "fecha": "10 ene",
+      "fecha_iso": "2027-01-10",
+      "hora": "09:00",
+      "campo": "Fco Vilaplana Mariel B",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m10",
+      "jornada": 10,
+      "local": "Rayo Pelón FC",
+      "visitante": "131 Town FC",
+      "dia_semana": "domingo",
+      "fecha": "17 ene",
+      "fecha_iso": "2027-01-17",
+      "hora": "10:00",
+      "campo": "Climent B",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m11",
+      "jornada": 11,
+      "local": "Viejentus",
+      "visitante": "Rayo Pelón FC",
+      "dia_semana": "domingo",
+      "fecha": "24 ene",
+      "fecha_iso": "2027-01-24",
+      "hora": "09:00",
+      "campo": "Fco Vilaplana Mariel A",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m12",
+      "jornada": 12,
+      "local": "Deceroacien FC",
+      "visitante": "Rayo Pelón FC",
+      "dia_semana": "domingo",
+      "fecha": "31 ene",
+      "fecha_iso": "2027-01-31",
+      "hora": "09:00",
+      "campo": "Climent B",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m13",
+      "jornada": 13,
+      "local": "Rayo Pelón FC",
+      "visitante": "JM.S FC",
+      "dia_semana": "domingo",
+      "fecha": "7 feb",
+      "fecha_iso": "2027-02-07",
+      "hora": "10:00",
+      "campo": "Climent A",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m14",
+      "jornada": 14,
+      "local": "Aston Birra FC",
+      "visitante": "Rayo Pelón FC",
+      "dia_semana": "domingo",
+      "fecha": "21 feb",
+      "fecha_iso": "2027-02-21",
+      "hora": "10:00",
+      "campo": "Fco Vilaplana Mariel B",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m15",
+      "jornada": 15,
+      "local": "Rayo Pelón FC",
+      "visitante": "Glorios",
+      "dia_semana": "domingo",
+      "fecha": "28 feb",
+      "fecha_iso": "2027-02-28",
+      "hora": "10:00",
+      "campo": "Climent A",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m16",
+      "jornada": 16,
+      "local": "Bankales FC",
+      "visitante": "Rayo Pelón FC",
+      "dia_semana": "viernes",
+      "fecha": "5 mar",
+      "fecha_iso": "2027-03-05",
+      "hora": "21:00",
+      "campo": "Fco Vilaplana Mariel A",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m17",
+      "jornada": 17,
+      "local": "Rayo Pelón FC",
+      "visitante": "Ultimate",
+      "dia_semana": "domingo",
+      "fecha": "14 mar",
+      "fecha_iso": "2027-03-14",
+      "hora": "09:00",
+      "campo": "Climent A",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m18",
+      "jornada": 18,
+      "local": "Royal Academy",
+      "visitante": "Rayo Pelón FC",
+      "dia_semana": "viernes",
+      "fecha": "2 abr",
+      "fecha_iso": "2027-04-02",
+      "hora": "22:00",
+      "campo": "Fco Vilaplana Mariel B",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m19",
+      "jornada": 19,
+      "local": "Rayo Pelón FC",
+      "visitante": "Sera FC",
+      "dia_semana": "domingo",
+      "fecha": "11 abr",
+      "fecha_iso": "2027-04-11",
+      "hora": "09:00",
+      "campo": "Fco Vilaplana Mariel B",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m20",
+      "jornada": 20,
+      "local": "Rayo Pelón FC",
+      "visitante": "Nottingham Por",
+      "dia_semana": "domingo",
+      "fecha": "18 abr",
+      "fecha_iso": "2027-04-18",
+      "hora": "09:00",
+      "campo": "Fco Vilaplana Mariel A",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m21",
+      "jornada": 21,
+      "local": "131 Town FC",
+      "visitante": "Rayo Pelón FC",
+      "dia_semana": "viernes",
+      "fecha": "30 abr",
+      "fecha_iso": "2027-04-30",
+      "hora": "21:00",
+      "campo": "Fco Vilaplana Mariel B",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    },
+    {
+      "id": "m22",
+      "jornada": 22,
+      "local": "Rayo Pelón FC",
+      "visitante": "Viejentus",
+      "dia_semana": "domingo",
+      "fecha": "16 may",
+      "fecha_iso": "2027-05-16",
+      "hora": "09:00",
+      "campo": "Fco Vilaplana Mariel B",
+      "jugado": false,
+      "golesLocal": null,
+      "golesVisitante": null,
+      "notas": ""
+    }
+  ]
+}

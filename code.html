@@ -1,0 +1,1907 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Rayo Pelón F7 | Sitio Oficial - Liga Plata de Ibi</title>
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&amp;family=Inter:wght@300;400;500;600;700&amp;family=Oswald:wght@400;500;600;700&amp;display=swap"
+    rel="stylesheet">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <!-- Material Symbols & Icons -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            rayo: {
+              bone: '#E2E5E4',
+              gold: '#C5A059',
+              goldLight: '#E5C985',
+              goldDark: '#8F6E2C',
+              goldMuted: 'rgba(197, 160, 89, 0.15)',
+              navy: '#0B0C1A',
+              navyCard: '#101226',
+              navyBorder: 'rgba(255, 255, 255, 0.08)',
+              burgundy: '#87141E',
+              burgundyDark: '#4A080D',
+              carbon: '#07070F'
+            }
+          },
+          fontFamily: {
+            display: ['Oswald', 'sans-serif'],
+            sans: ['Inter', 'sans-serif'],
+            crest: ['Cinzel', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* 3D Flip Card Mechanics */
+    .perspective-1000 {
+      perspective: 1200px;
+    }
+
+    .transform-style-3d {
+      transform-style: preserve-3d;
+    }
+
+    .backface-hidden {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+
+    .player-card:hover .card-inner,
+    .player-card.is-flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    /* Glassmorphism Ultra-Clean */
+    .elite-card {
+      background: linear-gradient(180deg, rgba(20, 22, 45, 0.72) 0%, rgba(11, 12, 26, 0.88) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .elite-gold-card {
+      background: linear-gradient(180deg, rgba(28, 29, 56, 0.85) 0%, rgba(14, 15, 32, 0.95) 100%);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(197, 160, 89, 0.35);
+    }
+
+    .text-champagne-gradient {
+      background: linear-gradient(135deg, #FBF4D8 0%, #D8B76E 50%, #A67C37 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #07070F;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #2A2D48;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #C5A059;
+    }
+  </style>
+</head>
+
+<body
+  class="bg-rayo-carbon text-rayo-bone font-sans antialiased overflow-x-hidden selection:bg-rayo-gold selection:text-black">
+  <!-- ========================================== -->
+  <!-- 1. HEADER / NAVEGACIÓN GLOBAL              -->
+  <!-- ========================================== -->
+  <header
+    class="fixed top-0 left-0 w-full z-50 bg-[#07070F]/85 backdrop-blur-md border-b border-white/[0.08] transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <!-- Brand Logo & Title -->
+      <a class="flex items-center gap-3.5 group" href="#inicio">
+        <div class="w-10 h-10 relative flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
+          <img alt="Escudo Rayo Pelón F7"
+            class="w-full h-full object-contain filter drop-shadow-[0_2px_10px_rgba(197,160,89,0.3)]"
+            src="https://lh3.googleusercontent.com/aida/AEtjO1U5dnlW27XzoEzYzSxfxWVG88y6vWcZ9OfLut3Y2Xk9z0sYxqFQSdK99Rwg3u1GkWh9EWCpAFaMD_t8Sm4W_KUAiLWSGCbWb2LL0BYr8qqzeNzDIkV185TdQ-N_c-FJ1yMjdwFu7aiDvMAWLWmBD35z6ynvDcm4H0kNysv6e5ehd4CNAeoBZsFgWQiIEtjwK2F3Ztnug9mVDBcPFqQbf7f0NOeIeZTr8shWchgtbw">
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span
+              class="font-display tracking-[0.14em] text-xl font-bold text-white group-hover:text-rayo-gold transition-colors">RAYO
+              PELÓN</span>
+            <span
+              class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-rayo-burgundy text-white tracking-widest border border-rayo-burgundy/40">F7</span>
+          </div>
+          <p class="text-[10px] font-medium text-rayo-gold/80 tracking-[0.2em] uppercase">Liga Plata Ibi F7 • Liga
+            Comarcal</p>
+        </div>
+      </a>
+      <!-- Desktop Navigation Menu -->
+      <nav class="hidden md:flex items-center gap-0.5 lg:gap-1">
+        <a class="nav-link px-3.5 py-2 text-xs font-semibold tracking-wider text-rayo-bone/80 hover:text-white transition-colors rounded hover:bg-white/[0.04] uppercase"
+          href="#inicio">Inicio</a>
+        <a class="nav-link px-3.5 py-2 text-xs font-semibold tracking-wider text-rayo-bone/80 hover:text-white transition-colors rounded hover:bg-white/[0.04] uppercase"
+          href="#plantilla">Plantilla</a>
+        <a class="nav-link px-3.5 py-2 text-xs font-semibold tracking-wider text-rayo-bone/80 hover:text-white transition-colors rounded hover:bg-white/[0.04] uppercase"
+          href="#clasificacion">Clasificación</a>
+        <a class="nav-link px-3.5 py-2 text-xs font-semibold tracking-wider text-rayo-bone/80 hover:text-white transition-colors rounded hover:bg-white/[0.04] uppercase"
+          href="#equipaciones">Equipaciones</a>
+        <a class="nav-link px-3.5 py-2 text-xs font-semibold tracking-wider text-rayo-bone/80 hover:text-white transition-colors rounded hover:bg-white/[0.04] uppercase"
+          href="#multimedia">Multimedia</a>
+        <a class="nav-link px-3.5 py-2 text-xs font-semibold tracking-wider text-rayo-bone/80 hover:text-white transition-colors rounded hover:bg-white/[0.04] uppercase"
+          href="#noticias">Noticias</a>
+        <a class="nav-link px-3.5 py-2 text-xs font-semibold tracking-wider text-rayo-bone/80 hover:text-white transition-colors rounded hover:bg-white/[0.04] uppercase"
+          href="#contacto">Contacto</a>
+      </nav>
+      <!-- Action Buttons & Match Status -->
+      <div class="hidden lg:flex items-center gap-4">
+        <div
+          class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-xs">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-[11px] uppercase tracking-wider text-rayo-bone/70">J14:</span>
+          <span class="text-[11px] font-bold text-rayo-gold">Lun 21:00h</span>
+        </div>
+        <a class="px-4 py-2 rounded font-display font-semibold uppercase tracking-[0.12em] text-xs bg-rayo-gold hover:bg-rayo-goldLight text-[#07070F] transition-all duration-200 flex items-center gap-1.5 shadow-sm"
+          href="#contacto">
+          <span class="material-symbols-outlined text-sm font-semibold">handshake</span>
+          Patrocinadores
+        </a>
+      </div>
+      <!-- Mobile Hamburger Button -->
+      <button aria-label="Abrir menú"
+        class="md:hidden p-2 rounded text-rayo-bone hover:text-rayo-gold hover:bg-white/5 transition-colors"
+        id="mobile-menu-btn">
+        <span class="material-symbols-outlined text-2xl">menu</span>
+      </button>
+    </div>
+    <!-- Mobile Dropdown Menu -->
+    <div class="hidden md:hidden bg-[#0B0C1A] border-b border-white/[0.08] px-6 py-4 space-y-2" id="mobile-menu">
+      <a class="block py-2 text-xs font-semibold tracking-wider uppercase text-rayo-bone hover:text-rayo-gold"
+        href="#inicio">Inicio</a>
+      <a class="block py-2 text-xs font-semibold tracking-wider uppercase text-rayo-bone hover:text-rayo-gold"
+        href="#plantilla">Plantilla</a>
+      <a class="block py-2 text-xs font-semibold tracking-wider uppercase text-rayo-bone hover:text-rayo-gold"
+        href="#clasificacion">Clasificación</a>
+      <a class="block py-2 text-xs font-semibold tracking-wider uppercase text-rayo-bone hover:text-rayo-gold"
+        href="#equipaciones">Equipaciones</a>
+      <a class="block py-2 text-xs font-semibold tracking-wider uppercase text-rayo-bone hover:text-rayo-gold"
+        href="#multimedia">Multimedia</a>
+      <a class="block py-2 text-xs font-semibold tracking-wider uppercase text-rayo-bone hover:text-rayo-gold"
+        href="#noticias">Noticias</a>
+      <a class="block py-2 text-xs font-semibold tracking-wider uppercase text-rayo-bone hover:text-rayo-gold"
+        href="#contacto">Contacto</a>
+      <div class="pt-3 border-t border-white/10 flex flex-col gap-3">
+        <a class="w-full text-center py-2.5 rounded font-display font-semibold uppercase tracking-wider text-xs bg-rayo-gold text-rayo-carbon"
+          href="#contacto">Hazte Patrocinador</a>
+      </div>
+    </div>
+  </header>
+  <main class="pt-20">
+    <!-- ========================================== -->
+    <!-- 2. HERO SECTION & BROADCAST SCOREBOARD      -->
+    <!-- ========================================== -->
+    <section class="relative min-h-[92vh] flex items-center justify-center overflow-hidden py-16" id="inicio">
+      <!-- Background Pitch Image with Premium Cinematic Vignette -->
+      <div class="absolute inset-0 z-0">
+        <img alt="Plantilla Rayo Pelón F7 al Atardecer"
+          class="w-full h-full object-cover object-center filter brightness-45 contrast-110 scale-100"
+          src="hero-team.jpg">
+        <div class="absolute inset-0 bg-gradient-to-t from-rayo-carbon via-rayo-carbon/75 to-rayo-carbon/50"></div>
+        <div
+          class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-transparent via-[#07070F]/60 to-rayo-carbon">
+        </div>
+      </div>
+      <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-8">
+        <!-- League Tag & Club Motto -->
+        <div
+          class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.1] mb-6 backdrop-blur-md">
+          <span class="w-2 h-2 rounded-full bg-rayo-gold"></span>
+          <span class="font-display uppercase tracking-[0.16em] text-xs font-semibold text-rayo-bone/90">LIGA PLATA DE
+            IBI F7 • TEMPORADA 2026/27</span>
+          <span
+            class="px-1.5 py-0.5 rounded bg-rayo-burgundy text-[9px] font-bold uppercase text-white tracking-widest">OFICIAL</span>
+        </div>
+        <!-- Big Impactful Headline -->
+        <h1
+          class="font-display font-bold text-5xl sm:text-7xl lg:text-8xl tracking-tight uppercase leading-[0.95] mb-5">
+          SENTIMIENTO, <br class="hidden sm:inline">
+          <span class="text-champagne-gradient">GARRA Y RAYO</span>
+        </h1>
+        <!-- Slogan -->
+        <p class="max-w-2xl mx-auto text-sm sm:text-base font-normal text-rayo-bone/70 mb-10 leading-relaxed">
+          La pasión del fútbol 7 sobre el césped de Ibi. Humildad en el vestuario, velocidad de rayo en el campo y
+          orgullo en cada disputa de balón.
+        </p>
+        <!-- CTA Buttons -->
+        <div class="flex flex-wrap items-center justify-center gap-3.5 mb-14">
+          <a class="px-7 py-3 rounded font-display text-xs font-bold uppercase tracking-[0.14em] bg-rayo-gold hover:bg-rayo-goldLight text-rayo-carbon transition-all duration-200 flex items-center gap-2 shadow-lg"
+            href="#plantilla">
+            <span class="material-symbols-outlined text-base">groups</span>
+            Conoce la Plantilla
+          </a>
+          <a class="px-7 py-3 rounded font-display text-xs font-bold uppercase tracking-[0.14em] bg-white/[0.06] hover:bg-white/[0.1] text-white border border-white/[0.12] hover:border-rayo-gold/40 transition-all duration-200 flex items-center gap-2 backdrop-blur-sm"
+            href="#clasificacion">
+            <span class="material-symbols-outlined text-base">leaderboard</span>
+            Ver Clasificación
+          </a>
+        </div>
+        <!-- Match Center Floating Card (UEFA Broadcast Style) -->
+        <div class="max-w-4xl mx-auto elite-card rounded-xl p-5 sm:p-6 shadow-2xl relative border border-white/[0.1]">
+          <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+            <!-- Último Resultado -->
+            <div class="flex items-center gap-4 flex-1 text-left w-full md:w-auto">
+              <div
+                class="w-12 h-12 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-rayo-gold flex-shrink-0">
+                <span class="material-symbols-outlined text-2xl">sports_soccer</span>
+              </div>
+              <div>
+                <span
+                  class="text-[10px] font-semibold tracking-[0.15em] text-emerald-400 uppercase flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> ÚLTIMA JORNADA (J13)
+                </span>
+                <p class="font-display font-bold text-lg text-white mt-0.5 tracking-wide">RAYO PELÓN <span
+                    class="text-rayo-gold mx-1">4 - 2</span> IBENSE CF</p>
+                <p class="text-xs text-rayo-bone/60">Hat-trick de Dani + Golazo de Chino</p>
+              </div>
+            </div>
+            <!-- Divisor Vertical -->
+            <div class="hidden md:block w-px h-12 bg-white/[0.08]"></div>
+            <!-- Próximo Partido & Countdown -->
+            <div class="flex items-center gap-4 flex-1 justify-between md:justify-end w-full md:w-auto">
+              <div class="text-left md:text-right">
+                <span class="text-[10px] font-semibold tracking-[0.15em] text-rayo-gold uppercase">PRÓXIMO COMPROMISO
+                  (J14)</span>
+                <p class="font-display font-bold text-lg text-white mt-0.5 tracking-wide">RAYO PELÓN <span
+                    class="text-white/40 font-normal">vs</span> LOS GALÁCTICOS IBI</p>
+                <p class="text-xs text-rayo-bone/60 flex items-center md:justify-end gap-1 mt-0.5">
+                  <span class="material-symbols-outlined text-[13px] text-rayo-gold">location_on</span>
+                  Campo 1 • Polideportivo Ibi (Lunes 21:00h)
+                </p>
+              </div>
+              <div
+                class="px-3.5 py-2 rounded bg-rayo-burgundy/40 border border-rayo-burgundy/60 text-center flex-shrink-0">
+                <span class="block text-[9px] font-bold text-white/80 uppercase tracking-widest">Faltan</span>
+                <span class="font-display text-base font-bold text-white" id="countdown-timer">2d 04h</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- ========================================== -->
+    <!-- 3. CLASIFICACIÓN EN DIRECTO (WIDGET LIGA)  -->
+    <!-- ========================================== -->
+    <section class="py-20 relative bg-rayo-carbon border-t border-white/[0.06]" id="clasificacion">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+          <div>
+            <div
+              class="inline-flex items-center gap-2 text-rayo-gold text-xs font-semibold uppercase tracking-[0.18em] mb-1.5">
+              <span class="material-symbols-outlined text-sm">emoji_events</span>
+              TABLA OFICIAL EN TIEMPO REAL
+            </div>
+            <h2 class="font-display text-3xl sm:text-4xl font-bold uppercase text-white tracking-tight">
+              LIGA PLATA <span class="text-champagne-gradient">IBI F7</span>
+            </h2>
+            <p class="text-xs text-rayo-bone/60 mt-0.5">Temporada Regular Comarcal • 10 Equipos Participantes</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <span
+              class="px-2.5 py-1 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Zona Ascenso Oro (1º, 2º y 3º)
+            </span>
+          </div>
+        </div>
+        <!-- Tabla Estilizada Modo Opta / SofaScore -->
+        <div class="elite-card rounded-lg overflow-hidden border border-white/[0.08] shadow-xl">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr
+                  class="bg-[#0A0A16] text-[10px] font-display uppercase tracking-[0.16em] text-rayo-bone/50 border-b border-white/[0.06]">
+                  <th class="py-3 px-4 text-center font-normal">POS</th>
+                  <th class="py-3 px-4 font-normal">EQUIPO</th>
+                  <th class="py-3 px-3 text-center font-normal">PJ</th>
+                  <th class="py-3 px-3 text-center font-normal">PG</th>
+                  <th class="py-3 px-3 text-center font-normal">PE</th>
+                  <th class="py-3 px-3 text-center font-normal">PP</th>
+                  <th class="py-3 px-3 text-center font-normal">GF</th>
+                  <th class="py-3 px-3 text-center font-normal">GC</th>
+                  <th class="py-3 px-3 text-center font-normal">DIF</th>
+                  <th class="py-3 px-5 text-center font-bold text-white">PTS</th>
+                  <th class="py-3 px-4 text-center font-normal">FORMA</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-white/[0.04] text-xs font-sans">
+                <tr class="hover:bg-white/[0.02] transition-colors">
+                  <td class="py-3 px-4 text-center font-display font-semibold text-emerald-400 text-sm">01</td>
+                  <td class="py-3 px-4 font-medium text-white flex items-center gap-3">
+                    <div
+                      class="w-7 h-7 rounded bg-white/[0.04] border border-white/[0.08] p-0.5 flex items-center justify-center flex-shrink-0">
+                      <img alt="131 Town FC" class="w-full h-full object-contain"
+                        src="https://ligacomarcal.com/api/media/public/escudo/2026/241ef212-e851-4cd8-b555-00ae49244f75.webp">
+                    </div>
+                    <span class="text-white/90 font-medium">131 Town FC</span>
+                  </td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/70">0</td>
+                  <td class="py-3 px-3 text-center text-emerald-400">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/80">0</td>
+                  <td class="py-3 px-3 text-center text-rose-400">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/60">0</td>
+                  <td class="py-3 px-5 text-center font-display font-bold text-base text-white">0</td>
+                  <td class="py-3 px-4 text-center">
+                    <span class="inline-flex gap-1 text-[9px] font-bold">
+                      <span
+                        class="w-4 h-4 rounded bg-emerald-600/70 text-white flex items-center justify-center">V</span>
+                      <span class="w-4 h-4 rounded bg-amber-500/70 text-white flex items-center justify-center">E</span>
+                      <span class="w-4 h-4 rounded bg-rose-600/70 text-white flex items-center justify-center">D</span>
+                    </span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-white/[0.02] transition-colors">
+                  <td class="py-3 px-4 text-center font-display font-semibold text-emerald-400 text-sm">02</td>
+                  <td class="py-3 px-4 font-medium text-white flex items-center gap-3">
+                    <div
+                      class="w-7 h-7 rounded bg-white/[0.04] border border-white/[0.08] p-0.5 flex items-center justify-center flex-shrink-0">
+                      <img alt="Aston Birra FC" class="w-full h-full object-contain"
+                        src="https://ligacomarcal.com/api/media/public/escudo/2026/9431a3e0-6d49-4217-a008-052cfe3010ed.webp">
+                    </div>
+                    <span class="text-white/90 font-medium">Aston Birra FC</span>
+                  </td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/70">0</td>
+                  <td class="py-3 px-3 text-center text-emerald-400">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/80">0</td>
+                  <td class="py-3 px-3 text-center text-rose-400">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/60">0</td>
+                  <td class="py-3 px-5 text-center font-display font-bold text-base text-white">0</td>
+                  <td class="py-3 px-4 text-center">
+                    <span class="inline-flex gap-1 text-[9px] font-bold">
+                      <span
+                        class="w-4 h-4 rounded bg-emerald-600/70 text-white flex items-center justify-center">V</span>
+                      <span class="w-4 h-4 rounded bg-amber-500/70 text-white flex items-center justify-center">E</span>
+                      <span class="w-4 h-4 rounded bg-rose-600/70 text-white flex items-center justify-center">D</span>
+                    </span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-white/[0.02] transition-colors">
+                  <td class="py-3 px-4 text-center font-display font-semibold text-white/70 text-sm">03</td>
+                  <td class="py-3 px-4 font-medium text-white flex items-center gap-3">
+                    <div
+                      class="w-7 h-7 rounded bg-white/[0.04] border border-white/[0.08] p-0.5 flex items-center justify-center flex-shrink-0">
+                      <img alt="Bankales FC" class="w-full h-full object-contain"
+                        src="https://ligacomarcal.com/api/media/public/escudo/2026/77b47507-ecab-47e2-8de3-6dffe455c33d.webp">
+                    </div>
+                    <span class="text-white/90 font-medium">Bankales FC</span>
+                  </td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/70">0</td>
+                  <td class="py-3 px-3 text-center text-emerald-400">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/80">0</td>
+                  <td class="py-3 px-3 text-center text-rose-400">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/60">0</td>
+                  <td class="py-3 px-5 text-center font-display font-bold text-base text-white">0</td>
+                  <td class="py-3 px-4 text-center">
+                    <span class="inline-flex gap-1 text-[9px] font-bold">
+                      <span
+                        class="w-4 h-4 rounded bg-emerald-600/70 text-white flex items-center justify-center">V</span>
+                      <span class="w-4 h-4 rounded bg-amber-500/70 text-white flex items-center justify-center">E</span>
+                      <span class="w-4 h-4 rounded bg-rose-600/70 text-white flex items-center justify-center">D</span>
+                    </span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-white/[0.02] transition-colors">
+                  <td class="py-3 px-4 text-center font-display font-semibold text-white/70 text-sm">04</td>
+                  <td class="py-3 px-4 font-medium text-white flex items-center gap-3">
+                    <div
+                      class="w-7 h-7 rounded bg-white/[0.04] border border-white/[0.08] p-0.5 flex items-center justify-center flex-shrink-0">
+                      <img alt="Deceroacien FC" class="w-full h-full object-contain"
+                        src="https://ligacomarcal.com/api/media/public/escudo/2026/0973e847-5017-40bf-9cca-bc6a2dda77a8.webp">
+                    </div>
+                    <span class="text-white/90 font-medium">Deceroacien FC</span>
+                  </td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/70">0</td>
+                  <td class="py-3 px-3 text-center text-emerald-400">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/80">0</td>
+                  <td class="py-3 px-3 text-center text-rose-400">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/60">0</td>
+                  <td class="py-3 px-5 text-center font-display font-bold text-base text-white">0</td>
+                  <td class="py-3 px-4 text-center">
+                    <span class="inline-flex gap-1 text-[9px] font-bold">
+                      <span
+                        class="w-4 h-4 rounded bg-emerald-600/70 text-white flex items-center justify-center">V</span>
+                      <span class="w-4 h-4 rounded bg-amber-500/70 text-white flex items-center justify-center">E</span>
+                      <span class="w-4 h-4 rounded bg-rose-600/70 text-white flex items-center justify-center">D</span>
+                    </span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-white/[0.02] transition-colors">
+                  <td class="py-3 px-4 text-center font-display font-semibold text-white/70 text-sm">05</td>
+                  <td class="py-3 px-4 font-medium text-white flex items-center gap-3">
+                    <div
+                      class="w-7 h-7 rounded bg-white/[0.04] border border-white/[0.08] p-0.5 flex items-center justify-center flex-shrink-0">
+                      <img alt="Glorios" class="w-full h-full object-contain"
+                        src="https://ligacomarcal.com/api/media/public/escudo/2026/06f6a87b-baa2-4b10-a041-499f3ec2a3d6.webp">
+                    </div>
+                    <span class="text-white/90 font-medium">Glorios</span>
+                  </td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/70">0</td>
+                  <td class="py-3 px-3 text-center text-emerald-400">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/80">0</td>
+                  <td class="py-3 px-3 text-center text-rose-400">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/60">0</td>
+                  <td class="py-3 px-5 text-center font-display font-bold text-base text-white">0</td>
+                  <td class="py-3 px-4 text-center">
+                    <span class="inline-flex gap-1 text-[9px] font-bold">
+                      <span
+                        class="w-4 h-4 rounded bg-emerald-600/70 text-white flex items-center justify-center">V</span>
+                      <span class="w-4 h-4 rounded bg-amber-500/70 text-white flex items-center justify-center">E</span>
+                      <span class="w-4 h-4 rounded bg-rose-600/70 text-white flex items-center justify-center">D</span>
+                    </span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-white/[0.02] transition-colors">
+                  <td class="py-3 px-4 text-center font-display font-semibold text-white/70 text-sm">06</td>
+                  <td class="py-3 px-4 font-medium text-white flex items-center gap-3">
+                    <div
+                      class="w-7 h-7 rounded bg-white/[0.04] border border-white/[0.08] p-0.5 flex items-center justify-center flex-shrink-0">
+                      <img alt="JM.S FC" class="w-full h-full object-contain"
+                        src="https://ligacomarcal.com/api/media/public/escudo/2026/cbe3be5a-072b-4e00-bef7-f68adf39807f.webp">
+                    </div>
+                    <span class="text-white/90 font-medium">JM.S FC</span>
+                  </td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/70">0</td>
+                  <td class="py-3 px-3 text-center text-emerald-400">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/80">0</td>
+                  <td class="py-3 px-3 text-center text-rose-400">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/60">0</td>
+                  <td class="py-3 px-5 text-center font-display font-bold text-base text-white">0</td>
+                  <td class="py-3 px-4 text-center">
+                    <span class="inline-flex gap-1 text-[9px] font-bold">
+                      <span
+                        class="w-4 h-4 rounded bg-emerald-600/70 text-white flex items-center justify-center">V</span>
+                      <span class="w-4 h-4 rounded bg-amber-500/70 text-white flex items-center justify-center">E</span>
+                      <span class="w-4 h-4 rounded bg-rose-600/70 text-white flex items-center justify-center">D</span>
+                    </span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-white/[0.02] transition-colors">
+                  <td class="py-3 px-4 text-center font-display font-semibold text-white/70 text-sm">07</td>
+                  <td class="py-3 px-4 font-medium text-white flex items-center gap-3">
+                    <div
+                      class="w-7 h-7 rounded bg-white/[0.04] border border-white/[0.08] p-0.5 flex items-center justify-center flex-shrink-0">
+                      <img alt="Nottingham Por" class="w-full h-full object-contain"
+                        src="https://ligacomarcal.com/api/media/public/escudo/2026/d7e520cc-e154-42d6-a1eb-157f79c161d8.webp">
+                    </div>
+                    <span class="text-white/90 font-medium">Nottingham Por</span>
+                  </td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/70">0</td>
+                  <td class="py-3 px-3 text-center text-emerald-400">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/80">0</td>
+                  <td class="py-3 px-3 text-center text-rose-400">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/60">0</td>
+                  <td class="py-3 px-5 text-center font-display font-bold text-base text-white">0</td>
+                  <td class="py-3 px-4 text-center">
+                    <span class="inline-flex gap-1 text-[9px] font-bold">
+                      <span
+                        class="w-4 h-4 rounded bg-emerald-600/70 text-white flex items-center justify-center">V</span>
+                      <span class="w-4 h-4 rounded bg-amber-500/70 text-white flex items-center justify-center">E</span>
+                      <span class="w-4 h-4 rounded bg-rose-600/70 text-white flex items-center justify-center">D</span>
+                    </span>
+                  </td>
+                </tr>
+                <tr
+                  class="bg-gradient-to-r from-rayo-gold/[0.14] via-rayo-navy/[0.85] to-rayo-gold/[0.08] border-y border-rayo-gold/30">
+                  <td class="py-3 px-4 text-center font-display font-bold text-rayo-gold text-base">08</td>
+                  <td class="py-3 px-4 font-semibold text-white flex items-center gap-3">
+                    <div
+                      class="w-8 h-8 rounded p-0.5 bg-rayo-gold/20 border border-rayo-gold/40 flex items-center justify-center flex-shrink-0">
+                      <img alt="Rayo Pelón F7" class="w-full h-full object-contain" src="/escudo.png">
+                    </div>
+                    <div>
+                      <span class="font-display text-sm tracking-wider font-bold text-white">Rayo Pelón FC</span>
+                      <span
+                        class="ml-2 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-rayo-gold text-rayo-carbon">NUESTRO
+                        CLUB</span>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/70">0</td>
+                  <td class="py-3 px-3 text-center text-emerald-400">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/80">0</td>
+                  <td class="py-3 px-3 text-center text-rose-400">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/60">0</td>
+                  <td class="py-3 px-5 text-center font-display font-bold text-base text-rayo-gold">0</td>
+                  <td class="py-3 px-4 text-center">
+                    <span class="inline-flex gap-1 text-[9px] font-bold">
+                      <span class="w-4 h-4 rounded bg-emerald-600 text-white flex items-center justify-center">V</span>
+                      <span class="w-4 h-4 rounded bg-emerald-600 text-white flex items-center justify-center">V</span>
+                      <span class="w-4 h-4 rounded bg-emerald-600 text-white flex items-center justify-center">V</span>
+                    </span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-white/[0.02] transition-colors">
+                  <td class="py-3 px-4 text-center font-display font-semibold text-white/70 text-sm">09</td>
+                  <td class="py-3 px-4 font-medium text-white flex items-center gap-3">
+                    <div
+                      class="w-7 h-7 rounded bg-white/[0.04] border border-white/[0.08] p-0.5 flex items-center justify-center flex-shrink-0">
+                      <img alt="Royal Academy" class="w-full h-full object-contain"
+                        src="https://ligacomarcal.com/api/media/public/escudo/2026/527e7e62-bdde-4607-9d9d-1c2ed45a8f09.webp">
+                    </div>
+                    <span class="text-white/90 font-medium">Royal Academy</span>
+                  </td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/70">0</td>
+                  <td class="py-3 px-3 text-center text-emerald-400">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/80">0</td>
+                  <td class="py-3 px-3 text-center text-rose-400">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/60">0</td>
+                  <td class="py-3 px-5 text-center font-display font-bold text-base text-white">0</td>
+                  <td class="py-3 px-4 text-center">
+                    <span class="inline-flex gap-1 text-[9px] font-bold">
+                      <span
+                        class="w-4 h-4 rounded bg-emerald-600/70 text-white flex items-center justify-center">V</span>
+                      <span class="w-4 h-4 rounded bg-amber-500/70 text-white flex items-center justify-center">E</span>
+                      <span class="w-4 h-4 rounded bg-rose-600/70 text-white flex items-center justify-center">D</span>
+                    </span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-white/[0.02] transition-colors">
+                  <td class="py-3 px-4 text-center font-display font-semibold text-white/70 text-sm">10</td>
+                  <td class="py-3 px-4 font-medium text-white flex items-center gap-3">
+                    <div
+                      class="w-7 h-7 rounded bg-white/[0.04] border border-white/[0.08] p-0.5 flex items-center justify-center flex-shrink-0">
+                      <img alt="Sera FC" class="w-full h-full object-contain"
+                        src="https://ligacomarcal.com/api/media/public/escudo/2026/a576807c-124e-4d64-afdd-ea825d12ec38.webp">
+                    </div>
+                    <span class="text-white/90 font-medium">Sera FC</span>
+                  </td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/70">0</td>
+                  <td class="py-3 px-3 text-center text-emerald-400">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/80">0</td>
+                  <td class="py-3 px-3 text-center text-rose-400">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/60">0</td>
+                  <td class="py-3 px-5 text-center font-display font-bold text-base text-white">0</td>
+                  <td class="py-3 px-4 text-center">
+                    <span class="inline-flex gap-1 text-[9px] font-bold">
+                      <span
+                        class="w-4 h-4 rounded bg-emerald-600/70 text-white flex items-center justify-center">V</span>
+                      <span class="w-4 h-4 rounded bg-amber-500/70 text-white flex items-center justify-center">E</span>
+                      <span class="w-4 h-4 rounded bg-rose-600/70 text-white flex items-center justify-center">D</span>
+                    </span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-white/[0.02] transition-colors">
+                  <td class="py-3 px-4 text-center font-display font-semibold text-white/70 text-sm">11</td>
+                  <td class="py-3 px-4 font-medium text-white flex items-center gap-3">
+                    <div
+                      class="w-7 h-7 rounded bg-white/[0.04] border border-white/[0.08] p-0.5 flex items-center justify-center flex-shrink-0">
+                      <img alt="Ultimate" class="w-full h-full object-contain"
+                        src="https://ligacomarcal.com/api/media/public/escudo/2026/f8bd4e73-33c1-42af-a91b-6735bc094a88.webp">
+                    </div>
+                    <span class="text-white/90 font-medium">Ultimate</span>
+                  </td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/70">0</td>
+                  <td class="py-3 px-3 text-center text-emerald-400">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/80">0</td>
+                  <td class="py-3 px-3 text-center text-rose-400">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/60">0</td>
+                  <td class="py-3 px-5 text-center font-display font-bold text-base text-white">0</td>
+                  <td class="py-3 px-4 text-center">
+                    <span class="inline-flex gap-1 text-[9px] font-bold">
+                      <span
+                        class="w-4 h-4 rounded bg-emerald-600/70 text-white flex items-center justify-center">V</span>
+                      <span class="w-4 h-4 rounded bg-amber-500/70 text-white flex items-center justify-center">E</span>
+                      <span class="w-4 h-4 rounded bg-rose-600/70 text-white flex items-center justify-center">D</span>
+                    </span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-white/[0.02] transition-colors">
+                  <td class="py-3 px-4 text-center font-display font-semibold text-white/70 text-sm">12</td>
+                  <td class="py-3 px-4 font-medium text-white flex items-center gap-3">
+                    <div
+                      class="w-7 h-7 rounded bg-white/[0.04] border border-white/[0.08] p-0.5 flex items-center justify-center flex-shrink-0">
+                      <img alt="Viejentus" class="w-full h-full object-contain"
+                        src="https://ligacomarcal.com/api/media/public/escudo/2026/c6452596-d6f5-4e4e-a552-6684522c033c.webp">
+                    </div>
+                    <span class="text-white/90 font-medium">Viejentus</span>
+                  </td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/70">0</td>
+                  <td class="py-3 px-3 text-center text-emerald-400">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/80">0</td>
+                  <td class="py-3 px-3 text-center text-rose-400">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-white/80">0</td>
+                  <td class="py-3 px-3 text-center text-rayo-bone/60">0</td>
+                  <td class="py-3 px-5 text-center font-display font-bold text-base text-white">0</td>
+                  <td class="py-3 px-4 text-center">
+                    <span class="inline-flex gap-1 text-[9px] font-bold">
+                      <span
+                        class="w-4 h-4 rounded bg-emerald-600/70 text-white flex items-center justify-center">V</span>
+                      <span class="w-4 h-4 rounded bg-amber-500/70 text-white flex items-center justify-center">E</span>
+                      <span class="w-4 h-4 rounded bg-rose-600/70 text-white flex items-center justify-center">D</span>
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div
+            class="bg-[#0A0A16]/90 px-5 py-3 border-t border-white/[0.06] flex flex-wrap justify-between items-center text-xs text-rayo-bone/60">
+            <span>Actualizado tras la Jornada 13 • Polideportivo Municipal de Ibi</span>
+            <span class="text-rayo-gold font-medium">Próximo objetivo: Asalto al liderato en J14</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- ========================================== -->
+    <!-- 4. SHOWCASE DE EQUIPACIONES OFICIALES      -->
+    <!-- ========================================== -->
+    <section class="py-20 bg-rayo-navy relative overflow-hidden border-t border-white/[0.06]" id="equipaciones">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center max-w-3xl mx-auto mb-12">
+          <div
+            class="inline-flex items-center gap-2 text-rayo-gold text-xs font-semibold uppercase tracking-[0.18em] mb-1.5">
+            <span class="material-symbols-outlined text-sm">checkroom</span>
+            DISEÑO EXCLUSIVO 2026/2027
+          </div>
+          <h2 class="font-display text-3xl sm:text-4xl font-bold uppercase text-white tracking-tight">
+            ARMADURAS <span class="text-champagne-gradient">OFICIALES</span>
+          </h2>
+          <p class="text-xs sm:text-sm text-rayo-bone/60 mt-1.5">
+            Nuestros colores representan el espíritu combativo y la identidad de Ibi. Tejido técnico transpirable de
+            alto rendimiento.
+          </p>
+          <!-- Kit Switcher Buttons -->
+          <div class="inline-flex p-1 rounded bg-[#07070F] border border-white/[0.08] mt-6" id="kit-toggle-group">
+            <button
+              class="px-4 py-2 rounded text-xs font-display font-semibold uppercase tracking-wider bg-rayo-gold text-rayo-carbon transition-all"
+              id="btn-kit-home" onclick="showKit('home')">
+              1ª Equipación (Hueso &amp; Dorado)
+            </button>
+            <button
+              class="px-4 py-2 rounded text-xs font-display font-semibold uppercase tracking-wider text-rayo-bone/70 hover:text-white transition-all"
+              id="btn-kit-away" onclick="showKit('away')">
+              2ª Equipación (Burdeos &amp; Navy)
+            </button>
+          </div>
+        </div>
+        <!-- Kit Cards Container -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+          <!-- Home Kit Card -->
+          <div
+            class="elite-card rounded-xl p-7 border border-white/[0.08] flex flex-col justify-between relative group hover:border-rayo-gold/40 transition-colors"
+            id="card-kit-home">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <span class="text-[10px] font-semibold text-rayo-gold uppercase tracking-[0.16em]">Primera
+                  Equipación</span>
+                <h3 class="font-display text-2xl font-bold text-white uppercase mt-0.5">Blanco Tiza &amp; Rayo Dorado
+                </h3>
+              </div>
+              <span
+                class="px-2.5 py-1 rounded bg-rayo-gold/15 text-rayo-gold text-[10px] font-bold tracking-widest uppercase border border-rayo-gold/30">
+                TITULAR 26/27
+              </span>
+            </div>
+            <p class="text-xs text-rayo-bone/70 leading-relaxed">
+              Base en blanco hueso mate (`#dadddc`) con franja diagonal y remates de mangas en oro pulido (`#a67406`).
+              Inspirada en el brillo electrizante de las tormentas de verano sobre la Foia.
+            </p>
+            <!-- Visual Jersey Representation Mockup -->
+            <div class="my-8 py-6 flex items-center justify-center">
+              <div
+                class="w-56 h-64 rounded-xl bg-gradient-to-b from-[#e1e4e3] to-[#c2c5c4] p-4 shadow-xl relative flex flex-col justify-between border-2 border-rayo-gold/60 overflow-hidden transform group-hover:scale-[1.02] transition-transform">
+                <div
+                  class="absolute -top-10 -left-10 w-44 h-80 bg-gradient-to-r from-amber-300 to-rayo-gold rotate-45 opacity-80 filter drop-shadow-sm">
+                </div>
+                <div class="relative z-10 flex justify-between items-start">
+                  <div class="w-10 h-10 bg-white/90 rounded-full p-1 border border-rayo-gold shadow-sm">
+                    <img alt="Escudo" class="w-full h-full object-contain"
+                      src="https://lh3.googleusercontent.com/aida/AEtjO1U5dnlW27XzoEzYzSxfxWVG88y6vWcZ9OfLut3Y2Xk9z0sYxqFQSdK99Rwg3u1GkWh9EWCpAFaMD_t8Sm4W_KUAiLWSGCbWb2LL0BYr8qqzeNzDIkV185TdQ-N_c-FJ1yMjdwFu7aiDvMAWLWmBD35z6ynvDcm4H0kNysv6e5ehd4CNAeoBZsFgWQiIEtjwK2F3Ztnug9mVDBcPFqQbf7f0NOeIeZTr8shWchgtbw">
+                  </div>
+                  <span class="font-display font-bold text-lg text-rayo-navy tracking-wider">#10</span>
+                </div>
+                <div
+                  class="relative z-10 text-center py-2.5 bg-rayo-navy/90 rounded border border-rayo-gold/30 my-auto">
+                  <span class="font-display font-bold text-xs tracking-widest text-rayo-gold">IBI TURISME &amp;
+                    F7</span>
+                  <p class="text-[8px] text-white/70 uppercase">Official Club Sponsor</p>
+                </div>
+                <div class="relative z-10 flex justify-between items-center text-[9px] font-bold text-rayo-navy">
+                  <span class="tracking-widest uppercase">LIGA PLATA F7</span>
+                  <span class="px-1.5 py-0.5 rounded bg-rayo-gold text-rayo-carbon">ORIGINAL</span>
+                </div>
+              </div>
+            </div>
+            <div class="pt-4 border-t border-white/[0.06] flex items-center justify-between text-xs">
+              <span class="text-rayo-bone/50 text-[11px]">Dorsales serigrafiados • Escudo bordado 3D</span>
+              <a class="text-rayo-gold hover:text-white font-medium flex items-center gap-1 transition-colors text-xs"
+                href="#contacto">Consultar réplica <span
+                  class="material-symbols-outlined text-xs">arrow_forward</span></a>
+            </div>
+          </div>
+          <!-- Away Kit Card -->
+          <div
+            class="elite-card rounded-xl p-7 border border-white/[0.08] flex flex-col justify-between relative group hover:border-rayo-burgundy/60 transition-colors"
+            id="card-kit-away">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <span class="text-[10px] font-semibold text-rose-400 uppercase tracking-[0.16em]">Segunda
+                  Equipación</span>
+                <h3 class="font-display text-2xl font-bold text-white uppercase mt-0.5">Azul Profundo &amp; Burdeos
+                  Noble</h3>
+              </div>
+              <span
+                class="px-2.5 py-1 rounded bg-rayo-burgundy/20 text-rose-300 text-[10px] font-bold tracking-widest uppercase border border-rayo-burgundy/40">
+                ALTERNATIVA 26/27
+              </span>
+            </div>
+            <p class="text-xs text-rayo-bone/70 leading-relaxed">
+              Elegancia pura para las noches de visitante. Base azul noche (`#0e0a2f`) con detalles y franja
+              aerodinámica en rojo burdeos intenso (`#78080a`) y ribetes en blanco hueso.
+            </p>
+            <!-- Visual Away Jersey Mockup -->
+            <div class="my-8 py-6 flex items-center justify-center">
+              <div
+                class="w-56 h-64 rounded-xl bg-gradient-to-b from-[#101229] to-[#070712] p-4 shadow-xl relative flex flex-col justify-between border-2 border-rayo-burgundy/60 overflow-hidden transform group-hover:scale-[1.02] transition-transform">
+                <div
+                  class="absolute -top-10 -right-10 w-44 h-80 bg-gradient-to-l from-rose-800 to-rayo-burgundy rotate-12 opacity-80 filter drop-shadow-sm">
+                </div>
+                <div class="relative z-10 flex justify-between items-start">
+                  <div
+                    class="w-10 h-10 bg-white/10 rounded-full p-1 border border-rose-400/50 shadow-sm backdrop-blur-md">
+                    <img alt="Escudo" class="w-full h-full object-contain"
+                      src="https://lh3.googleusercontent.com/aida/AEtjO1U5dnlW27XzoEzYzSxfxWVG88y6vWcZ9OfLut3Y2Xk9z0sYxqFQSdK99Rwg3u1GkWh9EWCpAFaMD_t8Sm4W_KUAiLWSGCbWb2LL0BYr8qqzeNzDIkV185TdQ-N_c-FJ1yMjdwFu7aiDvMAWLWmBD35z6ynvDcm4H0kNysv6e5ehd4CNAeoBZsFgWQiIEtjwK2F3Ztnug9mVDBcPFqQbf7f0NOeIeZTr8shWchgtbw">
+                  </div>
+                  <span class="font-display font-bold text-lg text-rose-400 tracking-wider">#7</span>
+                </div>
+                <div
+                  class="relative z-10 text-center py-2.5 bg-white/[0.08] rounded border border-white/15 my-auto backdrop-blur-md">
+                  <span class="font-display font-bold text-xs tracking-widest text-white">IBI SPORT ENGINE</span>
+                  <p class="text-[8px] text-rose-300/80 uppercase">Away Edition Partner</p>
+                </div>
+                <div class="relative z-10 flex justify-between items-center text-[9px] font-bold text-rayo-bone/80">
+                  <span class="tracking-widest uppercase">LIGA PLATA F7</span>
+                  <span class="px-1.5 py-0.5 rounded bg-rayo-burgundy text-white">AWAY FIT</span>
+                </div>
+              </div>
+            </div>
+            <div class="pt-4 border-t border-white/[0.06] flex items-center justify-between text-xs">
+              <span class="text-rayo-bone/50 text-[11px]">Fibra ultra-ligera • Acabado satén mate</span>
+              <a class="text-rose-400 hover:text-white font-medium flex items-center gap-1 transition-colors text-xs"
+                href="#contacto">Consultar réplica <span
+                  class="material-symbols-outlined text-xs">arrow_forward</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- ========================================== -->
+    <!-- 5. PLANTILLA (FÚTBOL CARDS 3D Y TABLA)     -->
+    <!-- ========================================== -->
+    <section class="py-20 bg-rayo-carbon relative border-t border-white/[0.06]" id="plantilla">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+          <div>
+            <div
+              class="inline-flex items-center gap-2 text-rayo-gold text-xs font-semibold uppercase tracking-[0.18em] mb-1.5">
+              <span class="material-symbols-outlined text-sm">badge</span>
+              LOS GUERREROS DEL RAYO
+            </div>
+            <h2 class="font-display text-3xl sm:text-4xl font-bold uppercase text-white tracking-tight">
+              PLANTILLA <span class="text-champagne-gradient">OFICIAL 26/27</span>
+            </h2>
+            <p class="text-xs text-rayo-bone/60 mt-0.5">Pasa el ratón (o pulsa) sobre cada cromo coleccionable para ver
+              sus estadísticas completas de la temporada.</p>
+          </div>
+          <!-- Position Filters -->
+          <div class="flex flex-wrap gap-1.5" id="position-filters">
+            <button
+              class="pos-filter-btn px-3 py-1 rounded text-xs font-display font-semibold uppercase tracking-wider bg-rayo-gold text-rayo-carbon"
+              onclick="filterPlayers('ALL')">Todos</button>
+            <button
+              class="pos-filter-btn px-3 py-1 rounded text-xs font-display font-semibold uppercase tracking-wider bg-white/[0.04] text-rayo-bone/80 hover:text-white border border-white/[0.08]"
+              onclick="filterPlayers('POR')">Porteros</button>
+            <button
+              class="pos-filter-btn px-3 py-1 rounded text-xs font-display font-semibold uppercase tracking-wider bg-white/[0.04] text-rayo-bone/80 hover:text-white border border-white/[0.08]"
+              onclick="filterPlayers('DEF')">Defensas</button>
+            <button
+              class="pos-filter-btn px-3 py-1 rounded text-xs font-display font-semibold uppercase tracking-wider bg-white/[0.04] text-rayo-bone/80 hover:text-white border border-white/[0.08]"
+              onclick="filterPlayers('MED')">Medios</button>
+            <button
+              class="pos-filter-btn px-3 py-1 rounded text-xs font-display font-semibold uppercase tracking-wider bg-white/[0.04] text-rayo-bone/80 hover:text-white border border-white/[0.08]"
+              onclick="filterPlayers('DEL')">Delanteros</button>
+          </div>
+        </div>
+        <!-- 3D CARDS GRID -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16" id="player-cards-grid">
+          <!-- Player 1: Dani (Delantero Estrella) -->
+          <div class="player-card perspective-1000 h-[410px] cursor-pointer" data-pos="DEL"
+            onclick="this.classList.toggle('is-flipped')">
+            <div
+              class="card-inner relative w-full h-full transform-style-3d transition-transform duration-500 shadow-lg rounded-xl">
+              <!-- Front Face (Clean Pro Card) -->
+              <div
+                class="absolute inset-0 backface-hidden rounded-xl p-5 flex flex-col justify-between border border-white/[0.1] bg-gradient-to-b from-[#13152C] via-[#0C0E1E] to-[#07070F] overflow-hidden">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="font-display font-bold text-3xl text-rayo-gold leading-none">89</span>
+                    <span
+                      class="block font-display font-bold text-xs text-white/80 uppercase tracking-widest mt-0.5">DEL</span>
+                    <span class="text-[10px] text-rayo-bone/50 font-mono">#9</span>
+                  </div>
+                  <div class="w-8 h-8 opacity-90">
+                    <img alt="Escudo" class="w-full h-full object-contain"
+                      src="https://lh3.googleusercontent.com/aida/AEtjO1U5dnlW27XzoEzYzSxfxWVG88y6vWcZ9OfLut3Y2Xk9z0sYxqFQSdK99Rwg3u1GkWh9EWCpAFaMD_t8Sm4W_KUAiLWSGCbWb2LL0BYr8qqzeNzDIkV185TdQ-N_c-FJ1yMjdwFu7aiDvMAWLWmBD35z6ynvDcm4H0kNysv6e5ehd4CNAeoBZsFgWQiIEtjwK2F3Ztnug9mVDBcPFqQbf7f0NOeIeZTr8shWchgtbw">
+                  </div>
+                </div>
+                <div class="flex flex-col items-center text-center my-auto">
+                  <div
+                    class="w-20 h-20 rounded-full bg-gradient-to-tr from-rayo-gold/80 to-rayo-goldLight/20 p-0.5 shadow-sm mb-3">
+                    <div
+                      class="w-full h-full rounded-full bg-[#07070F] flex items-center justify-center font-display font-bold text-xl text-rayo-gold">
+                      DP
+                    </div>
+                  </div>
+                  <h3 class="font-display font-bold text-xl uppercase tracking-wider text-white">DANI "EL RAYO"</h3>
+                  <p class="text-[10px] text-rayo-gold/90 font-medium uppercase tracking-[0.16em] mt-0.5">Delantero
+                    Centro • 25 años</p>
+                </div>
+                <div class="border-t border-white/[0.08] pt-3">
+                  <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                    <div><span class="block text-rayo-bone/50 text-[9px] uppercase tracking-wider">RIT</span><span
+                        class="font-medium text-white">92</span></div>
+                    <div><span class="block text-rayo-bone/50 text-[9px] uppercase tracking-wider">TIR</span><span
+                        class="font-bold text-rayo-gold">91</span></div>
+                    <div><span class="block text-rayo-bone/50 text-[9px] uppercase tracking-wider">PAS</span><span
+                        class="font-medium text-white">84</span></div>
+                  </div>
+                  <p class="text-[9px] text-center text-rayo-bone/40 mt-2.5 flex items-center justify-center gap-1">
+                    <span class="material-symbols-outlined text-[11px]">touch_app</span> Gira para ver estadísticas
+                  </p>
+                </div>
+              </div>
+              <!-- Back Face -->
+              <div
+                class="absolute inset-0 backface-hidden rotate-y-180 rounded-xl p-5 flex flex-col justify-between border border-white/[0.1] bg-[#0E1022] text-left">
+                <div>
+                  <div class="flex items-center justify-between border-b border-white/[0.08] pb-2 mb-3">
+                    <span
+                      class="font-display font-semibold uppercase text-[10px] text-rayo-gold tracking-wider">ESTADÍSTICAS
+                      LIGA PLATA</span>
+                    <span class="px-1.5 py-0.5 rounded bg-white/[0.06] text-[9px] text-white">2026/27</span>
+                  </div>
+                  <h4 class="font-display font-bold text-lg text-white uppercase">DANI PÉREZ</h4>
+                  <p class="text-xs text-rayo-bone/60">Capitán y Máximo Goleador</p>
+                  <div class="grid grid-cols-2 gap-2 mt-4">
+                    <div class="p-2 rounded bg-white/[0.03] border border-white/[0.05]">
+                      <span class="text-[9px] text-rayo-bone/50 uppercase">Partidos (PJ)</span>
+                      <p class="font-display text-xl font-bold text-white">13</p>
+                    </div>
+                    <div class="p-2 rounded bg-rayo-gold/[0.08] border border-rayo-gold/20">
+                      <span class="text-[9px] text-rayo-gold uppercase font-semibold">Goles (G)</span>
+                      <p class="font-display text-xl font-bold text-rayo-gold">17</p>
+                    </div>
+                    <div class="p-2 rounded bg-white/[0.03] border border-white/[0.05]">
+                      <span class="text-[9px] text-rayo-bone/50 uppercase">Asistencias (A)</span>
+                      <p class="font-display text-xl font-bold text-white">6</p>
+                    </div>
+                    <div class="p-2 rounded bg-white/[0.03] border border-white/[0.05]">
+                      <span class="text-[9px] text-rayo-bone/50 uppercase">Tarjetas A/R</span>
+                      <p class="font-display text-xl font-bold text-amber-400">1 / 0</p>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="border-t border-white/[0.08] pt-2.5 text-xs text-rayo-bone/60 flex justify-between items-center">
+                  <span>MVP Jornadas: <strong class="text-rayo-gold">5 veces</strong></span>
+                  <span class="text-[9px] uppercase text-emerald-400 font-semibold">Disponible J14</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Player 2: Chino (Centrocampista Organizador) -->
+          <div class="player-card perspective-1000 h-[410px] cursor-pointer" data-pos="MED"
+            onclick="this.classList.toggle('is-flipped')">
+            <div
+              class="card-inner relative w-full h-full transform-style-3d transition-transform duration-500 shadow-lg rounded-xl">
+              <!-- Front Face -->
+              <div
+                class="absolute inset-0 backface-hidden rounded-xl p-5 flex flex-col justify-between border border-white/[0.1] bg-gradient-to-b from-[#13152C] via-[#0C0E1E] to-[#07070F] overflow-hidden">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="font-display font-bold text-3xl text-rayo-gold leading-none">87</span>
+                    <span
+                      class="block font-display font-bold text-xs text-white/80 uppercase tracking-widest mt-0.5">MED</span>
+                    <span class="text-[10px] text-rayo-bone/50 font-mono">#8</span>
+                  </div>
+                  <div class="w-8 h-8 opacity-90">
+                    <img alt="Escudo" class="w-full h-full object-contain"
+                      src="https://lh3.googleusercontent.com/aida/AEtjO1U5dnlW27XzoEzYzSxfxWVG88y6vWcZ9OfLut3Y2Xk9z0sYxqFQSdK99Rwg3u1GkWh9EWCpAFaMD_t8Sm4W_KUAiLWSGCbWb2LL0BYr8qqzeNzDIkV185TdQ-N_c-FJ1yMjdwFu7aiDvMAWLWmBD35z6ynvDcm4H0kNysv6e5ehd4CNAeoBZsFgWQiIEtjwK2F3Ztnug9mVDBcPFqQbf7f0NOeIeZTr8shWchgtbw">
+                  </div>
+                </div>
+                <div class="flex flex-col items-center text-center my-auto">
+                  <div
+                    class="w-20 h-20 rounded-full bg-gradient-to-tr from-cyan-500/80 to-blue-300/20 p-0.5 shadow-sm mb-3">
+                    <div
+                      class="w-full h-full rounded-full bg-[#07070F] flex items-center justify-center font-display font-bold text-xl text-cyan-300">
+                      CH
+                    </div>
+                  </div>
+                  <h3 class="font-display font-bold text-xl uppercase tracking-wider text-white">"EL CHINO"</h3>
+                  <p class="text-[10px] text-rayo-gold/90 font-medium uppercase tracking-[0.16em] mt-0.5">Mediocentro
+                    Creador • 26 años</p>
+                </div>
+                <div class="border-t border-white/[0.08] pt-3">
+                  <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                    <div><span class="block text-rayo-bone/50 text-[9px] uppercase tracking-wider">REG</span><span
+                        class="font-medium text-white">88</span></div>
+                    <div><span class="block text-rayo-bone/50 text-[9px] uppercase tracking-wider">PAS</span><span
+                        class="font-bold text-rayo-gold">91</span></div>
+                    <div><span class="block text-rayo-bone/50 text-[9px] uppercase tracking-wider">FIS</span><span
+                        class="font-medium text-white">82</span></div>
+                  </div>
+                  <p class="text-[9px] text-center text-rayo-bone/40 mt-2.5 flex items-center justify-center gap-1">
+                    <span class="material-symbols-outlined text-[11px]">touch_app</span> Gira para ver estadísticas
+                  </p>
+                </div>
+              </div>
+              <!-- Back Face -->
+              <div
+                class="absolute inset-0 backface-hidden rotate-y-180 rounded-xl p-5 flex flex-col justify-between border border-white/[0.1] bg-[#0E1022] text-left">
+                <div>
+                  <div class="flex items-center justify-between border-b border-white/[0.08] pb-2 mb-3">
+                    <span
+                      class="font-display font-semibold uppercase text-[10px] text-rayo-gold tracking-wider">ESTADÍSTICAS
+                      LIGA PLATA</span>
+                    <span class="px-1.5 py-0.5 rounded bg-white/[0.06] text-[9px] text-white">2026/27</span>
+                  </div>
+                  <h4 class="font-display font-bold text-lg text-white uppercase">CARLOS "CHINO"</h4>
+                  <p class="text-xs text-rayo-bone/60">Visión de juego y balón parado</p>
+                  <div class="grid grid-cols-2 gap-2 mt-4">
+                    <div class="p-2 rounded bg-white/[0.03] border border-white/[0.05]">
+                      <span class="text-[9px] text-rayo-bone/50 uppercase">Partidos (PJ)</span>
+                      <p class="font-display text-xl font-bold text-white">12</p>
+                    </div>
+                    <div class="p-2 rounded bg-white/[0.03] border border-white/[0.05]">
+                      <span class="text-[9px] text-rayo-bone/50 uppercase">Goles (G)</span>
+                      <p class="font-display text-xl font-bold text-white">8</p>
+                    </div>
+                    <div class="p-2 rounded bg-rayo-gold/[0.08] border border-rayo-gold/20">
+                      <span class="text-[9px] text-rayo-gold uppercase font-semibold">Asistencias (A)</span>
+                      <p class="font-display text-xl font-bold text-rayo-gold">14</p>
+                    </div>
+                    <div class="p-2 rounded bg-white/[0.03] border border-white/[0.05]">
+                      <span class="text-[9px] text-rayo-bone/50 uppercase">Tarjetas A/R</span>
+                      <p class="font-display text-xl font-bold text-amber-400">2 / 0</p>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="border-t border-white/[0.08] pt-2.5 text-xs text-rayo-bone/60 flex justify-between items-center">
+                  <span>Líder en asistencias de la liga</span>
+                  <span class="text-[9px] uppercase text-emerald-400 font-semibold">Disponible J14</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Player 3: Samu (Central Muro) -->
+          <div class="player-card perspective-1000 h-[410px] cursor-pointer" data-pos="DEF"
+            onclick="this.classList.toggle('is-flipped')">
+            <div
+              class="card-inner relative w-full h-full transform-style-3d transition-transform duration-500 shadow-lg rounded-xl">
+              <!-- Front Face -->
+              <div
+                class="absolute inset-0 backface-hidden rounded-xl p-5 flex flex-col justify-between border border-white/[0.1] bg-gradient-to-b from-[#13152C] via-[#0C0E1E] to-[#07070F] overflow-hidden">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="font-display font-bold text-3xl text-rayo-gold leading-none">86</span>
+                    <span
+                      class="block font-display font-bold text-xs text-white/80 uppercase tracking-widest mt-0.5">DEF</span>
+                    <span class="text-[10px] text-rayo-bone/50 font-mono">#4</span>
+                  </div>
+                  <div class="w-8 h-8 opacity-90">
+                    <img alt="Escudo" class="w-full h-full object-contain"
+                      src="https://lh3.googleusercontent.com/aida/AEtjO1U5dnlW27XzoEzYzSxfxWVG88y6vWcZ9OfLut3Y2Xk9z0sYxqFQSdK99Rwg3u1GkWh9EWCpAFaMD_t8Sm4W_KUAiLWSGCbWb2LL0BYr8qqzeNzDIkV185TdQ-N_c-FJ1yMjdwFu7aiDvMAWLWmBD35z6ynvDcm4H0kNysv6e5ehd4CNAeoBZsFgWQiIEtjwK2F3Ztnug9mVDBcPFqQbf7f0NOeIeZTr8shWchgtbw">
+                  </div>
+                </div>
+                <div class="flex flex-col items-center text-center my-auto">
+                  <div
+                    class="w-20 h-20 rounded-full bg-gradient-to-tr from-amber-600/80 to-amber-300/20 p-0.5 shadow-sm mb-3">
+                    <div
+                      class="w-full h-full rounded-full bg-[#07070F] flex items-center justify-center font-display font-bold text-xl text-amber-400">
+                      SM
+                    </div>
+                  </div>
+                  <h3 class="font-display font-bold text-xl uppercase tracking-wider text-white">SAMU "KÁISER"</h3>
+                  <p class="text-[10px] text-rayo-gold/90 font-medium uppercase tracking-[0.16em] mt-0.5">Defensa
+                    Central • 27 años</p>
+                </div>
+                <div class="border-t border-white/[0.08] pt-3">
+                  <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                    <div><span class="block text-rayo-bone/50 text-[9px] uppercase tracking-wider">DEF</span><span
+                        class="font-bold text-rayo-gold">91</span></div>
+                    <div><span class="block text-rayo-bone/50 text-[9px] uppercase tracking-wider">FIS</span><span
+                        class="font-medium text-white">89</span></div>
+                    <div><span class="block text-rayo-bone/50 text-[9px] uppercase tracking-wider">COR</span><span
+                        class="font-medium text-white">83</span></div>
+                  </div>
+                  <p class="text-[9px] text-center text-rayo-bone/40 mt-2.5 flex items-center justify-center gap-1">
+                    <span class="material-symbols-outlined text-[11px]">touch_app</span> Gira para ver estadísticas
+                  </p>
+                </div>
+              </div>
+              <!-- Back Face -->
+              <div
+                class="absolute inset-0 backface-hidden rotate-y-180 rounded-xl p-5 flex flex-col justify-between border border-white/[0.1] bg-[#0E1022] text-left">
+                <div>
+                  <div class="flex items-center justify-between border-b border-white/[0.08] pb-2 mb-3">
+                    <span
+                      class="font-display font-semibold uppercase text-[10px] text-rayo-gold tracking-wider">ESTADÍSTICAS
+                      LIGA PLATA</span>
+                    <span class="px-1.5 py-0.5 rounded bg-white/[0.06] text-[9px] text-white">2026/27</span>
+                  </div>
+                  <h4 class="font-display font-bold text-lg text-white uppercase">SAMUEL MORENO</h4>
+                  <p class="text-xs text-rayo-bone/60">Mariscal de la zaga y juego aéreo</p>
+                  <div class="grid grid-cols-2 gap-2 mt-4">
+                    <div class="p-2 rounded bg-white/[0.03] border border-white/[0.05]">
+                      <span class="text-[9px] text-rayo-bone/50 uppercase">Partidos (PJ)</span>
+                      <p class="font-display text-xl font-bold text-white">13</p>
+                    </div>
+                    <div class="p-2 rounded bg-white/[0.03] border border-white/[0.05]">
+                      <span class="text-[9px] text-rayo-bone/50 uppercase">Goles (G)</span>
+                      <p class="font-display text-xl font-bold text-white">3</p>
+                    </div>
+                    <div class="p-2 rounded bg-rayo-gold/[0.08] border border-rayo-gold/20">
+                      <span class="text-[9px] text-rayo-gold uppercase font-semibold">Robos/P</span>
+                      <p class="font-display text-xl font-bold text-rayo-gold">8.4</p>
+                    </div>
+                    <div class="p-2 rounded bg-white/[0.03] border border-white/[0.05]">
+                      <span class="text-[9px] text-rayo-bone/50 uppercase">Tarjetas A/R</span>
+                      <p class="font-display text-xl font-bold text-amber-400">3 / 0</p>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="border-t border-white/[0.08] pt-2.5 text-xs text-rayo-bone/60 flex justify-between items-center">
+                  <span>94% de duelos aéreos ganados</span>
+                  <span class="text-[9px] uppercase text-emerald-400 font-semibold">Disponible J14</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Player 4: Marc (Portero Gato) -->
+          <div class="player-card perspective-1000 h-[410px] cursor-pointer" data-pos="POR"
+            onclick="this.classList.toggle('is-flipped')">
+            <div
+              class="card-inner relative w-full h-full transform-style-3d transition-transform duration-500 shadow-lg rounded-xl">
+              <!-- Front Face -->
+              <div
+                class="absolute inset-0 backface-hidden rounded-xl p-5 flex flex-col justify-between border border-white/[0.1] bg-gradient-to-b from-[#13152C] via-[#0C0E1E] to-[#07070F] overflow-hidden">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="font-display font-bold text-3xl text-rayo-gold leading-none">88</span>
+                    <span
+                      class="block font-display font-bold text-xs text-white/80 uppercase tracking-widest mt-0.5">POR</span>
+                    <span class="text-[10px] text-rayo-bone/50 font-mono">#1</span>
+                  </div>
+                  <div class="w-8 h-8 opacity-90">
+                    <img alt="Escudo" class="w-full h-full object-contain"
+                      src="https://lh3.googleusercontent.com/aida/AEtjO1U5dnlW27XzoEzYzSxfxWVG88y6vWcZ9OfLut3Y2Xk9z0sYxqFQSdK99Rwg3u1GkWh9EWCpAFaMD_t8Sm4W_KUAiLWSGCbWb2LL0BYr8qqzeNzDIkV185TdQ-N_c-FJ1yMjdwFu7aiDvMAWLWmBD35z6ynvDcm4H0kNysv6e5ehd4CNAeoBZsFgWQiIEtjwK2F3Ztnug9mVDBcPFqQbf7f0NOeIeZTr8shWchgtbw">
+                  </div>
+                </div>
+                <div class="flex flex-col items-center text-center my-auto">
+                  <div
+                    class="w-20 h-20 rounded-full bg-gradient-to-tr from-emerald-500/80 to-emerald-300/20 p-0.5 shadow-sm mb-3">
+                    <div
+                      class="w-full h-full rounded-full bg-[#07070F] flex items-center justify-center font-display font-bold text-xl text-emerald-300">
+                      MA
+                    </div>
+                  </div>
+                  <h3 class="font-display font-bold text-xl uppercase tracking-wider text-white">MARC "EL GATO"</h3>
+                  <p class="text-[10px] text-rayo-gold/90 font-medium uppercase tracking-[0.16em] mt-0.5">Guardameta •
+                    24 años</p>
+                </div>
+                <div class="border-t border-white/[0.08] pt-3">
+                  <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                    <div><span class="block text-rayo-bone/50 text-[9px] uppercase tracking-wider">REF</span><span
+                        class="font-bold text-rayo-gold">93</span></div>
+                    <div><span class="block text-rayo-bone/50 text-[9px] uppercase tracking-wider">EST</span><span
+                        class="font-medium text-white">87</span></div>
+                    <div><span class="block text-rayo-bone/50 text-[9px] uppercase tracking-wider">SAQ</span><span
+                        class="font-medium text-white">84</span></div>
+                  </div>
+                  <p class="text-[9px] text-center text-rayo-bone/40 mt-2.5 flex items-center justify-center gap-1">
+                    <span class="material-symbols-outlined text-[11px]">touch_app</span> Gira para ver estadísticas
+                  </p>
+                </div>
+              </div>
+              <!-- Back Face -->
+              <div
+                class="absolute inset-0 backface-hidden rotate-y-180 rounded-xl p-5 flex flex-col justify-between border border-white/[0.1] bg-[#0E1022] text-left">
+                <div>
+                  <div class="flex items-center justify-between border-b border-white/[0.08] pb-2 mb-3">
+                    <span
+                      class="font-display font-semibold uppercase text-[10px] text-rayo-gold tracking-wider">ESTADÍSTICAS
+                      LIGA PLATA</span>
+                    <span class="px-1.5 py-0.5 rounded bg-white/[0.06] text-[9px] text-white">2026/27</span>
+                  </div>
+                  <h4 class="font-display font-bold text-lg text-white uppercase">MARC ALONSO</h4>
+                  <p class="text-xs text-rayo-bone/60">Zamora en liza Liga Plata Ibi</p>
+                  <div class="grid grid-cols-2 gap-2 mt-4">
+                    <div class="p-2 rounded bg-white/[0.03] border border-white/[0.05]">
+                      <span class="text-[9px] text-rayo-bone/50 uppercase">Partidos (PJ)</span>
+                      <p class="font-display text-xl font-bold text-white">13</p>
+                    </div>
+                    <div class="p-2 rounded bg-emerald-500/10 border border-emerald-500/20">
+                      <span class="text-[9px] text-emerald-400 uppercase font-semibold">Porterías a Cero</span>
+                      <p class="font-display text-xl font-bold text-emerald-400">5</p>
+                    </div>
+                    <div class="p-2 rounded bg-white/[0.03] border border-white/[0.05]">
+                      <span class="text-[9px] text-rayo-bone/50 uppercase">Goles Encajados</span>
+                      <p class="font-display text-xl font-bold text-white">21</p>
+                    </div>
+                    <div class="p-2 rounded bg-white/[0.03] border border-white/[0.05]">
+                      <span class="text-[9px] text-rayo-bone/50 uppercase">Penaltis Parados</span>
+                      <p class="font-display text-xl font-bold text-rayo-gold">3 / 4</p>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="border-t border-white/[0.08] pt-2.5 text-xs text-rayo-bone/60 flex justify-between items-center">
+                  <span>Coeficiente: 1.61 goles/partido</span>
+                  <span class="text-[9px] uppercase text-emerald-400 font-semibold">Disponible J14</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- TABLA GENERAL DE ESTADÍSTICAS -->
+        <div class="elite-card rounded-lg p-5 sm:p-6 border border-white/[0.08] shadow-lg">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+            <div>
+              <h3 class="font-display text-xl font-bold uppercase text-white">Cuadro Estadístico de la Plantilla</h3>
+              <p class="text-xs text-rayo-bone/60">Rendimiento acumulado de todos los jugadores inscritos</p>
+            </div>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3 top-2.5 text-rayo-bone/40 text-sm">search</span>
+              <input
+                class="pl-9 pr-3 py-1.5 bg-[#07070F] rounded text-xs border border-white/[0.1] focus:outline-none focus:border-rayo-gold/50 text-white placeholder-rayo-bone/40 w-full sm:w-60"
+                id="player-table-search" oninput="searchTablePlayers(this.value)" placeholder="Buscar futbolista..."
+                type="text">
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse" id="roster-stats-table">
+              <thead>
+                <tr
+                  class="text-[10px] font-display uppercase tracking-[0.16em] text-rayo-gold/90 border-b border-white/[0.06] bg-[#0A0A16]/50">
+                  <th class="py-2.5 px-3 text-center font-normal">DOR</th>
+                  <th class="py-2.5 px-4 font-normal">JUGADOR</th>
+                  <th class="py-2.5 px-3 text-center font-normal">POS</th>
+                  <th class="py-2.5 px-3 text-center font-normal">EDAD</th>
+                  <th class="py-2.5 px-3 text-center font-normal">PJ</th>
+                  <th class="py-2.5 px-3 text-center font-normal">GOLES</th>
+                  <th class="py-2.5 px-3 text-center font-normal">ASIST</th>
+                  <th class="py-2.5 px-3 text-center font-normal">T. AMARILLA</th>
+                  <th class="py-2.5 px-4 text-center font-normal">ESTADO</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-white/[0.04] text-xs text-rayo-bone font-sans">
+                <tr class="hover:bg-white/[0.02]">
+                  <td class="py-2.5 px-3 text-center font-display font-bold text-rayo-gold">#1</td>
+                  <td class="py-2.5 px-4 font-medium text-white">Marc Alonso</td>
+                  <td class="py-2.5 px-3 text-center"><span
+                      class="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold text-[10px]">POR</span>
+                  </td>
+                  <td class="py-2.5 px-3 text-center text-rayo-bone/70">24</td>
+                  <td class="py-2.5 px-3 text-center font-medium">13</td>
+                  <td class="py-2.5 px-3 text-center text-rayo-bone/60">0</td>
+                  <td class="py-2.5 px-3 text-center text-rayo-bone/60">1</td>
+                  <td class="py-2.5 px-3 text-center text-rayo-bone/60">1</td>
+                  <td class="py-2.5 px-4 text-center"><span class="text-emerald-400 font-medium text-xs">● Apto</span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-white/[0.02]">
+                  <td class="py-2.5 px-3 text-center font-display font-bold text-rayo-gold">#4</td>
+                  <td class="py-2.5 px-4 font-medium text-white">Samuel Moreno</td>
+                  <td class="py-2.5 px-3 text-center"><span
+                      class="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 font-semibold text-[10px]">DEF</span>
+                  </td>
+                  <td class="py-2.5 px-3 text-center text-rayo-bone/70">27</td>
+                  <td class="py-2.5 px-3 text-center font-medium">13</td>
+                  <td class="py-2.5 px-3 text-center">3</td>
+                  <td class="py-2.5 px-3 text-center">2</td>
+                  <td class="py-2.5 px-3 text-center text-rayo-bone/60">3</td>
+                  <td class="py-2.5 px-4 text-center"><span class="text-emerald-400 font-medium text-xs">● Apto</span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-white/[0.02]">
+                  <td class="py-2.5 px-3 text-center font-display font-bold text-rayo-gold">#5</td>
+                  <td class="py-2.5 px-4 font-medium text-white">Javi Verdú</td>
+                  <td class="py-2.5 px-3 text-center"><span
+                      class="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 font-semibold text-[10px]">DEF</span>
+                  </td>
+                  <td class="py-2.5 px-3 text-center text-rayo-bone/70">25</td>
+                  <td class="py-2.5 px-3 text-center font-medium">11</td>
+                  <td class="py-2.5 px-3 text-center">1</td>
+                  <td class="py-2.5 px-3 text-center">3</td>
+                  <td class="py-2.5 px-3 text-center text-amber-400 font-medium">4</td>
+                  <td class="py-2.5 px-4 text-center"><span class="text-amber-400 font-medium text-xs">●
+                      Apercibido</span></td>
+                </tr>
+                <tr class="hover:bg-white/[0.02]">
+                  <td class="py-2.5 px-3 text-center font-display font-bold text-rayo-gold">#8</td>
+                  <td class="py-2.5 px-4 font-medium text-white">Carlos "El Chino"</td>
+                  <td class="py-2.5 px-3 text-center"><span
+                      class="px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 font-semibold text-[10px]">MED</span>
+                  </td>
+                  <td class="py-2.5 px-3 text-center text-rayo-bone/70">26</td>
+                  <td class="py-2.5 px-3 text-center font-medium">12</td>
+                  <td class="py-2.5 px-3 text-center">8</td>
+                  <td class="py-2.5 px-3 text-center font-bold text-rayo-gold">14</td>
+                  <td class="py-2.5 px-3 text-center text-rayo-bone/60">2</td>
+                  <td class="py-2.5 px-4 text-center"><span class="text-emerald-400 font-medium text-xs">● Apto</span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-white/[0.02]">
+                  <td class="py-2.5 px-3 text-center font-display font-bold text-rayo-gold">#9</td>
+                  <td class="py-2.5 px-4 font-medium text-white">Dani Pérez</td>
+                  <td class="py-2.5 px-3 text-center"><span
+                      class="px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 font-semibold text-[10px]">DEL</span>
+                  </td>
+                  <td class="py-2.5 px-3 text-center text-rayo-bone/70">25</td>
+                  <td class="py-2.5 px-3 text-center font-medium">13</td>
+                  <td class="py-2.5 px-3 text-center font-bold text-rayo-gold">17</td>
+                  <td class="py-2.5 px-3 text-center">6</td>
+                  <td class="py-2.5 px-3 text-center text-rayo-bone/60">1</td>
+                  <td class="py-2.5 px-4 text-center"><span class="text-emerald-400 font-medium text-xs">● Apto</span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-white/[0.02]">
+                  <td class="py-2.5 px-3 text-center font-display font-bold text-rayo-gold">#11</td>
+                  <td class="py-2.5 px-4 font-medium text-white">Álex "Galgo"</td>
+                  <td class="py-2.5 px-3 text-center"><span
+                      class="px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 font-semibold text-[10px]">DEL</span>
+                  </td>
+                  <td class="py-2.5 px-3 text-center text-rayo-bone/70">23</td>
+                  <td class="py-2.5 px-3 text-center font-medium">10</td>
+                  <td class="py-2.5 px-3 text-center">9</td>
+                  <td class="py-2.5 px-3 text-center">5</td>
+                  <td class="py-2.5 px-3 text-center text-rayo-bone/60">0</td>
+                  <td class="py-2.5 px-4 text-center"><span class="text-rose-400 font-medium text-xs">● En duda
+                      (Tobillo)</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- ========================================== -->
+    <!-- 6. MULTIMEDIA (FOTOS & VÍDEOS)            -->
+    <!-- ========================================== -->
+    <section class="py-20 bg-rayo-navy relative border-t border-white/[0.06]" id="multimedia">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+          <div>
+            <div
+              class="inline-flex items-center gap-2 text-rayo-gold text-xs font-semibold uppercase tracking-[0.18em] mb-1.5">
+              <span class="material-symbols-outlined text-sm">photo_camera</span>
+              GALERÍA DEL CLUB
+            </div>
+            <h2 class="font-display text-3xl sm:text-4xl font-bold uppercase text-white tracking-tight">
+              CONTENIDO <span class="text-champagne-gradient">MULTIMEDIA</span>
+            </h2>
+            <p class="text-xs text-rayo-bone/60 mt-0.5">Imágenes de los partidos, celebraciones y clips de las mejores
+              jugadas de la temporada.</p>
+          </div>
+          <!-- Tabs Fotos / Videos -->
+          <div class="inline-flex p-1 rounded bg-[#07070F] border border-white/[0.08]" id="media-tabs">
+            <button
+              class="px-4 py-1.5 rounded text-xs font-display font-semibold uppercase tracking-wider bg-rayo-gold text-rayo-carbon transition-all"
+              id="tab-btn-fotos" onclick="switchMediaTab('fotos')">
+              Fotografías (8)
+            </button>
+            <button
+              class="px-4 py-1.5 rounded text-xs font-display font-semibold uppercase tracking-wider text-rayo-bone/70 hover:text-white transition-all"
+              id="tab-btn-videos" onclick="switchMediaTab('videos')">
+              Vídeos &amp; Clips (4)
+            </button>
+          </div>
+        </div>
+        <!-- FOTOS CONTAINER -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="media-content-fotos">
+          <div
+            class="group relative rounded-lg overflow-hidden elite-card border border-white/[0.08] aspect-[16/10] cursor-pointer">
+            <img alt="Momento del partido"
+              class="w-full h-full object-cover filter brightness-90 group-hover:scale-105 transition-transform duration-500"
+              src="https://lh3.googleusercontent.com/aida/AEtjO1X1bLqJr3UQbbC7UQiZaUfbQP0dylqZboxguihc_Qf6eVp97joGDTHkHjJD4oOQB_Sqle_f68wUYMWXM8ybpqZ5rxTUCenTR7ENvfNQrnSgCnSPpERjXtzMUfjQngpPOpPFK24Hx6HU__ihsoewV1mKlfBSZO3_Bie2Tdr9WMyt5QkhdtKfT1QJOiaCH_xTeVHpSHmmGobA5WeTpvqPN1Mvtc_FYr3bZUOLDXwz678">
+            <div class="absolute inset-0 bg-gradient-to-t from-rayo-carbon via-transparent to-transparent opacity-90">
+            </div>
+            <div class="absolute bottom-3.5 left-4 right-4">
+              <span class="text-[9px] font-semibold text-rayo-gold uppercase tracking-wider">Jornada 13 • Polideportivo
+                Ibi</span>
+              <h4 class="font-display text-base font-bold text-white uppercase mt-0.5">Victoria vibrante bajo los focos
+              </h4>
+            </div>
+          </div>
+          <div
+            class="group relative rounded-lg overflow-hidden elite-card border border-white/[0.08] aspect-[16/10] cursor-pointer">
+            <div
+              class="w-full h-full bg-gradient-to-br from-[#121429] to-[#1E1120] flex items-center justify-center p-6 text-center group-hover:scale-105 transition-transform duration-500">
+              <div>
+                <span class="material-symbols-outlined text-4xl text-rayo-gold mb-1.5">celebration</span>
+                <p class="font-display text-lg font-bold text-white uppercase">Celebración del Vestuario</p>
+                <span class="text-xs text-rayo-bone/60">Unión total tras clasificarse a fase final</span>
+              </div>
+            </div>
+            <div class="absolute inset-0 bg-rayo-gold/[0.05] opacity-0 group-hover:opacity-100 transition-opacity">
+            </div>
+          </div>
+          <div
+            class="group relative rounded-lg overflow-hidden elite-card border border-white/[0.08] aspect-[16/10] cursor-pointer">
+            <img alt="Disputa de balón"
+              class="w-full h-full object-cover filter brightness-90 saturate-125 group-hover:scale-105 transition-transform duration-500"
+              src="https://lh3.googleusercontent.com/aida/AEtjO1X1bLqJr3UQbbC7UQiZaUfbQP0dylqZboxguihc_Qf6eVp97joGDTHkHjJD4oOQB_Sqle_f68wUYMWXM8ybpqZ5rxTUCenTR7ENvfNQrnSgCnSPpERjXtzMUfjQngpPOpPFK24Hx6HU__ihsoewV1mKlfBSZO3_Bie2Tdr9WMyt5QkhdtKfT1QJOiaCH_xTeVHpSHmmGobA5WeTpvqPN1Mvtc_FYr3bZUOLDXwz678">
+            <div class="absolute inset-0 bg-gradient-to-t from-rayo-carbon via-transparent to-transparent opacity-90">
+            </div>
+            <div class="absolute bottom-3.5 left-4 right-4">
+              <span class="text-[9px] font-semibold text-rose-400 uppercase tracking-wider">Derbi Comarcal</span>
+              <h4 class="font-display text-base font-bold text-white uppercase mt-0.5">Intensidad en cada metro cuadrado
+              </h4>
+            </div>
+          </div>
+        </div>
+        <!-- VIDEOS CONTAINER (Inicialmente oculto) -->
+        <div class="hidden grid grid-cols-1 md:grid-cols-2 gap-6" id="media-content-videos">
+          <div
+            class="elite-card rounded-lg overflow-hidden border border-white/[0.08] p-5 group hover:border-rayo-gold/30 transition-colors">
+            <div
+              class="relative aspect-video rounded bg-black/40 flex items-center justify-center overflow-hidden mb-3 border border-white/[0.06]">
+              <img alt="Clip de gol" class="w-full h-full object-cover opacity-60"
+                src="https://lh3.googleusercontent.com/aida/AEtjO1X1bLqJr3UQbbC7UQiZaUfbQP0dylqZboxguihc_Qf6eVp97joGDTHkHjJD4oOQB_Sqle_f68wUYMWXM8ybpqZ5rxTUCenTR7ENvfNQrnSgCnSPpERjXtzMUfjQngpPOpPFK24Hx6HU__ihsoewV1mKlfBSZO3_Bie2Tdr9WMyt5QkhdtKfT1QJOiaCH_xTeVHpSHmmGobA5WeTpvqPN1Mvtc_FYr3bZUOLDXwz678">
+              <div
+                class="absolute w-12 h-12 rounded-full bg-rayo-gold flex items-center justify-center text-rayo-carbon shadow-lg group-hover:scale-105 transition-transform">
+                <span class="material-symbols-outlined text-2xl">play_arrow</span>
+              </div>
+              <span
+                class="absolute bottom-2.5 right-2.5 px-1.5 py-0.5 rounded bg-black/80 text-[9px] font-mono text-white">01:42</span>
+            </div>
+            <span class="text-[10px] font-semibold text-rayo-gold uppercase tracking-wider">HIGHLIGHTS J13</span>
+            <h4 class="font-display text-lg font-bold text-white uppercase mt-0.5">Resumen Completo: Rayo Pelón 4 - 2
+              Ibense</h4>
+            <p class="text-xs text-rayo-bone/60 mt-1">Todas las ocasiones, goles y paradas clave del último
+              enfrentamiento.</p>
+          </div>
+          <div
+            class="elite-card rounded-lg overflow-hidden border border-white/[0.08] p-5 group hover:border-rayo-gold/30 transition-colors">
+            <div
+              class="relative aspect-video rounded bg-black/40 flex items-center justify-center overflow-hidden mb-3 border border-white/[0.06]">
+              <div class="w-full h-full bg-gradient-to-tr from-[#13152C] to-[#250F18] opacity-80"></div>
+              <div
+                class="absolute w-12 h-12 rounded-full bg-rayo-gold flex items-center justify-center text-rayo-carbon shadow-lg group-hover:scale-105 transition-transform">
+                <span class="material-symbols-outlined text-2xl">play_arrow</span>
+              </div>
+              <span
+                class="absolute bottom-2.5 right-2.5 px-1.5 py-0.5 rounded bg-black/80 text-[9px] font-mono text-white">00:45</span>
+            </div>
+            <span class="text-[10px] font-semibold text-rose-400 uppercase tracking-wider">GOLAZO DEL MES</span>
+            <h4 class="font-display text-lg font-bold text-white uppercase mt-0.5">Falta directa a la escuadra de "El
+              Chino"</h4>
+            <p class="text-xs text-rayo-bone/60 mt-1">Gol elegido como el mejor tanto de la jornada 11 por la
+              organización de la Liga.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- ========================================== -->
+    <!-- 7. NOTICIAS Y BOLETÍN DEL CLUB             -->
+    <!-- ========================================== -->
+    <section class="py-20 bg-rayo-carbon relative border-t border-white/[0.06]" id="noticias">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+          <div>
+            <div
+              class="inline-flex items-center gap-2 text-rayo-gold text-xs font-semibold uppercase tracking-[0.18em] mb-1.5">
+              <span class="material-symbols-outlined text-sm">newspaper</span>
+              ACTUALIDAD &amp; COMUNICADOS
+            </div>
+            <h2 class="font-display text-3xl sm:text-4xl font-bold uppercase text-white tracking-tight">
+              BOLETÍN <span class="text-champagne-gradient">INFORMATIVO</span>
+            </h2>
+            <p class="text-xs text-rayo-bone/60 mt-0.5">Últimas crónicas, partes médicos oficiales y avisos del club.
+            </p>
+          </div>
+          <!-- News Category Filters -->
+          <div class="flex flex-wrap gap-1.5" id="news-filters">
+            <button
+              class="news-filter-btn px-3 py-1 rounded text-xs font-display font-semibold uppercase tracking-wider bg-rayo-gold text-rayo-carbon"
+              onclick="filterNews('ALL')">Todas</button>
+            <button
+              class="news-filter-btn px-3 py-1 rounded text-xs font-display font-semibold uppercase tracking-wider bg-white/[0.04] text-rayo-bone/80 hover:text-white border border-white/[0.08]"
+              onclick="filterNews('MEDICO')">Partes Médicos</button>
+            <button
+              class="news-filter-btn px-3 py-1 rounded text-xs font-display font-semibold uppercase tracking-wider bg-white/[0.04] text-rayo-bone/80 hover:text-white border border-white/[0.08]"
+              onclick="filterNews('CRONICA')">Crónicas</button>
+            <button
+              class="news-filter-btn px-3 py-1 rounded text-xs font-display font-semibold uppercase tracking-wider bg-white/[0.04] text-rayo-bone/80 hover:text-white border border-white/[0.08]"
+              onclick="filterNews('OFICIAL')">Oficial</button>
+          </div>
+        </div>
+        <!-- News Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="news-grid">
+          <!-- Noticia 1: Parte Médico -->
+          <article
+            class="news-card elite-card rounded-lg p-6 border border-white/[0.08] flex flex-col justify-between hover:border-rose-400/40 transition-colors"
+            data-cat="MEDICO">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span
+                  class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 text-[9px] font-bold uppercase tracking-wider border border-rose-500/20">
+                  PARTE MÉDICO
+                </span>
+                <span class="text-[11px] text-rayo-bone/50">Hace 2 días • 2 min</span>
+              </div>
+              <h3
+                class="font-display text-xl font-bold text-white uppercase leading-snug hover:text-rose-400 transition-colors cursor-pointer">
+                Bajas confirmadas y evolución de Álex "Galgo" para la Jornada 14
+              </h3>
+              <p class="text-xs text-rayo-bone/70 mt-2.5 line-clamp-3 leading-relaxed">
+                Los servicios médicos del club confirman un esguince leve de grado 1 en el tobillo derecho de nuestro
+                extremo. Se probará en el entrenamiento del viernes antes de la convocatoria definitiva frente a Los
+                Galácticos.
+              </p>
+            </div>
+            <div class="pt-5 border-t border-white/[0.06] mt-5 flex items-center justify-between text-xs">
+              <span class="text-rayo-gold/90 text-xs font-medium">Servicios Médicos Rayo Pelón</span>
+              <span class="material-symbols-outlined text-sm text-rayo-bone/40">arrow_forward</span>
+            </div>
+          </article>
+          <!-- Noticia 2: Crónica -->
+          <article
+            class="news-card elite-card rounded-lg p-6 border border-white/[0.08] flex flex-col justify-between hover:border-rayo-gold/40 transition-colors"
+            data-cat="CRONICA">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span
+                  class="px-2 py-0.5 rounded bg-rayo-gold/10 text-rayo-gold text-[9px] font-bold uppercase tracking-wider border border-rayo-gold/20">
+                  CRÓNICA DE PARTIDO
+                </span>
+                <span class="text-[11px] text-rayo-bone/50">Hace 4 días • 4 min</span>
+              </div>
+              <h3
+                class="font-display text-xl font-bold text-white uppercase leading-snug hover:text-rayo-gold transition-colors cursor-pointer">
+                Exhibición goleadora y remontada épica (4-2) ante el Ibense
+              </h3>
+              <p class="text-xs text-rayo-bone/70 mt-2.5 line-clamp-3 leading-relaxed">
+                Un segundo tiempo memorable liderado por el hat-trick del '9' Dani Pérez desató la euforia en la grada
+                del Polideportivo. El Rayo consolida la segunda plaza y mete presión directa al líder.
+              </p>
+            </div>
+            <div class="pt-5 border-t border-white/[0.06] mt-5 flex items-center justify-between text-xs">
+              <span class="text-rayo-gold/90 text-xs font-medium">Gabinete de Prensa</span>
+              <span class="material-symbols-outlined text-sm text-rayo-bone/40">arrow_forward</span>
+            </div>
+          </article>
+          <!-- Noticia 3: Comunicado Oficial -->
+          <article
+            class="news-card elite-card rounded-lg p-6 border border-white/[0.08] flex flex-col justify-between hover:border-cyan-400/40 transition-colors"
+            data-cat="OFICIAL">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span
+                  class="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 text-[9px] font-bold uppercase tracking-wider border border-cyan-500/20">
+                  COMUNICADO OFICIAL
+                </span>
+                <span class="text-[11px] text-rayo-bone/50">Hace 1 semana • 3 min</span>
+              </div>
+              <h3
+                class="font-display text-xl font-bold text-white uppercase leading-snug hover:text-cyan-300 transition-colors cursor-pointer">
+                Apertura del plazo para patrocinadores comarcales 2025
+              </h3>
+              <p class="text-xs text-rayo-bone/70 mt-2.5 line-clamp-3 leading-relaxed">
+                La junta directiva de Rayo Pelón F7 abre el programa de esponsorización para empresas de Ibi, Castalla,
+                Onil y comarca para la fase de ascenso y torneos de verano.
+              </p>
+            </div>
+            <div class="pt-5 border-t border-white/[0.06] mt-5 flex items-center justify-between text-xs">
+              <span class="text-rayo-gold/90 text-xs font-medium">Junta Directiva</span>
+              <span class="material-symbols-outlined text-sm text-rayo-bone/40">arrow_forward</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+    <!-- ========================================== -->
+    <!-- 8. MURO DE PATROCINADORES (SPONSORS)       -->
+    <!-- ========================================== -->
+    <section class="py-16 bg-[#07070F] border-t border-white/[0.06]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <span class="text-[10px] font-display font-semibold tracking-[0.2em] text-rayo-gold uppercase">OFFICIAL CLUB
+          PARTNERS</span>
+        <h3 class="font-display text-2xl font-bold text-white uppercase mt-1">EMPRESAS QUE IMPULSAN AL RAYO</h3>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 items-center mt-8">
+          <div
+            class="p-3.5 rounded bg-white/[0.02] border border-white/[0.06] flex flex-col items-center justify-center grayscale hover:grayscale-0 hover:border-rayo-gold/40 transition-all duration-300 group cursor-pointer">
+            <span
+              class="material-symbols-outlined text-2xl text-rayo-bone/60 group-hover:text-rayo-gold">sports_motorsports</span>
+            <span
+              class="font-display font-semibold text-[11px] uppercase text-white/70 group-hover:text-white mt-1.5 tracking-wider">IBI
+              TOYS FACTORY</span>
+          </div>
+          <div
+            class="p-3.5 rounded bg-white/[0.02] border border-white/[0.06] flex flex-col items-center justify-center grayscale hover:grayscale-0 hover:border-rayo-gold/40 transition-all duration-300 group cursor-pointer">
+            <span
+              class="material-symbols-outlined text-2xl text-rayo-bone/60 group-hover:text-rayo-gold">local_bar</span>
+            <span
+              class="font-display font-semibold text-[11px] uppercase text-white/70 group-hover:text-white mt-1.5 tracking-wider">CERVECERÍA
+              LA PLAZA</span>
+          </div>
+          <div
+            class="p-3.5 rounded bg-white/[0.02] border border-white/[0.06] flex flex-col items-center justify-center grayscale hover:grayscale-0 hover:border-rayo-gold/40 transition-all duration-300 group cursor-pointer">
+            <span
+              class="material-symbols-outlined text-2xl text-rayo-bone/60 group-hover:text-rayo-gold">fitness_center</span>
+            <span
+              class="font-display font-semibold text-[11px] uppercase text-white/70 group-hover:text-white mt-1.5 tracking-wider">GYM
+              COMARCAL IBI</span>
+          </div>
+          <div
+            class="p-3.5 rounded bg-white/[0.02] border border-white/[0.06] flex flex-col items-center justify-center grayscale hover:grayscale-0 hover:border-rayo-gold/40 transition-all duration-300 group cursor-pointer">
+            <span
+              class="material-symbols-outlined text-2xl text-rayo-bone/60 group-hover:text-rayo-gold">precision_manufacturing</span>
+            <span
+              class="font-display font-semibold text-[11px] uppercase text-white/70 group-hover:text-white mt-1.5 tracking-wider">MATRICERÍA
+              FOIA</span>
+          </div>
+          <div
+            class="p-3.5 rounded bg-white/[0.02] border border-white/[0.06] flex flex-col items-center justify-center grayscale hover:grayscale-0 hover:border-rayo-gold/40 transition-all duration-300 group cursor-pointer">
+            <span
+              class="material-symbols-outlined text-2xl text-rayo-bone/60 group-hover:text-rayo-gold">restaurant</span>
+            <span
+              class="font-display font-semibold text-[11px] uppercase text-white/70 group-hover:text-white mt-1.5 tracking-wider">ASADOR
+              EL TERCER TIEMPO</span>
+          </div>
+          <div
+            class="p-3.5 rounded bg-white/[0.02] border border-white/[0.06] flex flex-col items-center justify-center grayscale hover:grayscale-0 hover:border-rayo-gold/40 transition-all duration-300 group cursor-pointer">
+            <span
+              class="material-symbols-outlined text-2xl text-rayo-bone/60 group-hover:text-rayo-gold">directions_car</span>
+            <span
+              class="font-display font-semibold text-[11px] uppercase text-white/70 group-hover:text-white mt-1.5 tracking-wider">MOTOR
+              IBI SPORT</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- ========================================== -->
+    <!-- 9. CONTACTO Y COLABORACIONES               -->
+    <!-- ========================================== -->
+    <section class="py-20 bg-rayo-navy relative border-t border-white/[0.06]" id="contacto">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          <!-- Left: Information & Values -->
+          <div>
+            <div
+              class="inline-flex items-center gap-2 text-rayo-gold text-xs font-semibold uppercase tracking-[0.18em] mb-1.5">
+              <span class="material-symbols-outlined text-sm">handshake</span>
+              ÚNETE AL PROYECTO
+            </div>
+            <h2 class="font-display text-3xl sm:text-4xl font-bold uppercase text-white tracking-tight">
+              PATROCINIOS Y <span class="text-champagne-gradient">COLABORACIONES</span>
+            </h2>
+            <p class="text-sm text-rayo-bone/70 mt-3 leading-relaxed">
+              ¿Tu empresa quiere vincularse a los valores de esfuerzo, compañerismo y visibilidad en el fútbol comarcal?
+              Buscamos marcas colaboradoras para la presente temporada y la fase de copa.
+            </p>
+            <div class="space-y-4 mt-8">
+              <div class="flex items-start gap-3.5">
+                <div
+                  class="w-10 h-10 rounded bg-white/[0.03] border border-white/[0.08] flex items-center justify-center text-rayo-gold flex-shrink-0">
+                  <span class="material-symbols-outlined text-xl">stadium</span>
+                </div>
+                <div>
+                  <h4 class="font-display font-semibold uppercase text-white text-sm">Sede y Campo Habitual</h4>
+                  <p class="text-xs text-rayo-bone/60 mt-0.5">Polideportivo Municipal de Ibi (Campos de F7 Hierba
+                    Artificial)<br>Calle Jaén s/n, 03440 Ibi (Alicante)</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3.5">
+                <div
+                  class="w-10 h-10 rounded bg-white/[0.03] border border-white/[0.08] flex items-center justify-center text-rayo-gold flex-shrink-0">
+                  <span class="material-symbols-outlined text-xl">mail</span>
+                </div>
+                <div>
+                  <h4 class="font-display font-semibold uppercase text-white text-sm">Email Directo de Directiva</h4>
+                  <p class="text-xs text-rayo-bone/60 mt-0.5">contacto@rayopelonf7.es • directiva.rayopelon@gmail.com
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3.5">
+                <div
+                  class="w-10 h-10 rounded bg-white/[0.03] border border-white/[0.08] flex items-center justify-center text-rayo-gold flex-shrink-0">
+                  <span class="material-symbols-outlined text-xl">schedule</span>
+                </div>
+                <div>
+                  <h4 class="font-display font-semibold uppercase text-white text-sm">Horarios de Competición</h4>
+                  <p class="text-xs text-rayo-bone/60 mt-0.5">Lunes y Miércoles: 20:30h - 22:30h (Liga Plata de Ibi)</p>
+                </div>
+              </div>
+            </div>
+            <!-- Social Links -->
+            <div class="mt-8 pt-5 border-t border-white/[0.06] flex items-center gap-3">
+              <span class="text-xs uppercase font-medium text-rayo-bone/60 tracking-wider">Síguenos:</span>
+              <a class="w-8 h-8 rounded bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-rayo-bone hover:text-rayo-gold transition-colors"
+                href="#">
+                <span class="font-display font-bold text-[10px]">IG</span>
+              </a>
+              <a class="w-8 h-8 rounded bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-rayo-bone hover:text-rayo-gold transition-colors"
+                href="#">
+                <span class="font-display font-bold text-[10px]">TK</span>
+              </a>
+              <a class="w-8 h-8 rounded bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-rayo-bone hover:text-rayo-gold transition-colors"
+                href="#">
+                <span class="font-display font-bold text-[10px]">YT</span>
+              </a>
+            </div>
+          </div>
+          <!-- Right: Interactive Form -->
+          <div class="elite-card rounded-lg p-7 border border-white/[0.08] shadow-xl">
+            <h3 class="font-display text-xl font-bold uppercase text-white mb-1">Envíanos tu Propuesta</h3>
+            <p class="text-xs text-rayo-bone/60 mb-5">Completa el formulario y nuestro responsable deportivo o de
+              patrocinios responderá en 24h.</p>
+            <form class="space-y-3.5" id="contact-form" onsubmit="event.preventDefault(); showFormSuccess();">
+              <div>
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-rayo-bone/70 mb-1">Nombre o
+                  Empresa *</label>
+                <input
+                  class="w-full px-3.5 py-2.5 bg-[#07070F] rounded text-xs border border-white/[0.1] focus:outline-none focus:border-rayo-gold/50 text-white placeholder-rayo-bone/30"
+                  placeholder="Ej. Taller Mecánico Ibi / Juan Gómez" required="" type="text">
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label class="block text-[11px] font-semibold uppercase tracking-wider text-rayo-bone/70 mb-1">Correo
+                    Electrónico *</label>
+                  <input
+                    class="w-full px-3.5 py-2.5 bg-[#07070F] rounded text-xs border border-white/[0.1] focus:outline-none focus:border-rayo-gold/50 text-white placeholder-rayo-bone/30"
+                    placeholder="contacto@empresa.com" required="" type="email">
+                </div>
+                <div>
+                  <label
+                    class="block text-[11px] font-semibold uppercase tracking-wider text-rayo-bone/70 mb-1">Teléfono</label>
+                  <input
+                    class="w-full px-3.5 py-2.5 bg-[#07070F] rounded text-xs border border-white/[0.1] focus:outline-none focus:border-rayo-gold/50 text-white placeholder-rayo-bone/30"
+                    placeholder="+34 600 000 000" type="tel">
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-rayo-bone/70 mb-1">Tipo de
+                  Propuesta</label>
+                <select
+                  class="w-full px-3.5 py-2.5 bg-[#07070F] rounded text-xs border border-white/[0.1] focus:outline-none focus:border-rayo-gold/50 text-white">
+                  <option value="sponsor">Patrocinio Principal (Equipación y Web)</option>
+                  <option value="colab">Colaboración Material Deportivo / Bebidas</option>
+                  <option value="amistoso">Petición de Partido Amistoso</option>
+                  <option value="fichaje">Interés en incorporarse a la Plantilla</option>
+                  <option value="otro">Otras consultas generales</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-rayo-bone/70 mb-1">Mensaje
+                  *</label>
+                <textarea
+                  class="w-full px-3.5 py-2.5 bg-[#07070F] rounded text-xs border border-white/[0.1] focus:outline-none focus:border-rayo-gold/50 text-white placeholder-rayo-bone/30"
+                  placeholder="Cuéntanos brevemente qué te gustaría proponer..." required="" rows="3"></textarea>
+              </div>
+              <div class="flex items-center gap-2 text-[11px] text-rayo-bone/60">
+                <input class="rounded accent-rayo-gold bg-[#07070F] border-white/20" id="privacy-check" required=""
+                  type="checkbox">
+                <label for="privacy-check">Acepto la política de protección de datos del club Rayo Pelón.</label>
+              </div>
+              <button
+                class="w-full py-3 rounded font-display text-xs font-bold uppercase tracking-[0.14em] bg-rayo-gold hover:bg-rayo-goldLight text-rayo-carbon transition-all duration-200 flex items-center justify-center gap-2"
+                type="submit">
+                <span class="material-symbols-outlined text-base">send</span>
+                Enviar Mensaje Oficial
+              </button>
+              <div
+                class="hidden p-3 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs text-center font-medium"
+                id="form-success-msg">
+                ✓ ¡Mensaje enviado con éxito! Nos pondremos en contacto muy pronto.
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <!-- ========================================== -->
+  <!-- 10. FOOTER                                  -->
+  <!-- ========================================== -->
+  <footer class="bg-[#05050B] border-t border-white/[0.08] py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+        <!-- Crest & Info -->
+        <div class="flex items-center gap-3.5">
+          <div class="w-10 h-10 flex-shrink-0">
+            <img alt="Escudo Rayo Pelón" class="w-full h-full object-contain"
+              src="https://lh3.googleusercontent.com/aida/AEtjO1U5dnlW27XzoEzYzSxfxWVG88y6vWcZ9OfLut3Y2Xk9z0sYxqFQSdK99Rwg3u1GkWh9EWCpAFaMD_t8Sm4W_KUAiLWSGCbWb2LL0BYr8qqzeNzDIkV185TdQ-N_c-FJ1yMjdwFu7aiDvMAWLWmBD35z6ynvDcm4H0kNysv6e5ehd4CNAeoBZsFgWQiIEtjwK2F3Ztnug9mVDBcPFqQbf7f0NOeIeZTr8shWchgtbw">
+          </div>
+          <div>
+            <p class="font-display font-bold text-lg text-white tracking-wider">RAYO PELÓN F7</p>
+            <p class="text-[11px] text-rayo-bone/60">Liga Plata de Ibi • Liga Comarcal de Fútbol 7</p>
+          </div>
+        </div>
+        <!-- Links -->
+        <div class="flex flex-wrap justify-center gap-5 text-xs text-rayo-bone/60 uppercase font-medium">
+          <a class="hover:text-white transition-colors" href="#inicio">Inicio</a>
+          <a class="hover:text-white transition-colors" href="#plantilla">Plantilla</a>
+          <a class="hover:text-white transition-colors" href="#clasificacion">Clasificación</a>
+          <a class="hover:text-white transition-colors" href="#equipaciones">Equipaciones</a>
+          <a class="hover:text-white transition-colors" href="#multimedia">Multimedia</a>
+          <a class="hover:text-white transition-colors" href="#noticias">Noticias</a>
+          <a class="hover:text-white transition-colors" href="#contacto">Contacto</a>
+        </div>
+      </div>
+      <div
+        class="mt-8 pt-5 border-t border-white/[0.06] flex flex-col sm:flex-row justify-between items-center text-[11px] text-rayo-bone/40 gap-3">
+        <p>© 2025 RAYO PELÓN F7 • TODOS LOS DERECHOS RESERVADOS • POLIDEPORTIVO MUNICIPAL DE IBI</p>
+        <p class="text-rayo-gold/80 font-medium">Diseño Deportivo de Alta Competición</p>
+      </div>
+    </div>
+  </footer>
+  <!-- ========================================== -->
+  <!-- JAVASCRIPT LOGIC (INTERACTIVIDAD Y FILTROS)-->
+  <!-- ========================================== -->
+  <script>
+    // 1. Mobile Menu Toggle
+    const mobileBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    if (mobileBtn && mobileMenu) {
+      mobileBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+      });
+      // Close mobile menu on anchor click
+      mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+      });
+    }
+
+    // 2. Showcase de Equipaciones (Home vs Away Switcher)
+    function showKit(type) {
+      const cardHome = document.getElementById('card-kit-home');
+      const cardAway = document.getElementById('card-kit-away');
+      const btnHome = document.getElementById('btn-kit-home');
+      const btnAway = document.getElementById('btn-kit-away');
+
+      if (type === 'home') {
+        btnHome.className = "px-4 py-2 rounded text-xs font-display font-semibold uppercase tracking-wider bg-rayo-gold text-rayo-carbon transition-all";
+        btnAway.className = "px-4 py-2 rounded text-xs font-display font-semibold uppercase tracking-wider text-rayo-bone/70 hover:text-white transition-all";
+        cardHome.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else {
+        btnAway.className = "px-4 py-2 rounded text-xs font-display font-semibold uppercase tracking-wider bg-rayo-burgundy text-white transition-all";
+        btnHome.className = "px-4 py-2 rounded text-xs font-display font-semibold uppercase tracking-wider text-rayo-bone/70 hover:text-white transition-all";
+        cardAway.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    // 3. Filtrar Jugadores en Cartas 3D
+    function filterPlayers(pos) {
+      const cards = document.querySelectorAll('.player-card');
+      const buttons = document.querySelectorAll('.pos-filter-btn');
+
+      buttons.forEach(btn => {
+        btn.className = "pos-filter-btn px-3 py-1 rounded text-xs font-display font-semibold uppercase tracking-wider bg-white/[0.04] text-rayo-bone/80 hover:text-white border border-white/[0.08]";
+      });
+      event.target.className = "pos-filter-btn px-3 py-1 rounded text-xs font-display font-semibold uppercase tracking-wider bg-rayo-gold text-rayo-carbon";
+
+      cards.forEach(card => {
+        if (pos === 'ALL' || card.getAttribute('data-pos') === pos) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    // 4. Búsqueda en Vivo en Tabla de Plantilla
+    function searchTablePlayers(query) {
+      const term = query.toLowerCase();
+      const rows = document.querySelectorAll('#roster-stats-table tbody tr');
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(term) ? '' : 'none';
+      });
+    }
+
+    // 5. Multimedia Tabs (Fotos vs Vídeos)
+    function switchMediaTab(tab) {
+      const fotosCont = document.getElementById('media-content-fotos');
+      const videosCont = document.getElementById('media-content-videos');
+      const btnFotos = document.getElementById('tab-btn-fotos');
+      const btnVideos = document.getElementById('tab-btn-videos');
+
+      if (tab === 'fotos') {
+        fotosCont.classList.remove('hidden');
+        videosCont.classList.add('hidden');
+        btnFotos.className = "px-4 py-1.5 rounded text-xs font-display font-semibold uppercase tracking-wider bg-rayo-gold text-rayo-carbon transition-all";
+        btnVideos.className = "px-4 py-1.5 rounded text-xs font-display font-semibold uppercase tracking-wider text-rayo-bone/70 hover:text-white transition-all";
+      } else {
+        fotosCont.classList.add('hidden');
+        videosCont.classList.remove('hidden');
+        btnVideos.className = "px-4 py-1.5 rounded text-xs font-display font-semibold uppercase tracking-wider bg-rayo-gold text-rayo-carbon transition-all";
+        btnFotos.className = "px-4 py-1.5 rounded text-xs font-display font-semibold uppercase tracking-wider text-rayo-bone/70 hover:text-white transition-all";
+      }
+    }
+
+    // 6. Filtrar Noticias
+    function filterNews(cat) {
+      const news = document.querySelectorAll('.news-card');
+      const buttons = document.querySelectorAll('.news-filter-btn');
+
+      buttons.forEach(btn => {
+        btn.className = "news-filter-btn px-3 py-1 rounded text-xs font-display font-semibold uppercase tracking-wider bg-white/[0.04] text-rayo-bone/80 hover:text-white border border-white/[0.08]";
+      });
+      event.target.className = "news-filter-btn px-3 py-1 rounded text-xs font-display font-semibold uppercase tracking-wider bg-rayo-gold text-rayo-carbon";
+
+      news.forEach(card => {
+        if (cat === 'ALL' || card.getAttribute('data-cat') === cat) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    // 7. Form Submission Feedback
+    function showFormSuccess() {
+      const successMsg = document.getElementById('form-success-msg');
+      if (successMsg) {
+        successMsg.classList.remove('hidden');
+        setTimeout(() => successMsg.classList.add('hidden'), 5000);
+      }
+    }
+  </script>
+</body>
+
+</html>

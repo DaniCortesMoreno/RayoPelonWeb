@@ -1,0 +1,58 @@
+# =======================================================
+# .gitignore - Rayo Pelón F7 (Oficial)
+# =======================================================
+
+# 1. Dependencias (NUNCA subir node_modules)
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# 2. Variables de entorno y credenciales (SEGURIDAD CRÍTICA)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+*.pem
+*.key
+*.cert
+secrets/
+
+# 3. Registros del sistema y logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log
+
+# 4. Archivos de sistema operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# 5. Configuración de editores e IDEs
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 6. Caché y pruebas
+coverage/
+.nyc_output/
+.turbo/
+.cache/
+
+# 7. Archivos temporales de IA y asistentes
+.gemini/
+.system_generated/
+scratch/
