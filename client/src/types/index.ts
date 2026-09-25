@@ -205,3 +205,17 @@ export interface KitItem {
   description: string;
   details: string[];
 }
+
+export type AuditAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'LOGIN' | 'SYNC';
+export type AuditModule = 'NOTICIAS' | 'PARTIDOS' | 'PLANTILLA' | 'MULTIMEDIA' | 'USUARIOS' | 'CLASIFICACION' | 'SISTEMA';
+
+export interface AuditLog {
+  id: string;
+  timestamp: string;
+  username: string;
+  userRole: 'ADMIN' | 'MODERADOR';
+  action: AuditAction;
+  module: AuditModule;
+  description: string;
+  details?: any;
+}

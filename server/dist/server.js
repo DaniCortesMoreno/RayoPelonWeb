@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
-import { Database, computeMatchCenter, INITIAL_MATCHES } from './database/db.js';
+import { Database, computeMatchCenter, INITIAL_MATCHES, createAuditLog } from './database/db.js';
 import { fetchLiveStandings, checkScheduleWindow, SYNC_SCHEDULE_INFO } from './services/standingsSync.js';
 import { authMiddleware, requireRole, generateToken } from './auth.js';
 const __filename = fileURLToPath(import.meta.url);
@@ -13,6 +13,18 @@ const PLAYERS_DIR = path.resolve(__dirname, '../../client/public/players');
 const MEDIA_DIR = path.resolve(__dirname, '../../client/public/media');
 const MEDIA_IMAGES_DIR = path.join(MEDIA_DIR, 'images');
 const MEDIA_VIDEOS_DIR = path.join(MEDIA_DIR, 'videos');
+// Helper para registrar acciones en la bitácora de auditoría
+function logAudit(db, req, action, module, description, details) {
+    const authUser = req.user;
+    return createAuditLog(db, {
+        username: authUser?.username || 'Sistema',
+        userRole: authUser?.role || 'MODERADOR',
+        action,
+        module,
+        description,
+        details
+    });
+}
 // Ensure upload directories exist
 for (const dir of [PLAYERS_DIR, MEDIA_DIR, MEDIA_IMAGES_DIR, MEDIA_VIDEOS_DIR]) {
     if (!fs.existsSync(dir)) {
@@ -55,6 +67,13 @@ app.post('/api/auth/login', (req, res) => {
         return res.status(401).json({ error: 'Credenciales inválidas. Contraseña incorrecta.' });
     }
     user.lastLogin = new Date().toISOString();
+    createAuditLog(db, {
+        username: user.username,
+        userRole: user.role,
+        action: 'LOGIN',
+        module: 'USUARIOS',
+        description: `Inicio de sesión exitoso en el panel backend (${user.role === 'ADMIN' ? 'Administrador' : 'Moderador'})`
+    });
     Database.write(db);
     const token = generateToken({
         id: user.id,
@@ -130,6 +149,7 @@ app.post('/api/users', authMiddleware, requireRole(['ADMIN']), (req, res) => {
         createdAt: new Date().toISOString()
     };
     db.users.push(newUser);
+    logAudit(db, req, 'CREATE', 'USUARIOS', `Creó el usuario "${newUser.username}" con rol ${newUser.role}`);
     Database.write(db);
     res.status(201).json({
         success: true,
@@ -176,6 +196,7 @@ app.put('/api/users/:id', authMiddleware, requireRole(['ADMIN']), (req, res) => 
     if (password && String(password).trim().length >= 6) {
         user.passwordHash = bcrypt.hashSync(String(password).trim(), 10);
     }
+    logAudit(db, req, 'UPDATE', 'USUARIOS', `Modificó datos del usuario "${user.username}" (Rol: ${user.role})`);
     Database.write(db);
     res.json({
         success: true,
@@ -215,11 +236,58 @@ app.delete('/api/users/:id', authMiddleware, requireRole(['ADMIN']), (req, res) 
         });
     }
     const deleted = db.users.splice(userIndex, 1)[0];
+    logAudit(db, req, 'DELETE', 'USUARIOS', `Eliminó el usuario "${deleted.username}" (Rol previo: ${deleted.role})`);
     Database.write(db);
     res.json({
         success: true,
         message: `Usuario ${deleted.username} eliminado correctamente`,
         user: { id: deleted.id, username: deleted.username }
+    });
+});
+// ==========================================
+// REGISTRO DE AUDITORÍA Y LOGS (SOLO ADMIN)
+// ==========================================
+// Listar logs de auditoría con filtros opcionales (SOLO ADMIN)
+app.get('/api/admin/logs', authMiddleware, requireRole(['ADMIN']), (req, res) => {
+    const db = Database.read();
+    const { module, action, search } = req.query;
+    let logs = db.auditLogs || [];
+    if (module && typeof module === 'string' && module !== 'TODOS') {
+        logs = logs.filter((l) => l.module === module);
+    }
+    if (action && typeof action === 'string' && action !== 'TODAS') {
+        logs = logs.filter((l) => l.action === action);
+    }
+    if (search && typeof search === 'string' && search.trim()) {
+        const q = search.toLowerCase().trim();
+        logs = logs.filter((l) => l.description.toLowerCase().includes(q) ||
+            l.username.toLowerCase().includes(q) ||
+            l.module.toLowerCase().includes(q) ||
+            l.action.toLowerCase().includes(q));
+    }
+    res.json({
+        success: true,
+        count: logs.length,
+        total: (db.auditLogs || []).length,
+        logs
+    });
+});
+// Limpiar historial de auditoría (SOLO ADMIN)
+app.delete('/api/admin/logs', authMiddleware, requireRole(['ADMIN']), (req, res) => {
+    const db = Database.read();
+    const count = (db.auditLogs || []).length;
+    db.auditLogs = [];
+    createAuditLog(db, {
+        username: req.user?.username || 'Admin',
+        userRole: req.user?.role || 'ADMIN',
+        action: 'DELETE',
+        module: 'SISTEMA',
+        description: `Registro de auditoría vaciado por el usuario (se eliminaron ${count} logs previos)`
+    });
+    Database.write(db);
+    res.json({
+        success: true,
+        message: `Historial de logs vaciado (${count} registros eliminados)`
     });
 });
 // ==========================================
@@ -291,6 +359,7 @@ app.post('/api/matches', authMiddleware, (req, res) => {
     db.matches.push(newMatch);
     db.matches.sort((a, b) => a.jornada - b.jornada);
     db.matchCenter = computeMatchCenter(db.matches);
+    logAudit(db, req, 'CREATE', 'PARTIDOS', `Añadió partido de Jornada ${newMatch.jornada}: ${newMatch.local} vs ${newMatch.visitante} (${newMatch.fecha || 'Fecha pendiente'})`);
     Database.write(db);
     res.status(201).json({
         success: true,
@@ -327,6 +396,8 @@ app.put('/api/matches/:id', authMiddleware, (req, res) => {
     db.matches[index] = updatedMatch;
     db.matches.sort((a, b) => a.jornada - b.jornada);
     db.matchCenter = computeMatchCenter(db.matches);
+    const scoreInfo = updatedMatch.jugado ? ` (Resultado: ${updatedMatch.golesLocal ?? 0} - ${updatedMatch.golesVisitante ?? 0})` : '';
+    logAudit(db, req, 'UPDATE', 'PARTIDOS', `Actualizó partido de Jornada ${updatedMatch.jornada}: ${updatedMatch.local} vs ${updatedMatch.visitante}${scoreInfo}`);
     Database.write(db);
     res.json({
         success: true,
@@ -345,6 +416,7 @@ app.delete('/api/matches/:id', authMiddleware, (req, res) => {
     }
     const deleted = db.matches.splice(index, 1)[0];
     db.matchCenter = computeMatchCenter(db.matches);
+    logAudit(db, req, 'DELETE', 'PARTIDOS', `Eliminó partido de Jornada ${deleted.jornada}: ${deleted.local} vs ${deleted.visitante}`);
     Database.write(db);
     res.json({
         success: true,
@@ -357,6 +429,7 @@ app.post('/api/matches/reset-default', authMiddleware, (req, res) => {
     const db = Database.read();
     db.matches = [...INITIAL_MATCHES];
     db.matchCenter = computeMatchCenter(db.matches);
+    logAudit(db, req, 'SYNC', 'PARTIDOS', 'Restableció el calendario oficial a las 22 jornadas iniciales');
     Database.write(db);
     res.json({
         success: true,
@@ -456,6 +529,7 @@ app.post('/api/players', authMiddleware, (req, res) => {
     const db = Database.read();
     const newPlayer = sanitizePlayerData(req.body);
     db.players.push(newPlayer);
+    logAudit(db, req, 'CREATE', 'PLANTILLA', `Añadió al jugador ${newPlayer.name} ("${newPlayer.nickname}", #${newPlayer.number}, ${newPlayer.position})`);
     Database.write(db);
     res.status(201).json({ success: true, message: 'Jugador creado correctamente', player: newPlayer });
 });
@@ -466,6 +540,7 @@ app.put('/api/players/:id', authMiddleware, (req, res) => {
         return res.status(404).json({ error: 'Jugador no encontrado' });
     const updatedPlayer = sanitizePlayerData(req.body, db.players[index]);
     db.players[index] = updatedPlayer;
+    logAudit(db, req, 'UPDATE', 'PLANTILLA', `Modificó los datos del jugador ${updatedPlayer.name} ("${updatedPlayer.nickname}", #${updatedPlayer.number}, ${updatedPlayer.position})`);
     Database.write(db);
     res.json({ success: true, message: 'Jugador actualizado correctamente', player: updatedPlayer });
 });
@@ -475,6 +550,7 @@ app.delete('/api/players/:id', authMiddleware, (req, res) => {
     if (index === -1)
         return res.status(404).json({ error: 'Jugador no encontrado' });
     const deleted = db.players.splice(index, 1)[0];
+    logAudit(db, req, 'DELETE', 'PLANTILLA', `Eliminó al jugador ${deleted.name} ("${deleted.nickname}", #${deleted.number}) de la plantilla`);
     Database.write(db);
     res.json({ success: true, message: 'Jugador eliminado correctamente', player: deleted });
 });
@@ -544,6 +620,7 @@ app.post('/api/standings/sync', authMiddleware, async (req, res) => {
         if (result.success && result.data.length > 0) {
             const db = Database.read();
             db.standings = result.data;
+            logAudit(db, req, 'SYNC', 'CLASIFICACION', `Sincronizó en directo la clasificación con ligacomarcal.com (${result.teamsCount} equipos)`);
             Database.write(db);
             lastStandingsSync = {
                 timestamp: result.timestamp,
@@ -597,6 +674,7 @@ app.put('/api/standings', authMiddleware, (req, res) => {
     const db = Database.read();
     if (Array.isArray(req.body)) {
         db.standings = req.body;
+        logAudit(db, req, 'UPDATE', 'CLASIFICACION', `Actualizó manualmente la tabla de clasificación (${req.body.length} equipos)`);
         Database.write(db);
         return res.json({ success: true, standings: db.standings });
     }
@@ -680,6 +758,7 @@ app.post('/api/news', authMiddleware, (req, res) => {
             } : {})
         };
         db.news.unshift(article);
+        logAudit(db, req, 'CREATE', 'NOTICIAS', `Publicó ${article.categoryLabel}: "${article.title}"`);
         Database.write(db);
         res.status(201).json(article);
     }
@@ -728,6 +807,7 @@ app.put('/api/news/:id', authMiddleware, (req, res) => {
                 } : current.medicalDetails
             } : { medicalDetails: undefined })
         };
+        logAudit(db, req, 'UPDATE', 'NOTICIAS', `Modificó la publicación: "${db.news[index].title}" (${db.news[index].categoryLabel})`);
         Database.write(db);
         res.json(db.news[index]);
     }
@@ -745,11 +825,13 @@ app.delete('/api/news/:id', authMiddleware, (req, res) => {
         if (index === -1) {
             return res.status(404).json({ error: 'Noticia no encontrada' });
         }
+        const deletedTitle = db.news[index].title;
         const wasFeatured = db.news[index].featured;
         db.news.splice(index, 1);
         if (wasFeatured && db.news.length > 0) {
             db.news[0].featured = true;
         }
+        logAudit(db, req, 'DELETE', 'NOTICIAS', `Eliminó la noticia: "${deletedTitle}"`);
         Database.write(db);
         res.json({ success: true, message: 'Noticia eliminada correctamente', remaining: db.news.length });
     }
@@ -770,6 +852,7 @@ app.put('/api/news/:id/feature', authMiddleware, (req, res) => {
         db.news.forEach(n => {
             n.featured = (n.id === req.params.id);
         });
+        logAudit(db, req, 'UPDATE', 'NOTICIAS', `Marcó como comunicado destacado en portada: "${article.title}"`);
         Database.write(db);
         res.json({
             success: true,
@@ -874,6 +957,7 @@ app.put('/api/media/featured-match', authMiddleware, (req, res) => {
         ...db.featuredMatch,
         ...req.body
     };
+    logAudit(db, req, 'UPDATE', 'MULTIMEDIA', `Actualizó el partido destacado multimedia (Jornada ${db.featuredMatch.matchday || ''})`);
     Database.write(db);
     res.json({ success: true, featuredMatch: db.featuredMatch });
 });
@@ -899,6 +983,7 @@ app.post('/api/media/gallery', authMiddleware, (req, res) => {
         description: String(req.body.description || '').trim()
     };
     db.gallery.unshift(newPhoto);
+    logAudit(db, req, 'CREATE', 'MULTIMEDIA', `Subió nueva fotografía a la galería: "${newPhoto.title}" (${newPhoto.category})`);
     Database.write(db);
     res.status(201).json({ success: true, item: newPhoto });
 });
@@ -915,6 +1000,7 @@ app.put('/api/media/gallery/:id', authMiddleware, (req, res) => {
         ...req.body,
         id: req.params.id // asegurar que el id no se modifique
     };
+    logAudit(db, req, 'UPDATE', 'MULTIMEDIA', `Editó los datos de la fotografía: "${db.gallery[index].title}"`);
     Database.write(db);
     res.json({ success: true, item: db.gallery[index] });
 });
@@ -922,11 +1008,12 @@ app.delete('/api/media/gallery/:id', authMiddleware, (req, res) => {
     const db = Database.read();
     if (!db.gallery)
         db.gallery = [];
-    const beforeLen = db.gallery.length;
-    db.gallery = db.gallery.filter((p) => p.id !== req.params.id);
-    if (db.gallery.length === beforeLen) {
+    const targetPhoto = db.gallery.find((p) => p.id === req.params.id);
+    if (!targetPhoto) {
         return res.status(404).json({ error: 'Foto no encontrada' });
     }
+    db.gallery = db.gallery.filter((p) => p.id !== req.params.id);
+    logAudit(db, req, 'DELETE', 'MULTIMEDIA', `Eliminó fotografía de la galería: "${targetPhoto.title || req.params.id}"`);
     Database.write(db);
     res.json({ success: true, message: 'Foto eliminada correctamente' });
 });
@@ -955,6 +1042,7 @@ app.post('/api/media/clips', authMiddleware, (req, res) => {
         views: String(req.body.views || '1.0K views').trim()
     };
     db.clips.unshift(newClip);
+    logAudit(db, req, 'CREATE', 'MULTIMEDIA', `Añadió nuevo clip de vídeo: "${newClip.title}"`);
     Database.write(db);
     res.status(201).json({ success: true, item: newClip });
 });
@@ -971,6 +1059,7 @@ app.put('/api/media/clips/:id', authMiddleware, (req, res) => {
         ...req.body,
         id: req.params.id
     };
+    logAudit(db, req, 'UPDATE', 'MULTIMEDIA', `Actualizó el clip de vídeo: "${db.clips[index].title}"`);
     Database.write(db);
     res.json({ success: true, item: db.clips[index] });
 });
@@ -978,11 +1067,12 @@ app.delete('/api/media/clips/:id', authMiddleware, (req, res) => {
     const db = Database.read();
     if (!db.clips)
         db.clips = [];
-    const beforeLen = db.clips.length;
-    db.clips = db.clips.filter((c) => c.id !== req.params.id);
-    if (db.clips.length === beforeLen) {
+    const targetClip = db.clips.find((c) => c.id === req.params.id);
+    if (!targetClip) {
         return res.status(404).json({ error: 'Clip no encontrado' });
     }
+    db.clips = db.clips.filter((c) => c.id !== req.params.id);
+    logAudit(db, req, 'DELETE', 'MULTIMEDIA', `Eliminó el clip de vídeo: "${targetClip.title || req.params.id}"`);
     Database.write(db);
     res.json({ success: true, message: 'Clip eliminado correctamente' });
 });

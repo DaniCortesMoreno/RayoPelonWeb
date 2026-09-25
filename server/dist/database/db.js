@@ -6,6 +6,27 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_DIR = path.resolve(__dirname, '../../data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
+export function createAuditLog(db, entry) {
+    if (!db.auditLogs || !Array.isArray(db.auditLogs)) {
+        db.auditLogs = [];
+    }
+    const newLog = {
+        id: `log_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        timestamp: new Date().toISOString(),
+        username: entry.username || 'Sistema',
+        userRole: entry.userRole || 'MODERADOR',
+        action: entry.action,
+        module: entry.module,
+        description: entry.description,
+        details: entry.details
+    };
+    db.auditLogs.unshift(newLog);
+    // Mantener los 500 registros más recientes
+    if (db.auditLogs.length > 500) {
+        db.auditLogs = db.auditLogs.slice(0, 500);
+    }
+    return newLog;
+}
 export function getInitialUsers() {
     return [
         {
@@ -1005,7 +1026,8 @@ const INITIAL_DATA = {
     gallery: DEFAULT_GALLERY,
     clips: DEFAULT_CLIPS,
     users: getInitialUsers(),
-    matches: INITIAL_MATCHES
+    matches: INITIAL_MATCHES,
+    auditLogs: []
 };
 export class Database {
     static ensureDataDir() {
@@ -1042,6 +1064,10 @@ export class Database {
             }
             if (!data.news || !Array.isArray(data.news) || data.news.length === 0) {
                 data.news = DEFAULT_NEWS;
+                dirty = true;
+            }
+            if (!data.auditLogs || !Array.isArray(data.auditLogs)) {
+                data.auditLogs = [];
                 dirty = true;
             }
             if (!data.users || !Array.isArray(data.users) || data.users.length === 0) {

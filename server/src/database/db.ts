@@ -10,6 +10,55 @@ const DB_FILE = path.join(DATA_DIR, 'db.json');
 
 export type UserRole = 'ADMIN' | 'MODERADOR';
 
+export type AuditAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'LOGIN' | 'SYNC';
+export type AuditModule = 'NOTICIAS' | 'PARTIDOS' | 'PLANTILLA' | 'MULTIMEDIA' | 'USUARIOS' | 'CLASIFICACION' | 'SISTEMA';
+
+export interface AuditLog {
+  id: string;
+  timestamp: string; // ISO date string
+  username: string;
+  userRole: UserRole;
+  action: AuditAction;
+  module: AuditModule;
+  description: string;
+  details?: any;
+}
+
+export function createAuditLog(
+  db: ClubDatabase,
+  entry: {
+    username: string;
+    userRole: UserRole;
+    action: AuditAction;
+    module: AuditModule;
+    description: string;
+    details?: any;
+  }
+): AuditLog {
+  if (!db.auditLogs || !Array.isArray(db.auditLogs)) {
+    db.auditLogs = [];
+  }
+  const newLog: AuditLog = {
+    id: `log_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    timestamp: new Date().toISOString(),
+    username: entry.username || 'Sistema',
+    userRole: entry.userRole || 'MODERADOR',
+    action: entry.action,
+    module: entry.module,
+    description: entry.description,
+    details: entry.details
+  };
+
+  db.auditLogs.unshift(newLog);
+
+  // Mantener los 500 registros más recientes
+  if (db.auditLogs.length > 500) {
+    db.auditLogs = db.auditLogs.slice(0, 500);
+  }
+
+  return newLog;
+}
+
 export interface User {
   id: string;
   username: string;
@@ -499,6 +548,7 @@ export interface ClubDatabase {
   clips?: any[];
   users: User[];
   matches?: SeasonMatch[];
+  auditLogs?: AuditLog[];
 }
 
 export const DEFAULT_FEATURED_MATCH = {
@@ -1084,7 +1134,8 @@ const INITIAL_DATA: ClubDatabase = {
   gallery: DEFAULT_GALLERY,
   clips: DEFAULT_CLIPS,
   users: getInitialUsers(),
-  matches: INITIAL_MATCHES
+  matches: INITIAL_MATCHES,
+  auditLogs: []
 };
 
 export class Database {
@@ -1123,6 +1174,10 @@ export class Database {
       }
       if (!data.news || !Array.isArray(data.news) || data.news.length === 0) {
         data.news = DEFAULT_NEWS;
+        dirty = true;
+      }
+      if (!data.auditLogs || !Array.isArray(data.auditLogs)) {
+        data.auditLogs = [];
         dirty = true;
       }
       if (!data.users || !Array.isArray(data.users) || data.users.length === 0) {

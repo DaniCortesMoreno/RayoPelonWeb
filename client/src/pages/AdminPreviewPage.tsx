@@ -6,12 +6,13 @@ import { AdminPlayersManager } from '../components/admin/AdminPlayersManager';
 import { AdminMediaManager } from '../components/admin/AdminMediaManager';
 import { AdminMatchesManager } from '../components/admin/AdminMatchesManager';
 import { AdminNewsManager } from '../components/admin/AdminNewsManager';
+import { AdminLogsManager } from '../components/admin/AdminLogsManager';
 import { CLUB_INFO, INITIAL_PLAYERS, STANDINGS_DATA, NEWS_DATA } from '../data/mockData';
 import { API_BASE } from '../config/api';
 
 export const AdminPreviewPage: React.FC = () => {
   const { isAuthenticated, user, logout, isAdmin, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'players' | 'matches' | 'standings' | 'news' | 'multimedia' | 'users'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'players' | 'matches' | 'standings' | 'news' | 'multimedia' | 'users' | 'logs'>('dashboard');
 
   // Si está verificando sesión en localStorage o backend
   if (loading) {
@@ -169,6 +170,26 @@ export const AdminPreviewPage: React.FC = () => {
                 </span>
               )}
             </button>
+
+            {/* Pestaña de Auditoría & Logs - VISIBLE ÚNICAMENTE PARA ROL ADMIN */}
+            {isAdmin && (
+              <button
+                onClick={() => setActiveTab('logs')}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded text-xs font-semibold uppercase tracking-wider transition-all ${
+                  activeTab === 'logs'
+                    ? 'bg-rayo-gold text-rayo-carbon font-bold shadow-md'
+                    : 'text-rayo-bone/70 hover:text-white hover:bg-white/[0.04]'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-lg">policy</span>
+                  <span>Auditoría & Logs</span>
+                </div>
+                <span className="px-1.5 py-0.5 rounded bg-rayo-gold/20 text-rayo-gold text-[9px] font-bold">
+                  ADMIN
+                </span>
+              </button>
+            )}
           </nav>
         </div>
 
@@ -274,13 +295,20 @@ export const AdminPreviewPage: React.FC = () => {
                     <li><strong className="text-white">Sin Registro Manual</strong>: Ninguna persona externa puede crearse cuentas desde fuera del club.</li>
                   </ul>
                   {isAdmin && (
-                    <div className="mt-4">
+                    <div className="mt-4 flex flex-wrap gap-2.5">
                       <button
                         onClick={() => setActiveTab('users')}
-                        className="px-4 py-2 rounded-lg bg-rayo-gold text-rayo-carbon font-display text-xs font-bold uppercase tracking-wider hover:bg-rayo-goldLight transition-colors inline-flex items-center gap-2"
+                        className="px-4 py-2 rounded-lg bg-rayo-gold text-rayo-carbon font-display text-xs font-bold uppercase tracking-wider hover:bg-rayo-goldLight transition-colors inline-flex items-center gap-2 shadow-sm"
                       >
                         <span className="material-symbols-outlined text-base">manage_accounts</span>
                         Administrar Usuarios y Roles
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('logs')}
+                        className="px-4 py-2 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-white font-display text-xs font-bold uppercase tracking-wider transition-colors inline-flex items-center gap-2 border border-white/[0.1]"
+                      >
+                        <span className="material-symbols-outlined text-base text-rayo-gold">policy</span>
+                        Ver Registro de Auditoría (Logs)
                       </button>
                     </div>
                   )}
@@ -418,6 +446,12 @@ export const AdminPreviewPage: React.FC = () => {
         {activeTab === 'news' && (
           <div className="mt-8 animate-fadeIn">
             <AdminNewsManager />
+          </div>
+        )}
+
+        {isAdmin && activeTab === 'logs' && (
+          <div className="mt-8 animate-fadeIn">
+            <AdminLogsManager />
           </div>
         )}
       </main>
