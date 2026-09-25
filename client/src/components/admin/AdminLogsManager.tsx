@@ -58,13 +58,24 @@ export const AdminLogsManager: React.FC = () => {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [dbStatus, setDbStatus] = useState<{ isMysql: boolean; host?: string; database?: string } | null>(null);
 
   // Filters
   const [selectedModule, setSelectedModule] = useState<string>('TODOS');
   const [selectedAction, setSelectedAction] = useState<string>('TODAS');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Fetch logs
+  // Fetch logs & DB status
+  const fetchDbStatus = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/admin/db-status`, { headers: getAuthHeaders() });
+      if (res.ok) {
+        const data = await res.json();
+        setDbStatus(data.status);
+      }
+    } catch {}
+  };
+
   const fetchLogs = async () => {
     setLoading(true);
     setError(null);
@@ -91,6 +102,7 @@ export const AdminLogsManager: React.FC = () => {
 
   useEffect(() => {
     fetchLogs();
+    fetchDbStatus();
   }, []);
 
   // Clear logs
@@ -291,9 +303,25 @@ export const AdminLogsManager: React.FC = () => {
 
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rayo-gold/10 border border-rayo-gold/20 text-rayo-gold text-xs font-mono font-bold uppercase tracking-wider mb-3">
-              <span className="material-symbols-outlined text-sm">security</span>
-              Exclusivo Rol Administrador
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rayo-gold/10 border border-rayo-gold/20 text-rayo-gold text-xs font-mono font-bold uppercase tracking-wider">
+                <span className="material-symbols-outlined text-sm">security</span>
+                Exclusivo Rol Administrador
+              </div>
+
+              {dbStatus?.isMysql ? (
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold tracking-wide">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span className="material-symbols-outlined text-xs">database</span>
+                  <span>Base de Datos: MySQL Activa (Hostinger)</span>
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-mono font-bold tracking-wide">
+                  <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                  <span className="material-symbols-outlined text-xs">storage</span>
+                  <span>Base de Datos: Local (JSON)</span>
+                </div>
+              )}
             </div>
             <h2 className="font-display text-2xl sm:text-3xl font-bold uppercase text-white tracking-wide">
               Auditoría & Registro de Actividad

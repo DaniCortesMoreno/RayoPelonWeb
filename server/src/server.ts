@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import fs from 'fs';
@@ -397,6 +398,14 @@ app.post('/api/admin/restore', authMiddleware, requireRole(['ADMIN']), (req: Aut
   } catch (err: any) {
     res.status(500).json({ error: 'Error al restaurar la copia de seguridad', details: err?.message });
   }
+});
+
+// Estado de persistencia de la base de datos (MySQL vs Local JSON)
+app.get('/api/admin/db-status', authMiddleware, requireRole(['ADMIN']), (req: AuthenticatedRequest, res: Response) => {
+  res.json({
+    success: true,
+    status: Database.getStatus()
+  });
 });
 
 // ==========================================
@@ -1318,6 +1327,9 @@ if (fs.existsSync(CLIENT_DIST)) {
 app.listen(PORT, async () => {
   console.log(`[Rayo Pelón F7 API] Servidor activo en http://localhost:${PORT}`);
   
+  // Inicialización de la base de datos (conectar a MySQL si hay variables de entorno, o fallback JSON)
+  await Database.init();
+
   // Sincronización inicial automática al arrancar el servidor
   try {
     console.log('[AutoSync] Iniciando sincronización de clasificación con ligacomarcal.com...');

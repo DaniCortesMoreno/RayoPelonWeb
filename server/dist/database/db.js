@@ -1,7 +1,9 @@
+import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
+import mysql from 'mysql2/promise';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_DIR = path.resolve(__dirname, '../../data');
@@ -1036,6 +1038,9 @@ const INITIAL_DATA = {
     auditLogs: []
 };
 export class Database {
+    static mysqlPool = null;
+    static isMysqlConnected = false;
+    static memoryCache = null;
     static ensureDataDir() {
         if (!fs.existsSync(DATA_DIR)) {
             fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -1056,7 +1061,51 @@ export class Database {
             }
         }
     }
-    static read() {
+    static validateAndEnrich(data) {
+        let dirty = false;
+        if (!data.matches || !Array.isArray(data.matches) || data.matches.length === 0) {
+            data.matches = INITIAL_MATCHES;
+            dirty = true;
+        }
+        data.matchCenter = computeMatchCenter(data.matches);
+        if (!data.players || !Array.isArray(data.players) || data.players.length === 0) {
+            data.players = INITIAL_DATA.players;
+            dirty = true;
+        }
+        if (!data.featuredMatch) {
+            data.featuredMatch = DEFAULT_FEATURED_MATCH;
+            dirty = true;
+        }
+        if (!data.gallery || !Array.isArray(data.gallery)) {
+            data.gallery = DEFAULT_GALLERY;
+            dirty = true;
+        }
+        if (!data.clips || !Array.isArray(data.clips)) {
+            data.clips = DEFAULT_CLIPS;
+            dirty = true;
+        }
+        if (!data.news || !Array.isArray(data.news)) {
+            data.news = DEFAULT_NEWS;
+            dirty = true;
+        }
+        if (!data.auditLogs || !Array.isArray(data.auditLogs)) {
+            data.auditLogs = [];
+            dirty = true;
+        }
+        if (!data.users || !Array.isArray(data.users) || data.users.length === 0) {
+            data.users = getInitialUsers();
+            dirty = true;
+        }
+        else {
+            const hasDani = data.users.some(u => u.username.toLowerCase() === 'dani');
+            if (!hasDani) {
+                data.users.unshift(getInitialUsers()[0]);
+                dirty = true;
+            }
+        }
+        return dirty;
+    }
+    static readFromDisk() {
         this.ensureDataDir();
         try {
             let content = '';
@@ -1073,66 +1122,27 @@ export class Database {
                 throw new Error('Archivo de base de datos vacío');
             }
             const data = JSON.parse(content);
-            let dirty = false;
-            if (!data.matches || !Array.isArray(data.matches) || data.matches.length === 0) {
-                data.matches = INITIAL_MATCHES;
-                dirty = true;
-            }
-            // Ensure matchCenter is computed automatically based on current schedule
-            data.matchCenter = computeMatchCenter(data.matches);
-            if (!data.players || !Array.isArray(data.players) || data.players.length === 0) {
-                data.players = INITIAL_DATA.players;
-                dirty = true;
-            }
-            if (!data.featuredMatch) {
-                data.featuredMatch = DEFAULT_FEATURED_MATCH;
-                dirty = true;
-            }
-            if (!data.gallery || !Array.isArray(data.gallery)) {
-                data.gallery = DEFAULT_GALLERY;
-                dirty = true;
-            }
-            if (!data.clips || !Array.isArray(data.clips)) {
-                data.clips = DEFAULT_CLIPS;
-                dirty = true;
-            }
-            if (!data.news || !Array.isArray(data.news)) {
-                data.news = DEFAULT_NEWS;
-                dirty = true;
-            }
-            if (!data.auditLogs || !Array.isArray(data.auditLogs)) {
-                data.auditLogs = [];
-                dirty = true;
-            }
-            if (!data.users || !Array.isArray(data.users) || data.users.length === 0) {
-                data.users = getInitialUsers();
-                dirty = true;
-            }
-            else {
-                const hasDani = data.users.some(u => u.username.toLowerCase() === 'dani');
-                if (!hasDani) {
-                    data.users.unshift(getInitialUsers()[0]);
-                    dirty = true;
-                }
-            }
+            const dirty = this.validateAndEnrich(data);
             if (dirty) {
-                this.write(data);
+                this.writeToDisk(data);
             }
             return data;
         }
         catch (err) {
-            console.warn('[Database] Advertencia al leer datos, buscando copia de seguridad:', err);
+            console.warn('[Database] Advertencia al leer datos en disco, buscando copia de seguridad:', err);
             if (fs.existsSync(STORAGE_BAK_FILE)) {
                 try {
                     const bakContent = fs.readFileSync(STORAGE_BAK_FILE, 'utf-8');
-                    return JSON.parse(bakContent);
+                    const data = JSON.parse(bakContent);
+                    this.validateAndEnrich(data);
+                    return data;
                 }
                 catch { }
             }
             return INITIAL_DATA;
         }
     }
-    static write(data) {
+    static writeToDisk(data) {
         this.ensureDataDir();
         const serialized = JSON.stringify(data, null, 2);
         // 1. Guardar copia previa como respaldo
@@ -1146,5 +1156,153 @@ export class Database {
         const tempFile = `${STORAGE_FILE}.tmp_${Date.now()}`;
         fs.writeFileSync(tempFile, serialized, 'utf-8');
         fs.renameSync(tempFile, STORAGE_FILE);
+    }
+    static async init() {
+        this.ensureDataDir();
+        // 1. Cargar lo que tengamos en disco primero como base
+        const diskData = this.readFromDisk();
+        this.memoryCache = diskData;
+        // 2. Extraer configuración de conexión MySQL
+        const host = process.env.DB_HOST;
+        const user = process.env.DB_USER;
+        const password = process.env.DB_PASSWORD;
+        const database = process.env.DB_NAME;
+        const port = Number(process.env.DB_PORT) || 3306;
+        if (!user || !database) {
+            console.log('[Database] ℹ Sin credenciales MySQL configuradas (DB_USER o DB_NAME no detectadas). Operando en modo local (JSON).');
+            return;
+        }
+        const effectiveHost = host === 'localhost' ? '127.0.0.1' : (host || '127.0.0.1');
+        console.log(`[Database] 🔄 Conectando a MySQL Hostinger (${effectiveHost}:${port}, BD: ${database}, Usuario: ${user})...`);
+        try {
+            this.mysqlPool = mysql.createPool({
+                host: effectiveHost,
+                user,
+                password: password || '',
+                database,
+                port,
+                waitForConnections: true,
+                connectionLimit: 10,
+                queueLimit: 0,
+                connectTimeout: 15000,
+                enableKeepAlive: true,
+                keepAliveInitialDelay: 10000
+            });
+            // Verificar conectividad inmediata
+            const conn = await this.mysqlPool.getConnection();
+            console.log('[Database] ✓ Conexión establecida con éxito con el servidor MySQL de Hostinger.');
+            conn.release();
+            // Crear tabla permanente si no existe
+            await this.mysqlPool.query(`
+        CREATE TABLE IF NOT EXISTS club_storage (
+          id VARCHAR(50) PRIMARY KEY,
+          data LONGTEXT NOT NULL,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+      `);
+            // Consultar si ya hay datos previos persistidos en MySQL
+            const [rows] = await this.mysqlPool.query('SELECT data FROM club_storage WHERE id = ?', ['main_club_data']);
+            if (rows && rows.length > 0 && rows[0].data) {
+                try {
+                    const parsed = JSON.parse(rows[0].data);
+                    this.validateAndEnrich(parsed);
+                    this.memoryCache = parsed;
+                    this.writeToDisk(parsed); // Mantener sincronizada copia local
+                    this.isMysqlConnected = true;
+                    console.log('[Database] ★ EXCELENTE: Datos del club recuperados íntegramente desde MySQL de Hostinger.');
+                    console.log(`[Database] (Jugadores: ${parsed.players?.length || 0}, Noticias: ${parsed.news?.length || 0}, Usuarios: ${parsed.users?.length || 0})`);
+                    return;
+                }
+                catch (parseErr) {
+                    console.warn('[Database] Advertencia al parsear datos de MySQL, usando datos locales:', parseErr);
+                }
+            }
+            // Si la tabla MySQL estaba vacía (primer arranque con la base de datos recién creada)
+            console.log('[Database] Inicializando tabla MySQL con los datos actuales del club...');
+            await this.mysqlPool.query('INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)', ['main_club_data', JSON.stringify(diskData)]);
+            this.isMysqlConnected = true;
+            console.log('[Database] ✓ Base de datos MySQL guardada y sincronizada correctamente. Los datos ahora son 100% permanentes ante futuros git push.');
+        }
+        catch (err) {
+            console.error('[Database] ⚠️ Error conectando a MySQL de Hostinger:', err?.message || err);
+            // Reintento con localhost si 127.0.0.1 falló
+            if (effectiveHost === '127.0.0.1') {
+                try {
+                    console.log('[Database] Probando alternativa con host "localhost"...');
+                    this.mysqlPool = mysql.createPool({
+                        host: 'localhost',
+                        user,
+                        password: password || '',
+                        database,
+                        port,
+                        waitForConnections: true,
+                        connectionLimit: 10,
+                        connectTimeout: 15000
+                    });
+                    const conn = await this.mysqlPool.getConnection();
+                    console.log('[Database] ✓ Conexión establecida con localhost.');
+                    conn.release();
+                    await this.mysqlPool.query(`
+            CREATE TABLE IF NOT EXISTS club_storage (
+              id VARCHAR(50) PRIMARY KEY,
+              data LONGTEXT NOT NULL,
+              updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+          `);
+                    const [rows] = await this.mysqlPool.query('SELECT data FROM club_storage WHERE id = ?', ['main_club_data']);
+                    if (rows && rows.length > 0 && rows[0].data) {
+                        const parsed = JSON.parse(rows[0].data);
+                        this.validateAndEnrich(parsed);
+                        this.memoryCache = parsed;
+                        this.writeToDisk(parsed);
+                        this.isMysqlConnected = true;
+                        console.log('[Database] ★ EXCELENTE: Datos cargados desde MySQL (localhost).');
+                        return;
+                    }
+                    else {
+                        await this.mysqlPool.query('INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)', ['main_club_data', JSON.stringify(diskData)]);
+                        this.isMysqlConnected = true;
+                        console.log('[Database] ✓ MySQL inicializado vía localhost.');
+                        return;
+                    }
+                }
+                catch { }
+            }
+            console.warn('[Database] Continuando en modo fallback local (JSON).');
+            this.isMysqlConnected = false;
+        }
+    }
+    static read() {
+        if (this.memoryCache) {
+            return this.memoryCache;
+        }
+        const data = this.readFromDisk();
+        this.memoryCache = data;
+        return data;
+    }
+    static write(data) {
+        // 1. Actualizar memoria inmediatamente para lecturas síncronas
+        this.memoryCache = data;
+        // 2. Guardar copia local atómicamente
+        try {
+            this.writeToDisk(data);
+        }
+        catch (diskErr) {
+            console.warn('[Database] Error guardando archivo local:', diskErr);
+        }
+        // 3. Persistir de forma asíncrona a MySQL si está conectado
+        if (this.isMysqlConnected && this.mysqlPool) {
+            const serialized = JSON.stringify(data);
+            this.mysqlPool.query('INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)', ['main_club_data', serialized]).catch((sqlErr) => {
+                console.error('[Database] Error al persistir en MySQL:', sqlErr?.message || sqlErr);
+            });
+        }
+    }
+    static getStatus() {
+        return {
+            isMysql: this.isMysqlConnected,
+            host: process.env.DB_HOST || '127.0.0.1',
+            database: process.env.DB_NAME || 'local_json'
+        };
     }
 }
