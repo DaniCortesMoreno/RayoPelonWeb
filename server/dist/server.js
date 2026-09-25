@@ -291,6 +291,52 @@ app.delete('/api/admin/logs', authMiddleware, requireRole(['ADMIN']), (req, res)
     });
 });
 // ==========================================
+// COPIAS DE SEGURIDAD Y RESTAURACIÓN (SOLO ADMIN)
+// ==========================================
+// Descargar copia de seguridad completa en JSON (SOLO ADMIN)
+app.get('/api/admin/backup', authMiddleware, requireRole(['ADMIN']), (req, res) => {
+    const db = Database.read();
+    const filename = `rayo_pelon_backup_${new Date().toISOString().slice(0, 10)}.json`;
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(JSON.stringify(db, null, 2));
+});
+// Restaurar copia de seguridad completa desde JSON (SOLO ADMIN)
+app.post('/api/admin/restore', authMiddleware, requireRole(['ADMIN']), (req, res) => {
+    try {
+        const backupData = req.body;
+        if (!backupData || typeof backupData !== 'object' || !Array.isArray(backupData.players)) {
+            return res.status(400).json({ error: 'El archivo de copia de seguridad no tiene un formato válido' });
+        }
+        const db = Database.read();
+        if (Array.isArray(backupData.players))
+            db.players = backupData.players;
+        if (Array.isArray(backupData.news))
+            db.news = backupData.news;
+        if (Array.isArray(backupData.matches)) {
+            db.matches = backupData.matches;
+            db.matchCenter = computeMatchCenter(db.matches || []);
+        }
+        if (backupData.featuredMatch)
+            db.featuredMatch = backupData.featuredMatch;
+        if (Array.isArray(backupData.gallery))
+            db.gallery = backupData.gallery;
+        if (Array.isArray(backupData.clips))
+            db.clips = backupData.clips;
+        if (Array.isArray(backupData.standings))
+            db.standings = backupData.standings;
+        logAudit(db, req, 'SYNC', 'SISTEMA', `Restauró copia de seguridad de la base de datos (${backupData.players.length} jugadores, ${backupData.news?.length || 0} noticias)`);
+        Database.write(db);
+        res.json({
+            success: true,
+            message: `Copia de seguridad restaurada con éxito: ${db.players.length} jugadores, ${db.news.length} noticias y ${db.matches?.length || 0} jornadas cargadas.`
+        });
+    }
+    catch (err) {
+        res.status(500).json({ error: 'Error al restaurar la copia de seguridad', details: err?.message });
+    }
+});
+// ==========================================
 // CONTENIDO DEL CLUB
 // ==========================================
 // 2. Club Info

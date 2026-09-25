@@ -56,3 +56,11 @@ coverage/
 .gemini/
 .system_generated/
 scratch/
+
+# 8. Base de datos persistente y copias de seguridad (NUNCA sobreescribir en despliegues Git)
+server/data/club_storage.json
+server/data/club_storage.bak.json
+server/data/*.bak*
+server/data/*.tmp*
+server/data/backups/
+server/data/db.json

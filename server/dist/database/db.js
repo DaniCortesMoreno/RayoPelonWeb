@@ -5,7 +5,9 @@ import bcrypt from 'bcryptjs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_DIR = path.resolve(__dirname, '../../data');
-const DB_FILE = path.join(DATA_DIR, 'db.json');
+const STORAGE_FILE = path.join(DATA_DIR, 'club_storage.json');
+const STORAGE_BAK_FILE = path.join(DATA_DIR, 'club_storage.bak.json');
+const LEGACY_DB_FILE = path.join(DATA_DIR, 'db.json');
 export function createAuditLog(db, entry) {
     if (!db.auditLogs || !Array.isArray(db.auditLogs)) {
         db.auditLogs = [];
@@ -1034,14 +1036,38 @@ export class Database {
         if (!fs.existsSync(DATA_DIR)) {
             fs.mkdirSync(DATA_DIR, { recursive: true });
         }
-        if (!fs.existsSync(DB_FILE)) {
-            fs.writeFileSync(DB_FILE, JSON.stringify(INITIAL_DATA, null, 2), 'utf-8');
+        // Si no existe club_storage.json, migrar desde db.json o inicializar con INITIAL_DATA
+        if (!fs.existsSync(STORAGE_FILE)) {
+            if (fs.existsSync(LEGACY_DB_FILE)) {
+                try {
+                    const legacyContent = fs.readFileSync(LEGACY_DB_FILE, 'utf-8');
+                    fs.writeFileSync(STORAGE_FILE, legacyContent, 'utf-8');
+                }
+                catch {
+                    fs.writeFileSync(STORAGE_FILE, JSON.stringify(INITIAL_DATA, null, 2), 'utf-8');
+                }
+            }
+            else {
+                fs.writeFileSync(STORAGE_FILE, JSON.stringify(INITIAL_DATA, null, 2), 'utf-8');
+            }
         }
     }
     static read() {
         this.ensureDataDir();
         try {
-            const content = fs.readFileSync(DB_FILE, 'utf-8');
+            let content = '';
+            if (fs.existsSync(STORAGE_FILE)) {
+                content = fs.readFileSync(STORAGE_FILE, 'utf-8');
+            }
+            else if (fs.existsSync(STORAGE_BAK_FILE)) {
+                content = fs.readFileSync(STORAGE_BAK_FILE, 'utf-8');
+            }
+            else if (fs.existsSync(LEGACY_DB_FILE)) {
+                content = fs.readFileSync(LEGACY_DB_FILE, 'utf-8');
+            }
+            if (!content || !content.trim()) {
+                throw new Error('Archivo de base de datos vacío');
+            }
             const data = JSON.parse(content);
             let dirty = false;
             if (!data.matches || !Array.isArray(data.matches) || data.matches.length === 0) {
@@ -1050,6 +1076,10 @@ export class Database {
             }
             // Ensure matchCenter is computed automatically based on current schedule
             data.matchCenter = computeMatchCenter(data.matches);
+            if (!data.players || !Array.isArray(data.players) || data.players.length === 0) {
+                data.players = INITIAL_DATA.players;
+                dirty = true;
+            }
             if (!data.featuredMatch) {
                 data.featuredMatch = DEFAULT_FEATURED_MATCH;
                 dirty = true;
@@ -1062,7 +1092,7 @@ export class Database {
                 data.clips = DEFAULT_CLIPS;
                 dirty = true;
             }
-            if (!data.news || !Array.isArray(data.news) || data.news.length === 0) {
+            if (!data.news || !Array.isArray(data.news)) {
                 data.news = DEFAULT_NEWS;
                 dirty = true;
             }
@@ -1086,12 +1116,31 @@ export class Database {
             }
             return data;
         }
-        catch {
+        catch (err) {
+            console.warn('[Database] Advertencia al leer datos, buscando copia de seguridad:', err);
+            if (fs.existsSync(STORAGE_BAK_FILE)) {
+                try {
+                    const bakContent = fs.readFileSync(STORAGE_BAK_FILE, 'utf-8');
+                    return JSON.parse(bakContent);
+                }
+                catch { }
+            }
             return INITIAL_DATA;
         }
     }
     static write(data) {
         this.ensureDataDir();
-        fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+        const serialized = JSON.stringify(data, null, 2);
+        // 1. Guardar copia previa como respaldo
+        if (fs.existsSync(STORAGE_FILE)) {
+            try {
+                fs.copyFileSync(STORAGE_FILE, STORAGE_BAK_FILE);
+            }
+            catch { }
+        }
+        // 2. Escritura atómica para evitar corrupción ante interrupciones
+        const tempFile = `${STORAGE_FILE}.tmp_${Date.now()}`;
+        fs.writeFileSync(tempFile, serialized, 'utf-8');
+        fs.renameSync(tempFile, STORAGE_FILE);
     }
 }

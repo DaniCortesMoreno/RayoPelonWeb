@@ -147,6 +147,75 @@ export const AdminLogsManager: React.FC = () => {
     document.body.removeChild(link);
   };
 
+  // Descargar Copia de Seguridad Completa (Base de Datos en JSON)
+  const handleDownloadBackup = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/admin/backup`, {
+        headers: getAuthHeaders()
+      });
+      if (!res.ok) throw new Error('Error al descargar copia de seguridad');
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `rayo_pelon_db_backup_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch {
+      alert('Error al descargar la copia de seguridad');
+    }
+  };
+
+  // Restaurar Copia de Seguridad desde Archivo JSON
+  const handleRestoreBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const json = JSON.parse(event.target?.result as string);
+        if (!json || (!json.players && !json.news && !json.matches)) {
+          alert('El archivo no parece ser una copia de seguridad válida de Rayo Pelón F7.');
+          return;
+        }
+
+        if (
+          !window.confirm(
+            'ATENCIÓN: Se van a restaurar los futbolistas, noticias, partidos y configuración del archivo. ¿Confirmar restauración?'
+          )
+        ) {
+          return;
+        }
+
+        const res = await fetch(`${API_BASE}/admin/restore`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders()
+          },
+          body: JSON.stringify(json)
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          alert(data.message || 'Copia de seguridad restaurada correctamente');
+          fetchLogs();
+          window.location.reload();
+        } else {
+          alert(data.error || 'Error al restaurar los datos');
+        }
+      } catch {
+        alert('El archivo seleccionado contiene un JSON no válido');
+      }
+    };
+    reader.readAsText(file);
+    // Reset file input value
+    e.target.value = '';
+  };
+
   // Filtered Logs
   const filteredLogs = useMemo(() => {
     return logs.filter((l) => {
@@ -256,6 +325,31 @@ export const AdminLogsManager: React.FC = () => {
               <span className="material-symbols-outlined text-base text-emerald-400">download</span>
               <span>Exportar CSV</span>
             </button>
+
+            {/* Descargar Backup DB */}
+            <button
+              onClick={handleDownloadBackup}
+              className="px-3.5 py-2 rounded-lg bg-rayo-gold/10 hover:bg-rayo-gold/20 text-rayo-gold border border-rayo-gold/30 text-xs font-semibold uppercase tracking-wider transition-colors flex items-center gap-2"
+              title="Descargar una copia de seguridad completa de todos los futbolistas, partidos, noticias y datos"
+            >
+              <span className="material-symbols-outlined text-base">cloud_download</span>
+              <span>Backup DB</span>
+            </button>
+
+            {/* Restaurar Backup DB */}
+            <label
+              className="px-3.5 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-rayo-bone text-xs font-semibold uppercase tracking-wider transition-colors flex items-center gap-2 cursor-pointer"
+              title="Subir y restaurar un archivo JSON de copia de seguridad previa"
+            >
+              <span className="material-symbols-outlined text-base text-cyan-400">cloud_upload</span>
+              <span>Restaurar DB</span>
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleRestoreBackup}
+                className="hidden"
+              />
+            </label>
 
             <button
               onClick={handleClearLogs}
