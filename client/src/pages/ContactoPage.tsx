@@ -74,7 +74,7 @@ export const ContactoPage: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white/[0.03] border border-white/[0.08] text-xs">
                   <span className="material-symbols-outlined text-rayo-gold text-base">stadium</span>
-                  <span className="text-rayo-bone/80 font-medium">Campo 1 Ibi</span>
+                  <span className="text-rayo-bone/80 font-medium">Estadio Climent</span>
                 </div>
                 <div className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white/[0.03] border border-white/[0.08] text-xs">
                   <span className="material-symbols-outlined text-rayo-gold text-base">military_tech</span>
@@ -101,7 +101,7 @@ export const ContactoPage: React.FC = () => {
                     Sede Deportiva e Instalaciones
                   </h2>
                   <p className="text-xs sm:text-sm text-rayo-bone/70 mt-1 leading-relaxed">
-                    El Rayo Pelón F7 disputa todos sus compromisos ligueros como local en las instalaciones municipales de Ibi.
+                    El Rayo Pelón F7 disputa todos sus compromisos ligueros como local en el Complejo Deportivo Estadio Climent de Ibi.
                   </p>
                 </div>
 
@@ -146,13 +146,13 @@ export const ContactoPage: React.FC = () => {
                         </div>
                       </div>
                       <div className="mt-2 px-3 py-1 rounded-md bg-[#07070F]/90 border border-white/20 text-[11px] font-bold text-white tracking-wider uppercase backdrop-blur-md">
-                        Campo 1 • Polideportivo Ibi
+                        Complejo Deportivo Estadio Climent
                       </div>
                     </div>
 
                     {/* Google Maps link button overlay */}
                     <a
-                      href="https://www.google.com/maps/search/?api=1&query=Polideportivo+Municipal+de+Ibi"
+                      href="https://maps.app.goo.gl/YYMSsMhEYBnnL2wH9"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="absolute bottom-3 right-3 px-3.5 py-1.5 rounded-lg bg-rayo-gold hover:bg-rayo-goldLight text-rayo-carbon font-display text-[11px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md"
@@ -176,8 +176,8 @@ export const ContactoPage: React.FC = () => {
                     <p className="text-xs text-rayo-bone/80 font-mono mt-1 break-all">
                       {CLUB_INFO.email}
                     </p>
-                    <p className="text-[11px] text-rayo-bone/50 font-mono mt-0.5 break-all">
-                      {CLUB_INFO.emailAlt}
+                    <p className="text-[11px] text-rayo-bone/50 mt-0.5">
+                      Atención directa directiva y patrocinios
                     </p>
                     <button
                       onClick={() => copyToClipboard(CLUB_INFO.email, 'email')}
@@ -197,13 +197,13 @@ export const ContactoPage: React.FC = () => {
                       WhatsApp Directiva
                     </h4>
                     <p className="text-xs text-rayo-bone/80 font-mono mt-1">
-                      +34 622 841 902
+                      +34 601 43 84 41
                     </p>
                     <p className="text-[11px] text-rayo-bone/50 mt-0.5">
                       Atención para partidos y dudas rápidas
                     </p>
                     <a
-                      href="https://wa.me/34622841902"
+                      href="https://wa.me/34601438441"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
@@ -224,7 +224,7 @@ export const ContactoPage: React.FC = () => {
                           Días de Juego y Sesiones
                         </h4>
                         <p className="text-xs text-rayo-bone/70 mt-0.5">
-                          Partidos: <span className="text-white font-medium">Lunes noche (20:30h - 22:30h)</span> • Sesión táctica: <span className="text-white font-medium">Miércoles 21:00h</span>
+                          Partidos: <span className="text-white font-medium">Viernes 21h o 22h o domingos 9h o 10h</span> • Sesión táctica: <span className="text-white font-medium">Miércoles 22h</span>
                         </p>
                       </div>
                     </div>
@@ -236,9 +236,9 @@ export const ContactoPage: React.FC = () => {
                   <p className="text-xs uppercase font-semibold text-rayo-bone/60 tracking-wider mb-3">
                     Canales Sociales y Comunidad
                   </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <a
-                      href="https://instagram.com"
+                      href="https://www.instagram.com/rayopelonsv/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2.5 p-3 rounded-lg bg-white/[0.03] border border-white/[0.08] hover:border-rayo-gold/40 hover:bg-white/[0.06] transition-all group"
@@ -250,7 +250,7 @@ export const ContactoPage: React.FC = () => {
                         <div className="text-xs font-bold text-white group-hover:text-rayo-gold transition-colors">
                           Instagram
                         </div>
-                        <div className="text-[10px] text-rayo-bone/50">@rayopelonf7</div>
+                        <div className="text-[10px] text-rayo-bone/50">@rayopelonsv</div>
                       </div>
                     </a>
 
@@ -285,23 +285,6 @@ export const ContactoPage: React.FC = () => {
                           YouTube
                         </div>
                         <div className="text-[10px] text-rayo-bone/50">Resúmenes</div>
-                      </div>
-                    </a>
-
-                    <a
-                      href="https://whatsapp.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2.5 p-3 rounded-lg bg-white/[0.03] border border-white/[0.08] hover:border-rayo-gold/40 hover:bg-white/[0.06] transition-all group"
-                    >
-                      <span className="w-7 h-7 rounded-md bg-emerald-500 flex items-center justify-center text-white text-[11px] font-bold">
-                        WA
-                      </span>
-                      <div>
-                        <div className="text-xs font-bold text-white group-hover:text-rayo-gold transition-colors">
-                          Comunidad
-                        </div>
-                        <div className="text-[10px] text-rayo-bone/50">Avisos Liga</div>
                       </div>
                     </a>
                   </div>

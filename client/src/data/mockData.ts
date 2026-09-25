@@ -6,11 +6,15 @@ export const CLUB_INFO = {
   heroBgUrl: '/hero-team.jpg',
   league: 'Liga Plata Ibi F7 • Liga Comarcal',
   season: 'Temporada 2026/27',
-  stadium: 'Polideportivo Municipal de Ibi (Campos F7 Hierba Artificial)',
+  stadium: 'Complejo Deportivo Estadio Climent',
   address: 'Calle Jaén s/n, 03440 Ibi (Alicante)',
-  email: 'contacto@rayopelonf7.es',
-  emailAlt: 'directiva.rayopelon@gmail.com',
-  schedule: 'Lunes y Miércoles: 20:30h - 22:30h',
+  email: 'danicortesmoreno@gmail.com',
+  emailAlt: 'contacto@rayopelonf7.es',
+  phone: '+34 601 43 84 41',
+  schedule: 'Partidos: Viernes 21h/22h o Domingos 9h/10h • Sesión táctica: Miércoles 22h',
+  mapsUrl: 'https://maps.app.goo.gl/YYMSsMhEYBnnL2wH9',
+  instagram: 'https://www.instagram.com/rayopelonsv/',
+  instagramHandle: '@rayopelonsv',
   slogan: 'Sentimiento, Garra y Rayo',
   description: 'La pasión del fútbol 7 sobre el césped de Ibi. Humildad en el vestuario, velocidad de rayo en el campo y orgullo en cada disputa de balón.'
 };
@@ -1261,19 +1265,19 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: 'faq-1',
     category: 'Competición',
     question: '¿Dónde y a qué hora juega el Rayo Pelón sus partidos como local?',
-    answer: 'Disputamos nuestros partidos habitualmente los lunes en el Polideportivo Municipal de Ibi (Campo 1 de Fútbol 7 de césped artificial), en horarios fijados entre las 20:30h y las 22:30h según el calendario de la Liga Plata Ibi Comarcal.'
+    answer: 'Disputamos nuestros partidos habitualmente en el Complejo Deportivo Estadio Climent (campos de césped artificial), los viernes a las 21h o 22h o domingos a las 9h o 10h, con sesiones tácticas los miércoles a las 22h según el calendario de la Liga Plata Ibi Comarcal.'
   },
   {
     id: 'faq-2',
     category: 'Afición',
     question: '¿Hay que pagar entrada para ver los partidos en el Polideportivo de Ibi?',
-    answer: '¡No, la entrada es 100% libre y gratuita! Cualquier aficionado o familia puede subir a la grada del Campo 1 a animar al Rayo Pelón. Además, al acabar solemos juntarnos para el tradicional tercer tiempo en locales colaboradores de la localidad.'
+    answer: '¡No, la entrada es 100% libre y gratuita! Cualquier aficionado o familia puede acudir al Estadio Climent a animar al Rayo Pelón. Además, al acabar solemos juntarnos para el tradicional tercer tiempo en locales colaboradores de la localidad.'
   },
   {
     id: 'faq-3',
     category: 'Patrocinios',
     question: '¿Cómo puede mi empresa sumarse como patrocinadora del equipo?',
-    answer: 'Es muy sencillo: completa el formulario de contacto indicando "Patrocinio Principal" o "Colaboración", o escríbenos directamente a contacto@rayopelonf7.es. Te enviaremos el dossier con todas las ventajas de imagen de marca y desgravación.'
+    answer: 'Es muy sencillo: completa el formulario de contacto indicando "Patrocinio Principal" o "Colaboración", o escríbenos directamente a danicortesmoreno@gmail.com. Te enviaremos el dossier con todas las ventajas de imagen de marca y desgravación.'
   },
   {
     id: 'faq-4',
@@ -1285,7 +1289,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: 'faq-5',
     category: 'Amistosos',
     question: '¿Podemos acordar un partido amistoso o torneo de pretemporada/parón?',
-    answer: '¡Por supuesto! Estaremos encantados de jugar amistosos de preparación con otros clubes de Ibi, Castalla, Onil o comarcas cercanas. Recomendamos contactarnos con al menos una semana de margen para gestionar la reserva de campo con el Polideportivo.'
+    answer: '¡Por supuesto! Estaremos encantados de jugar amistosos de preparación con otros clubes de Ibi, Castalla, Onil o comarcas cercanas. Recomendamos contactarnos con al menos una semana de margen para gestionar la reserva de campo con el Estadio Climent.'
   },
   {
     id: 'faq-6',
