@@ -238,9 +238,9 @@ export const StandingsSection: React.FC = () => {
                                   alt="Rayo Pelón"
                                   className="w-full h-full object-contain filter drop-shadow-[0_2px_4px_rgba(197,160,89,0.4)]"
                                 />
-                              ) : team.badgeUrl ? (
+                              ) : (team.badgeUrl || getTeamBadge(team.teamName)) ? (
                                 <img
-                                  src={team.badgeUrl}
+                                  src={team.badgeUrl || getTeamBadge(team.teamName)}
                                   alt={team.teamName}
                                   className="w-full h-full object-contain"
                                   loading="lazy"

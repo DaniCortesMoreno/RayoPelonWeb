@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 import mysql from 'mysql2/promise';
+import { OFFICIAL_LIGA_STANDINGS } from '../services/standingsSync.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_DIR = path.resolve(__dirname, '../../data');
@@ -1013,13 +1014,7 @@ const INITIAL_DATA = {
             featured: false
         }
     ],
-    standings: [
-        { position: 1, teamCode: 'SF', teamName: 'Sporting Foia de Castalla', isRayo: false, matchesPlayed: 13, won: 10, drawn: 2, lost: 1, goalsFor: 48, goalsAgainst: 19, goalDifference: 29, points: 32, form: ['V', 'V', 'E'] },
-        { position: 2, teamCode: 'RP', teamName: 'RAYO PELÓN F7', isRayo: true, matchesPlayed: 13, won: 9, drawn: 2, lost: 2, goalsFor: 45, goalsAgainst: 21, goalDifference: 24, points: 29, form: ['V', 'V', 'V'] },
-        { position: 3, teamCode: 'GI', teamName: 'Los Galácticos Ibi', isRayo: false, matchesPlayed: 13, won: 8, drawn: 2, lost: 3, goalsFor: 39, goalsAgainst: 24, goalDifference: 15, points: 26, form: ['D', 'V', 'E'] },
-        { position: 4, teamCode: 'PF', teamName: 'Penya La Foia', isRayo: false, matchesPlayed: 13, won: 7, drawn: 3, lost: 3, goalsFor: 34, goalsAgainst: 22, goalDifference: 12, points: 24, form: ['V', 'E', 'V'] },
-        { position: 5, teamCode: 'IB', teamName: 'Ibense CF Veteranos', isRayo: false, matchesPlayed: 13, won: 5, drawn: 1, lost: 7, goalsFor: 28, goalsAgainst: 33, goalDifference: -5, points: 16, form: ['D', 'D', 'V'] }
-    ],
+    standings: OFFICIAL_LIGA_STANDINGS,
     news: DEFAULT_NEWS,
     sponsors: [
         { id: 's1', name: 'IBI TOYS FACTORY', category: 'Industria', icon: 'sports_motorsports' },
@@ -1116,6 +1111,14 @@ export class Database {
                 data.users.unshift(getInitialUsers()[0]);
                 dirty = true;
             }
+        }
+        // Migración o validación de la clasificación oficial de 12 equipos de la Liga Plata Ibi F7
+        if (!data.standings ||
+            !Array.isArray(data.standings) ||
+            data.standings.length < 12 ||
+            data.standings.some(s => s.teamName === 'Sporting Foia de Castalla' || s.teamName === 'Los Galácticos Ibi')) {
+            data.standings = OFFICIAL_LIGA_STANDINGS;
+            dirty = true;
         }
         return dirty;
     }
@@ -1219,12 +1222,15 @@ export class Database {
             if (rows && rows.length > 0 && rows[0].data) {
                 try {
                     const parsed = JSON.parse(rows[0].data);
-                    this.validateAndEnrich(parsed);
+                    const dirty = this.validateAndEnrich(parsed);
                     this.memoryCache = parsed;
                     this.writeToDisk(parsed); // Mantener sincronizada copia local
+                    if (dirty) {
+                        await this.mysqlPool.query('INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)', ['main_club_data', JSON.stringify(parsed)]).catch(() => { });
+                    }
                     this.isMysqlConnected = true;
                     console.log('[Database] ★ EXCELENTE: Datos del club recuperados íntegramente desde MySQL de Hostinger.');
-                    console.log(`[Database] (Jugadores: ${parsed.players?.length || 0}, Noticias: ${parsed.news?.length || 0}, Usuarios: ${parsed.users?.length || 0})`);
+                    console.log(`[Database] (Jugadores: ${parsed.players?.length || 0}, Noticias: ${parsed.news?.length || 0}, Equipos Clasificación: ${parsed.standings?.length || 0})`);
                     return;
                 }
                 catch (parseErr) {
@@ -1266,9 +1272,12 @@ export class Database {
                     const [rows] = await this.mysqlPool.query('SELECT data FROM club_storage WHERE id = ?', ['main_club_data']);
                     if (rows && rows.length > 0 && rows[0].data) {
                         const parsed = JSON.parse(rows[0].data);
-                        this.validateAndEnrich(parsed);
+                        const dirty = this.validateAndEnrich(parsed);
                         this.memoryCache = parsed;
                         this.writeToDisk(parsed);
+                        if (dirty) {
+                            await this.mysqlPool.query('INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)', ['main_club_data', JSON.stringify(parsed)]).catch(() => { });
+                        }
                         this.isMysqlConnected = true;
                         console.log('[Database] ★ EXCELENTE: Datos cargados desde MySQL (localhost).');
                         return;
