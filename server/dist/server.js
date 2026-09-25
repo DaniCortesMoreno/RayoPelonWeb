@@ -6,7 +6,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 import { Database, computeMatchCenter, INITIAL_MATCHES, createAuditLog } from './database/db.js';
-import { fetchLiveStandings, checkScheduleWindow, SYNC_SCHEDULE_INFO, parseStandingsFromHtml, OFFICIAL_LIGA_STANDINGS } from './services/standingsSync.js';
 import { authMiddleware, requireRole, generateToken } from './auth.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -654,159 +653,6 @@ app.post('/api/upload/player-photo', authMiddleware, (req, res) => {
         res.status(500).json({ error: 'Error al procesar y guardar la imagen' });
     }
 });
-let lastStandingsSync = null;
-// 5. Standings (Lectura con soporte de metadatos de sincronización)
-app.get('/api/standings', (req, res) => {
-    const db = Database.read();
-    // Garantizar que la tabla contenga los 12 equipos oficiales y no datos de prueba obsoletos
-    if (!db.standings ||
-        !Array.isArray(db.standings) ||
-        db.standings.length < 12 ||
-        db.standings.some(s => s.teamName === 'Sporting Foia de Castalla' || s.teamName === 'Los Galácticos Ibi')) {
-        db.standings = OFFICIAL_LIGA_STANDINGS;
-        Database.write(db);
-    }
-    res.json({
-        success: true,
-        standings: db.standings,
-        lastSync: lastStandingsSync,
-        schedule: SYNC_SCHEDULE_INFO,
-        sourceUrl: 'https://www.ligacomarcal.com/competicion/lc-futbol-7-ibi-plata-mtzfdn3f/clasificacion'
-    });
-});
-// 5.1 Sincronización Manual o Automática en Directo con ligacomarcal.com
-app.post('/api/standings/sync', authMiddleware, async (req, res) => {
-    try {
-        const db = Database.read();
-        // 1. Si el cliente envía HTML directo desde el navegador (para superar cualquier bloqueo Cloudflare)
-        if (req.body && req.body.html && typeof req.body.html === 'string') {
-            const parsedTeams = parseStandingsFromHtml(req.body.html);
-            if (parsedTeams.length > 0) {
-                db.standings = parsedTeams;
-                logAudit(db, req, 'SYNC', 'CLASIFICACION', `Sincronizó clasificación vía importación HTML (${parsedTeams.length} equipos)`);
-                Database.write(db);
-                lastStandingsSync = {
-                    timestamp: new Date().toISOString(),
-                    source: 'https://www.ligacomarcal.com (Importación directa)',
-                    success: true,
-                    count: parsedTeams.length
-                };
-                return res.json({
-                    success: true,
-                    message: `¡Clasificación importada con éxito! ${parsedTeams.length} equipos y estadísticas actualizadas en tiempo real.`,
-                    lastSync: lastStandingsSync,
-                    standings: parsedTeams
-                });
-            }
-        }
-        // 2. Si el cliente envía directamente la lista de equipos parseados
-        if (req.body && Array.isArray(req.body.standings) && req.body.standings.length > 0) {
-            db.standings = req.body.standings;
-            logAudit(db, req, 'SYNC', 'CLASIFICACION', `Actualizó clasificación oficial (${req.body.standings.length} equipos)`);
-            Database.write(db);
-            lastStandingsSync = {
-                timestamp: new Date().toISOString(),
-                source: 'https://www.ligacomarcal.com',
-                success: true,
-                count: req.body.standings.length
-            };
-            return res.json({
-                success: true,
-                message: `¡Clasificación actualizada! ${req.body.standings.length} equipos sincronizados.`,
-                lastSync: lastStandingsSync,
-                standings: db.standings
-            });
-        }
-        // 3. Petición estándar sin cuerpo: intentar sincronización en vivo mediante scraping
-        const result = await fetchLiveStandings();
-        if (result.success && result.data.length > 0) {
-            db.standings = result.data;
-            logAudit(db, req, 'SYNC', 'CLASIFICACION', `Sincronizó clasificación con ligacomarcal.com (${result.teamsCount} equipos)`);
-            Database.write(db);
-            lastStandingsSync = {
-                timestamp: result.timestamp,
-                source: result.sourceUrl,
-                success: true,
-                count: result.teamsCount
-            };
-            return res.json({
-                success: true,
-                message: result.isCloudflareProtected
-                    ? `¡Clasificación oficial de los 12 equipos sincronizada y asegurada en el servidor!`
-                    : `¡Clasificación sincronizada con éxito! ${result.teamsCount} equipos y escudos oficiales actualizados.`,
-                lastSync: lastStandingsSync,
-                standings: result.data,
-                isCloudflareProtected: result.isCloudflareProtected
-            });
-        }
-        // 4. Fallback de protección: garantizar los 12 equipos oficiales
-        if (!db.standings || db.standings.length < 12) {
-            db.standings = OFFICIAL_LIGA_STANDINGS;
-            Database.write(db);
-        }
-        return res.json({
-            success: true,
-            message: 'Clasificación oficial de 12 equipos restaurada y sincronizada.',
-            lastSync: lastStandingsSync,
-            standings: db.standings
-        });
-    }
-    catch (err) {
-        console.error('Error en sync standings:', err);
-        const db = Database.read();
-        if (!db.standings || db.standings.length < 12) {
-            db.standings = OFFICIAL_LIGA_STANDINGS;
-            Database.write(db);
-        }
-        res.json({
-            success: true,
-            message: 'Clasificación oficial de los 12 equipos aplicada.',
-            lastSync: lastStandingsSync,
-            standings: db.standings
-        });
-    }
-});
-// Permitir sync también por GET para llamadas directas
-app.get('/api/standings/sync', async (req, res) => {
-    const result = await fetchLiveStandings();
-    const db = Database.read();
-    if (result.success && result.data.length > 0) {
-        db.standings = result.data;
-        Database.write(db);
-        lastStandingsSync = {
-            timestamp: result.timestamp,
-            source: result.sourceUrl,
-            success: true,
-            count: result.teamsCount
-        };
-        return res.json({
-            success: true,
-            lastSync: lastStandingsSync,
-            standings: result.data,
-            message: 'Clasificación sincronizada correctamente'
-        });
-    }
-    if (!db.standings || db.standings.length < 12) {
-        db.standings = OFFICIAL_LIGA_STANDINGS;
-        Database.write(db);
-    }
-    res.json({
-        success: true,
-        lastSync: lastStandingsSync,
-        standings: db.standings,
-        message: 'Clasificación oficial de 12 equipos lista'
-    });
-});
-app.put('/api/standings', authMiddleware, (req, res) => {
-    const db = Database.read();
-    if (Array.isArray(req.body)) {
-        db.standings = req.body;
-        logAudit(db, req, 'UPDATE', 'CLASIFICACION', `Actualizó manualmente la tabla de clasificación (${req.body.length} equipos)`);
-        Database.write(db);
-        return res.json({ success: true, standings: db.standings });
-    }
-    res.status(400).json({ error: 'El formato debe ser un array de equipos' });
-});
 // 6. News & Medical Reports API
 const CATEGORY_LABELS = {
     MEDICO: 'PARTE MÉDICO OFICIAL',
@@ -1012,7 +858,7 @@ app.post('/api/contact', (req, res) => {
 // 9. Admin Metrics
 app.get('/api/admin/metrics', (req, res) => {
     const db = Database.read();
-    const rayoInStandings = db.standings.find(s => s.isRayo);
+    const rayoInStandings = db.standings?.find((s) => s.isRayo);
     res.json({
         totalPlayers: db.players.length,
         activePlayers: db.players.filter(p => p.status === 'Apto').length,
@@ -1217,60 +1063,4 @@ app.listen(PORT, async () => {
     console.log(`[Rayo Pelón F7 API] Servidor activo en http://localhost:${PORT}`);
     // Inicialización de la base de datos (conectar a MySQL si hay variables de entorno, o fallback JSON)
     await Database.init();
-    // Sincronización inicial automática al arrancar el servidor
-    try {
-        console.log('[AutoSync] Iniciando sincronización de clasificación con ligacomarcal.com...');
-        const result = await fetchLiveStandings();
-        if (result.success && result.data.length > 0) {
-            const db = Database.read();
-            db.standings = result.data;
-            Database.write(db);
-            lastStandingsSync = {
-                timestamp: result.timestamp,
-                source: result.sourceUrl,
-                success: true,
-                count: result.teamsCount
-            };
-            console.log(`[AutoSync] Clasificación sincronizada con éxito: ${result.teamsCount} equipos y escudos cargados.`);
-        }
-    }
-    catch (err) {
-        console.warn('[AutoSync] No se pudo completar la sincronización inicial:', err?.message);
-    }
-    // Sincronizador inteligente adaptado a la jornada de fútbol:
-    // - Viernes noche: partidos a las 22h -> comprobación a las 23:45h, 00:00h y 00:30h
-    // - Domingo mañana: partidos a las 9h/10h -> comprobación a las 11:30h, 12:00h y 12:30h
-    // - Lunes 10:00h: consolidación semanal
-    // - 1 revisión diaria ligera a las 06:00h
-    const executedSlots = new Set();
-    setInterval(async () => {
-        try {
-            const now = new Date();
-            const check = checkScheduleWindow(now);
-            if (check.shouldRun && !executedSlots.has(check.slotKey)) {
-                executedSlots.add(check.slotKey);
-                console.log(`[SmartScheduler] Ejecutando sincronización programada: ${check.reason}...`);
-                const res = await fetchLiveStandings();
-                if (res.success && res.data.length > 0) {
-                    const db = Database.read();
-                    db.standings = res.data;
-                    Database.write(db);
-                    lastStandingsSync = {
-                        timestamp: res.timestamp,
-                        source: res.sourceUrl,
-                        success: true,
-                        count: res.teamsCount
-                    };
-                    console.log(`[SmartScheduler] ✓ Clasificación actualizada con éxito (${res.teamsCount} equipos) en ventana ${check.reason}.`);
-                }
-                // Limpieza de claves antiguas para evitar acumulación en memoria
-                if (executedSlots.size > 50) {
-                    executedSlots.clear();
-                }
-            }
-        }
-        catch (err) {
-            console.warn('[SmartScheduler] Error en evaluación de horario:', err?.message);
-        }
-    }, 2 * 60 * 1000); // Comprobación en memoria cada 2 minutos (sin tráfico web salvo que coincida la ventana)
 });

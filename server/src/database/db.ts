@@ -4,7 +4,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 import mysql from 'mysql2/promise';
-import { OFFICIAL_LIGA_STANDINGS } from '../services/standingsSync.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -544,7 +543,7 @@ export interface ClubDatabase {
   clubInfo: any;
   matchCenter: any;
   players: any[];
-  standings: any[];
+  standings?: any[];
   news: NewsArticle[];
   sponsors: any[];
   contactMessages: any[];
@@ -1122,7 +1121,6 @@ const INITIAL_DATA: ClubDatabase = {
       featured: false
     }
   ],
-  standings: OFFICIAL_LIGA_STANDINGS,
   news: DEFAULT_NEWS,
   sponsors: [
     { id: 's1', name: 'IBI TOYS FACTORY', category: 'Industria', icon: 'sports_motorsports' },
@@ -1223,17 +1221,6 @@ export class Database {
         data.users.unshift(getInitialUsers()[0]);
         dirty = true;
       }
-    }
-
-    // Migración o validación de la clasificación oficial de 12 equipos de la Liga Plata Ibi F7
-    if (
-      !data.standings ||
-      !Array.isArray(data.standings) ||
-      data.standings.length < 12 ||
-      data.standings.some(s => s.teamName === 'Sporting Foia de Castalla' || s.teamName === 'Los Galácticos Ibi')
-    ) {
-      data.standings = OFFICIAL_LIGA_STANDINGS;
-      dirty = true;
     }
 
     return dirty;
