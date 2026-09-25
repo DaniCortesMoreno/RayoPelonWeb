@@ -7,7 +7,7 @@ export const CLUB_INFO = {
   league: 'Liga Plata Ibi F7 • Liga Comarcal',
   season: 'Temporada 2026/27',
   stadium: 'Complejo Deportivo Estadio Climent',
-  address: 'Calle Jaén s/n, 03440 Ibi (Alicante)',
+  address: 'C. Vicente Aleixandre, 17, 03440 Ibi, Alicante',
   email: 'danicortesmoreno@gmail.com',
   emailAlt: 'contacto@rayopelonf7.es',
   phone: '+34 601 43 84 41',
