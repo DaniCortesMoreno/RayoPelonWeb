@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { API_BASE } from '../config/api';
 import { AdminLoginForm } from '../components/admin/AdminLoginForm';
 import { AdminUsersManager } from '../components/admin/AdminUsersManager';
 import { AdminPlayersManager } from '../components/admin/AdminPlayersManager';
@@ -8,21 +7,12 @@ import { AdminMediaManager } from '../components/admin/AdminMediaManager';
 import { AdminMatchesManager } from '../components/admin/AdminMatchesManager';
 import { AdminNewsManager } from '../components/admin/AdminNewsManager';
 import { AdminLogsManager } from '../components/admin/AdminLogsManager';
-import { CLUB_INFO, INITIAL_PLAYERS, NEWS_DATA } from '../data/mockData';
+import { CLUB_INFO, INITIAL_PLAYERS, STANDINGS_DATA, NEWS_DATA } from '../data/mockData';
+import { API_BASE } from '../config/api';
 
 export const AdminPreviewPage: React.FC = () => {
   const { isAuthenticated, user, logout, isAdmin, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'players' | 'matches' | 'news' | 'multimedia' | 'users' | 'logs'>('dashboard');
-  const [dbStatus, setDbStatus] = useState<{ isMysql: boolean; database?: string } | null>(null);
-
-  useEffect(() => {
-    fetch(`${API_BASE}/health`)
-      .then((r) => r.json())
-      .then((d) => {
-        if (d?.database) setDbStatus(d.database);
-      })
-      .catch(() => {});
-  }, []);
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'players' | 'matches' | 'standings' | 'news' | 'multimedia' | 'users' | 'logs'>('dashboard');
 
   // Si está verificando sesión en localStorage o backend
   if (loading) {
@@ -138,6 +128,18 @@ export const AdminPreviewPage: React.FC = () => {
             </button>
 
             <button
+              onClick={() => setActiveTab('standings')}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded text-xs font-semibold uppercase tracking-wider transition-all ${
+                activeTab === 'standings'
+                  ? 'bg-rayo-gold text-rayo-carbon font-bold shadow-md'
+                  : 'text-rayo-bone/70 hover:text-white hover:bg-white/[0.04]'
+              }`}
+            >
+              <span className="material-symbols-outlined text-lg">leaderboard</span>
+              Clasificación ({STANDINGS_DATA.length})
+            </button>
+
+            <button
               onClick={() => setActiveTab('news')}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded text-xs font-semibold uppercase tracking-wider transition-all ${
                 activeTab === 'news'
@@ -234,24 +236,6 @@ export const AdminPreviewPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            {dbStatus?.isMysql ? (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold tracking-wide" title={`MySQL Activo: ${dbStatus.database || 'u512145639_rayo_bd'}`}>
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span className="material-symbols-outlined text-xs">database</span>
-                <span>MySQL Activo</span>
-              </span>
-            ) : dbStatus === null ? (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-rayo-gold text-xs font-mono font-bold tracking-wide">
-                <span className="material-symbols-outlined text-xs animate-spin">sync</span>
-                <span>Comprobando DB...</span>
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-mono font-bold tracking-wide">
-                <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-                <span>DB Local</span>
-              </span>
-            )}
-
             <span className="px-3 py-1.5 rounded bg-rayo-burgundy/30 border border-rayo-burgundy/50 text-rose-300 text-xs font-semibold uppercase">
               Temporada 26/27 • Ibi
             </span>
@@ -349,6 +333,107 @@ export const AdminPreviewPage: React.FC = () => {
         {activeTab === 'users' && (
           <div className="mt-8 animate-fadeIn">
             <AdminUsersManager />
+          </div>
+        )}
+
+        {activeTab === 'standings' && (
+          <div className="mt-8 elite-card rounded-xl p-6 sm:p-8 border border-white/[0.08] animate-fadeIn">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/[0.08] mb-6">
+              <div>
+                <div className="inline-flex items-center gap-2 text-xs font-mono uppercase text-rayo-gold mb-1">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  Conexión con Liga Comarcal de Ibi
+                </div>
+                <h3 className="font-display text-2xl font-bold uppercase text-white">
+                  Clasificación Oficial & Sincronización
+                </h3>
+                <p className="text-xs text-rayo-bone/60 mt-1">
+                  Fuente oficial:{' '}
+                  <a
+                    href="https://www.ligacomarcal.com/competicion/lc-futbol-7-ibi-plata-mtzfdn3f/clasificacion"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-rayo-gold hover:underline"
+                  >
+                    ligacomarcal.com
+                  </a>
+                </p>
+              </div>
+
+              <button
+                onClick={async () => {
+                  try {
+                    const token = localStorage.getItem('rayo_pelon_auth_token');
+                    const res = await fetch(`${API_BASE}/standings/sync`, {
+                      method: 'POST',
+                      headers: token ? { Authorization: `Bearer ${token}` } : {}
+                    });
+                    const data = await res.json();
+                    alert(data.message || 'Clasificación sincronizada');
+                    window.location.reload();
+                  } catch {
+                    alert('Error conectando con el servidor backend');
+                  }
+                }}
+                className="px-5 py-2.5 rounded-lg bg-rayo-gold hover:bg-rayo-goldLight text-rayo-carbon font-display text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow-md self-start sm:self-auto"
+              >
+                <span className="material-symbols-outlined text-base">sync</span>
+                Sincronizar con Liga Comarcal Ahora
+              </button>
+            </div>
+
+            {/* Preview of current 12 teams in DB */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="bg-[#0A0A16] text-[10px] font-display uppercase tracking-wider text-rayo-bone/50 border-b border-white/[0.08]">
+                    <th className="py-2.5 px-3 text-center">Pos</th>
+                    <th className="py-2.5 px-3">Escudo</th>
+                    <th className="py-2.5 px-3">Equipo</th>
+                    <th className="py-2.5 px-2 text-center">PJ</th>
+                    <th className="py-2.5 px-2 text-center">PG</th>
+                    <th className="py-2.5 px-2 text-center">PE</th>
+                    <th className="py-2.5 px-2 text-center">PP</th>
+                    <th className="py-2.5 px-2 text-center">GF</th>
+                    <th className="py-2.5 px-2 text-center">GC</th>
+                    <th className="py-2.5 px-2 text-center">DIF</th>
+                    <th className="py-2.5 px-3 text-center font-bold text-white">PTS</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/[0.04]">
+                  {STANDINGS_DATA.map((t) => (
+                    <tr key={t.teamName} className={t.isRayo ? 'bg-rayo-gold/10' : ''}>
+                      <td className="py-2.5 px-3 text-center font-bold">{t.position}</td>
+                      <td className="py-2.5 px-3">
+                        {t.isRayo ? (
+                          <img src="/escudo.png" alt="Rayo" className="w-6 h-6 object-contain" />
+                        ) : t.badgeUrl ? (
+                          <img src={t.badgeUrl} alt={t.teamName} className="w-6 h-6 object-contain" />
+                        ) : (
+                          <span className="text-[10px] font-mono">{t.teamCode}</span>
+                        )}
+                      </td>
+                      <td className="py-2.5 px-3 font-semibold text-white">
+                        {t.teamName}{' '}
+                        {t.isRayo && (
+                          <span className="ml-1.5 px-1.5 py-0.2 text-[9px] bg-rayo-gold text-black rounded font-bold">
+                            Rayo
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-2.5 px-2 text-center">{t.matchesPlayed}</td>
+                      <td className="py-2.5 px-2 text-center text-emerald-400">{t.won}</td>
+                      <td className="py-2.5 px-2 text-center">{t.drawn}</td>
+                      <td className="py-2.5 px-2 text-center text-rose-400">{t.lost}</td>
+                      <td className="py-2.5 px-2 text-center">{t.goalsFor}</td>
+                      <td className="py-2.5 px-2 text-center">{t.goalsAgainst}</td>
+                      <td className="py-2.5 px-2 text-center">{t.goalDifference}</td>
+                      <td className="py-2.5 px-3 text-center font-bold text-rayo-gold">{t.points}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 

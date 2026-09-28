@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import fs from 'fs';
@@ -6,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 import { Database, User, UserRole, SeasonMatch, computeMatchCenter, INITIAL_MATCHES, NewsArticle, NewsCategory, MedicalDetails, createAuditLog, AuditAction, AuditModule, AuditLog } from './database/db.js';
+import { fetchLiveStandings, checkScheduleWindow, SYNC_SCHEDULE_INFO } from './services/standingsSync.js';
 import { authMiddleware, requireRole, generateToken, AuthenticatedRequest } from './auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -51,21 +51,12 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 app.use('/players', express.static(PLAYERS_DIR));
 app.use('/media', express.static(MEDIA_DIR));
 
-// Desactivar caché HTTP en la API para garantizar datos frescos al instante
-app.use('/api', (req: Request, res: Response, next) => {
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-  next();
-});
-
 // 1. Health Check
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({
     status: 'online',
     club: 'Rayo Pelón F7',
     league: 'Liga Plata de Ibi',
-    database: Database.getStatus(),
     timestamp: new Date().toISOString()
   });
 });
@@ -406,14 +397,6 @@ app.post('/api/admin/restore', authMiddleware, requireRole(['ADMIN']), (req: Aut
   } catch (err: any) {
     res.status(500).json({ error: 'Error al restaurar la copia de seguridad', details: err?.message });
   }
-});
-
-// Estado de persistencia de la base de datos (MySQL vs Local JSON)
-app.get('/api/admin/db-status', authMiddleware, requireRole(['ADMIN']), (req: AuthenticatedRequest, res: Response) => {
-  res.json({
-    success: true,
-    status: Database.getStatus()
-  });
 });
 
 // ==========================================
@@ -760,6 +743,93 @@ app.post('/api/upload/player-photo', authMiddleware, (req: Request, res: Respons
   }
 });
 
+let lastStandingsSync: { timestamp: string; source: string; success: boolean; count: number } | null = null;
+
+// 5. Standings (Lectura con soporte de metadatos de sincronización)
+app.get('/api/standings', (req: Request, res: Response) => {
+  const db = Database.read();
+  // Si el cliente pide formato simple o array, o el objeto completo
+  res.json({
+    success: true,
+    standings: db.standings,
+    lastSync: lastStandingsSync,
+    schedule: SYNC_SCHEDULE_INFO,
+    sourceUrl: 'https://www.ligacomarcal.com/competicion/lc-futbol-7-ibi-plata-mtzfdn3f/clasificacion'
+  });
+});
+
+// 5.1 Sincronización Manual o Automática en Directo con ligacomarcal.com
+app.post('/api/standings/sync', authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const result = await fetchLiveStandings();
+    if (result.success && result.data.length > 0) {
+      const db = Database.read();
+      db.standings = result.data;
+      logAudit(db, req, 'SYNC', 'CLASIFICACION', `Sincronizó en directo la clasificación con ligacomarcal.com (${result.teamsCount} equipos)`);
+      Database.write(db);
+
+      lastStandingsSync = {
+        timestamp: result.timestamp,
+        source: result.sourceUrl,
+        success: true,
+        count: result.teamsCount
+      };
+
+      return res.json({
+        success: true,
+        message: `¡Clasificación sincronizada con éxito! ${result.teamsCount} equipos y escudos oficiales actualizados.`,
+        lastSync: lastStandingsSync,
+        standings: result.data
+      });
+    }
+
+    res.status(502).json({
+      success: false,
+      message: 'No se pudo parsear la tabla en ligacomarcal.com',
+      error: result.error
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: 'Error interno en el proceso de sincronización',
+      error: err?.message
+    });
+  }
+});
+
+// Permitir sync también por GET para llamadas directas
+app.get('/api/standings/sync', async (req: Request, res: Response) => {
+  const result = await fetchLiveStandings();
+  if (result.success && result.data.length > 0) {
+    const db = Database.read();
+    db.standings = result.data;
+    Database.write(db);
+    lastStandingsSync = {
+      timestamp: result.timestamp,
+      source: result.sourceUrl,
+      success: true,
+      count: result.teamsCount
+    };
+    return res.json({
+      success: true,
+      lastSync: lastStandingsSync,
+      standings: result.data
+    });
+  }
+  res.status(502).json({ success: false, error: result.error });
+});
+
+app.put('/api/standings', authMiddleware, (req: Request, res: Response) => {
+  const db = Database.read();
+  if (Array.isArray(req.body)) {
+    db.standings = req.body;
+    logAudit(db, req, 'UPDATE', 'CLASIFICACION', `Actualizó manualmente la tabla de clasificación (${req.body.length} equipos)`);
+    Database.write(db);
+    return res.json({ success: true, standings: db.standings });
+  }
+  res.status(400).json({ error: 'El formato debe ser un array de equipos' });
+});
+
 // 6. News & Medical Reports API
 const CATEGORY_LABELS: Record<NewsCategory, string> = {
   MEDICO: 'PARTE MÉDICO OFICIAL',
@@ -1014,7 +1084,7 @@ app.post('/api/contact', (req: Request, res: Response) => {
 // 9. Admin Metrics
 app.get('/api/admin/metrics', (req: Request, res: Response) => {
   const db = Database.read();
-  const rayoInStandings = db.standings?.find((s: any) => s.isRayo);
+  const rayoInStandings = db.standings.find(s => s.isRayo);
   res.json({
     totalPlayers: db.players.length,
     activePlayers: db.players.filter(p => p.status === 'Apto').length,
@@ -1245,19 +1315,66 @@ if (fs.existsSync(CLIENT_DIST)) {
   });
 }
 
-// 1. Cargar datos en memoria de inmediato desde el almacenamiento local (<1ms)
-Database.loadInitialCache();
-
-// 2. Iniciar la escucha del servidor de inmediato para que Nginx / Passenger nunca de 504 Gateway Timeout
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`[Rayo Pelón F7 API] Servidor activo en http://localhost:${PORT}`);
   
-  // 3. Conectar a MySQL y sincronizar en segundo plano de forma no bloqueante
-  Database.init().then(() => {
-    const status = Database.getStatus();
-    console.log(`[Database] Persistencia: ${status.isMysql ? `✓ MySQL Hostinger ACTIVA (${status.host} / ${status.database})` : '⚠️ Fallback Local JSON'}`);
-  }).catch((err) => {
-    console.error('[Rayo Pelón F7 API] Error al inicializar MySQL en segundo plano:', err);
-  });
-});
+  // Sincronización inicial automática al arrancar el servidor
+  try {
+    console.log('[AutoSync] Iniciando sincronización de clasificación con ligacomarcal.com...');
+    const result = await fetchLiveStandings();
+    if (result.success && result.data.length > 0) {
+      const db = Database.read();
+      db.standings = result.data;
+      Database.write(db);
+      lastStandingsSync = {
+        timestamp: result.timestamp,
+        source: result.sourceUrl,
+        success: true,
+        count: result.teamsCount
+      };
+      console.log(`[AutoSync] Clasificación sincronizada con éxito: ${result.teamsCount} equipos y escudos cargados.`);
+    }
+  } catch (err: any) {
+    console.warn('[AutoSync] No se pudo completar la sincronización inicial:', err?.message);
+  }
 
+  // Sincronizador inteligente adaptado a la jornada de fútbol:
+  // - Viernes noche: partidos a las 22h -> comprobación a las 23:45h, 00:00h y 00:30h
+  // - Domingo mañana: partidos a las 9h/10h -> comprobación a las 11:30h, 12:00h y 12:30h
+  // - Lunes 10:00h: consolidación semanal
+  // - 1 revisión diaria ligera a las 06:00h
+  const executedSlots = new Set<string>();
+
+  setInterval(async () => {
+    try {
+      const now = new Date();
+      const check = checkScheduleWindow(now);
+
+      if (check.shouldRun && !executedSlots.has(check.slotKey)) {
+        executedSlots.add(check.slotKey);
+        console.log(`[SmartScheduler] Ejecutando sincronización programada: ${check.reason}...`);
+        
+        const res = await fetchLiveStandings();
+        if (res.success && res.data.length > 0) {
+          const db = Database.read();
+          db.standings = res.data;
+          Database.write(db);
+          lastStandingsSync = {
+            timestamp: res.timestamp,
+            source: res.sourceUrl,
+            success: true,
+            count: res.teamsCount
+          };
+          console.log(`[SmartScheduler] ✓ Clasificación actualizada con éxito (${res.teamsCount} equipos) en ventana ${check.reason}.`);
+        }
+
+        // Limpieza de claves antiguas para evitar acumulación en memoria
+        if (executedSlots.size > 50) {
+          executedSlots.clear();
+        }
+      }
+    } catch (err: any) {
+      console.warn('[SmartScheduler] Error en evaluación de horario:', err?.message);
+    }
+  }, 2 * 60 * 1000); // Comprobación en memoria cada 2 minutos (sin tráfico web salvo que coincida la ventana)
+});

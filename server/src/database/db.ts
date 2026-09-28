@@ -1,9 +1,7 @@
-import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
-import mysql from 'mysql2/promise';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -543,7 +541,7 @@ export interface ClubDatabase {
   clubInfo: any;
   matchCenter: any;
   players: any[];
-  standings?: any[];
+  standings: any[];
   news: NewsArticle[];
   sponsors: any[];
   contactMessages: any[];
@@ -850,15 +848,11 @@ const INITIAL_DATA: ClubDatabase = {
     name: 'Rayo Pelón F7',
     league: 'Liga Plata Ibi F7 • Liga Comarcal',
     season: 'Temporada 2026/27',
-    stadium: 'Complejo Deportivo Estadio Climent',
-    address: 'C. Vicente Aleixandre, 17, 03440 Ibi, Alicante',
-    email: 'danicortesmoreno@gmail.com',
-    emailAlt: 'contacto@rayopelonf7.es',
-    phone: '+34 601 43 84 41',
-    schedule: 'Partidos: Viernes 21h/22h o Domingos 9h/10h • Sesión táctica: Miércoles 22h',
-    mapsUrl: 'https://maps.app.goo.gl/YYMSsMhEYBnnL2wH9',
-    instagram: 'https://www.instagram.com/rayopelonsv/',
-    instagramHandle: '@rayopelonsv'
+    stadium: 'Polideportivo Municipal de Ibi (Campos F7 Hierba Artificial)',
+    address: 'Calle Jaén s/n, 03440 Ibi (Alicante)',
+    email: 'contacto@rayopelonf7.es',
+    emailAlt: 'directiva.rayopelon@gmail.com',
+    schedule: 'Lunes y Miércoles: 20:30h - 22:30h'
   },
   matchCenter: computeMatchCenter(INITIAL_MATCHES),
   players: [
@@ -1121,6 +1115,13 @@ const INITIAL_DATA: ClubDatabase = {
       featured: false
     }
   ],
+  standings: [
+    { position: 1, teamCode: 'SF', teamName: 'Sporting Foia de Castalla', isRayo: false, matchesPlayed: 13, won: 10, drawn: 2, lost: 1, goalsFor: 48, goalsAgainst: 19, goalDifference: 29, points: 32, form: ['V', 'V', 'E'] },
+    { position: 2, teamCode: 'RP', teamName: 'RAYO PELÓN F7', isRayo: true, matchesPlayed: 13, won: 9, drawn: 2, lost: 2, goalsFor: 45, goalsAgainst: 21, goalDifference: 24, points: 29, form: ['V', 'V', 'V'] },
+    { position: 3, teamCode: 'GI', teamName: 'Los Galácticos Ibi', isRayo: false, matchesPlayed: 13, won: 8, drawn: 2, lost: 3, goalsFor: 39, goalsAgainst: 24, goalDifference: 15, points: 26, form: ['D', 'V', 'E'] },
+    { position: 4, teamCode: 'PF', teamName: 'Penya La Foia', isRayo: false, matchesPlayed: 13, won: 7, drawn: 3, lost: 3, goalsFor: 34, goalsAgainst: 22, goalDifference: 12, points: 24, form: ['V', 'E', 'V'] },
+    { position: 5, teamCode: 'IB', teamName: 'Ibense CF Veteranos', isRayo: false, matchesPlayed: 13, won: 5, drawn: 1, lost: 7, goalsFor: 28, goalsAgainst: 33, goalDifference: -5, points: 16, form: ['D', 'D', 'V'] }
+  ],
   news: DEFAULT_NEWS,
   sponsors: [
     { id: 's1', name: 'IBI TOYS FACTORY', category: 'Industria', icon: 'sports_motorsports' },
@@ -1140,16 +1141,6 @@ const INITIAL_DATA: ClubDatabase = {
 };
 
 export class Database {
-  private static mysqlPool: any = null;
-  private static isMysqlConnected = false;
-  private static activeHost = 'localhost';
-  private static memoryCache: ClubDatabase | null = null;
-  private static initPromise: Promise<void> | null = null;
-  private static lastCheckTime = 0;
-  private static lastDbUpdatedAt = '';
-  private static lastReconnectAttempt = 0;
-  private static isReconnecting = false;
-
   private static ensureDataDir() {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -1170,69 +1161,7 @@ export class Database {
     }
   }
 
-  private static validateAndEnrich(data: ClubDatabase): boolean {
-    let dirty = false;
-
-    if (!data.matches || !Array.isArray(data.matches) || data.matches.length === 0) {
-      data.matches = INITIAL_MATCHES;
-      dirty = true;
-    }
-    data.matchCenter = computeMatchCenter(data.matches);
-
-    if (!data.clubInfo) {
-      data.clubInfo = INITIAL_DATA.clubInfo;
-      dirty = true;
-    } else {
-      if (data.clubInfo.address !== 'C. Vicente Aleixandre, 17, 03440 Ibi, Alicante') {
-        data.clubInfo.address = 'C. Vicente Aleixandre, 17, 03440 Ibi, Alicante';
-        dirty = true;
-      }
-      if (data.clubInfo.stadium !== 'Complejo Deportivo Estadio Climent') {
-        data.clubInfo.stadium = 'Complejo Deportivo Estadio Climent';
-        dirty = true;
-      }
-    }
-
-    if (!data.players || !Array.isArray(data.players) || data.players.length === 0) {
-      data.players = INITIAL_DATA.players;
-      dirty = true;
-    }
-
-    if (!data.featuredMatch) {
-      data.featuredMatch = DEFAULT_FEATURED_MATCH;
-      dirty = true;
-    }
-    if (!data.gallery || !Array.isArray(data.gallery)) {
-      data.gallery = DEFAULT_GALLERY;
-      dirty = true;
-    }
-    if (!data.clips || !Array.isArray(data.clips)) {
-      data.clips = DEFAULT_CLIPS;
-      dirty = true;
-    }
-    if (!data.news || !Array.isArray(data.news)) {
-      data.news = DEFAULT_NEWS;
-      dirty = true;
-    }
-    if (!data.auditLogs || !Array.isArray(data.auditLogs)) {
-      data.auditLogs = [];
-      dirty = true;
-    }
-    if (!data.users || !Array.isArray(data.users) || data.users.length === 0) {
-      data.users = getInitialUsers();
-      dirty = true;
-    } else {
-      const hasDani = data.users.some(u => u.username.toLowerCase() === 'dani');
-      if (!hasDani) {
-        data.users.unshift(getInitialUsers()[0]);
-        dirty = true;
-      }
-    }
-
-    return dirty;
-  }
-
-  private static readFromDisk(): ClubDatabase {
+  public static read(): ClubDatabase {
     this.ensureDataDir();
     try {
       let content = '';
@@ -1249,350 +1178,80 @@ export class Database {
       }
 
       const data: ClubDatabase = JSON.parse(content);
-      const dirty = this.validateAndEnrich(data);
+      let dirty = false;
+
+      if (!data.matches || !Array.isArray(data.matches) || data.matches.length === 0) {
+        data.matches = INITIAL_MATCHES;
+        dirty = true;
+      }
+      // Ensure matchCenter is computed automatically based on current schedule
+      data.matchCenter = computeMatchCenter(data.matches);
+
+      if (!data.players || !Array.isArray(data.players) || data.players.length === 0) {
+        data.players = INITIAL_DATA.players;
+        dirty = true;
+      }
+
+      if (!data.featuredMatch) {
+        data.featuredMatch = DEFAULT_FEATURED_MATCH;
+        dirty = true;
+      }
+      if (!data.gallery || !Array.isArray(data.gallery)) {
+        data.gallery = DEFAULT_GALLERY;
+        dirty = true;
+      }
+      if (!data.clips || !Array.isArray(data.clips)) {
+        data.clips = DEFAULT_CLIPS;
+        dirty = true;
+      }
+      if (!data.news || !Array.isArray(data.news)) {
+        data.news = DEFAULT_NEWS;
+        dirty = true;
+      }
+      if (!data.auditLogs || !Array.isArray(data.auditLogs)) {
+        data.auditLogs = [];
+        dirty = true;
+      }
+      if (!data.users || !Array.isArray(data.users) || data.users.length === 0) {
+        data.users = getInitialUsers();
+        dirty = true;
+      } else {
+        const hasDani = data.users.some(u => u.username.toLowerCase() === 'dani');
+        if (!hasDani) {
+          data.users.unshift(getInitialUsers()[0]);
+          dirty = true;
+        }
+      }
       if (dirty) {
-        this.writeToDisk(data);
+        this.write(data);
       }
       return data;
     } catch (err) {
-      console.warn('[Database] Advertencia al leer datos en disco, buscando copia de seguridad:', err);
+      console.warn('[Database] Advertencia al leer datos, buscando copia de seguridad:', err);
       if (fs.existsSync(STORAGE_BAK_FILE)) {
         try {
           const bakContent = fs.readFileSync(STORAGE_BAK_FILE, 'utf-8');
-          const data = JSON.parse(bakContent);
-          this.validateAndEnrich(data);
-          return data;
+          return JSON.parse(bakContent);
         } catch {}
       }
       return INITIAL_DATA;
     }
   }
 
-  public static loadInitialCache(): ClubDatabase {
-    if (!this.memoryCache) {
-      this.memoryCache = this.readFromDisk();
-    }
-    return this.memoryCache;
-  }
-
-  private static writeToDiskAsync(data: ClubDatabase): void {
+  public static write(data: ClubDatabase): void {
     this.ensureDataDir();
     const serialized = JSON.stringify(data, null, 2);
-    const tempFile = `${STORAGE_FILE}.tmp_${Date.now()}`;
 
-    fs.promises.writeFile(tempFile, serialized, 'utf-8')
-      .then(async () => {
-        if (fs.existsSync(STORAGE_FILE)) {
-          try {
-            await fs.promises.copyFile(STORAGE_FILE, STORAGE_BAK_FILE);
-          } catch {}
-        }
-        await fs.promises.rename(tempFile, STORAGE_FILE);
-      })
-      .catch((err) => {
-        console.warn('[Database] Advertencia al escribir datos en disco de forma asíncrona:', err);
-      });
-  }
-
-  private static writeToDisk(data: ClubDatabase): void {
-    this.writeToDiskAsync(data);
-  }
-
-  private static async connectMysql(): Promise<boolean> {
-    const user = process.env.MYSQL_USER || process.env.DB_USER || 'u512145639_rayo_user';
-    const password = process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD || '1Cb=tf7V@mG';
-    const database = process.env.MYSQL_DATABASE || process.env.DB_NAME || 'u512145639_rayo_bd';
-    const port = Number(process.env.MYSQL_PORT || process.env.DB_PORT) || 3306;
-    const configuredHost = process.env.MYSQL_HOST || process.env.DB_HOST || '127.0.0.1';
-
-    // En Linux/Hostinger, 'localhost' resuelve primero a IPv6 (::1) causando cuelgues.
-    // Priorizamos '127.0.0.1' para conexión directa IPv4 sin retrasos.
-    const candidates = configuredHost === 'localhost'
-      ? ['127.0.0.1', 'localhost']
-      : Array.from(new Set([configuredHost, '127.0.0.1', 'localhost']));
-
-    // Cerrar de forma limpia cualquier pool anterior para evitar fugas de conexiones y límites max_user_connections
-    if (this.mysqlPool) {
+    // 1. Guardar copia previa como respaldo
+    if (fs.existsSync(STORAGE_FILE)) {
       try {
-        await this.mysqlPool.end();
+        fs.copyFileSync(STORAGE_FILE, STORAGE_BAK_FILE);
       } catch {}
-      this.mysqlPool = null;
     }
 
-    for (const hostCandidate of candidates) {
-      let candidatePool: any = null;
-      try {
-        console.log(`[Database] 🔄 Probando conexión a MySQL en "${hostCandidate}:${port}" (BD: ${database}, User: ${user})...`);
-        candidatePool = mysql.createPool({
-          host: hostCandidate,
-          user,
-          password,
-          database,
-          port,
-          waitForConnections: true,
-          connectionLimit: 4, // Límite seguro para múltiples workers en Hostinger
-          queueLimit: 0,
-          connectTimeout: 3000,
-          enableKeepAlive: true,
-          keepAliveInitialDelay: 10000
-        });
-
-        // Test rápido de conectividad con timeout de seguridad (2.5s)
-        await Promise.race([
-          (async () => {
-            const conn = await candidatePool.getConnection();
-            await conn.ping();
-            conn.release();
-          })(),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout de ping MySQL')), 2500))
-        ]);
-
-        // Si funciona, asignar pool activo
-        this.mysqlPool = candidatePool;
-        this.activeHost = hostCandidate;
-        this.isMysqlConnected = true;
-        console.log(`[Database] ✓ Conexión MySQL establecida con éxito en "${hostCandidate}".`);
-        return true;
-      } catch (err: any) {
-        console.warn(`[Database] Aviso al conectar con host "${hostCandidate}": ${err?.code || ''} - ${err?.message || err}`);
-        if (candidatePool) {
-          try {
-            await candidatePool.end();
-          } catch {}
-        }
-      }
-    }
-
-    this.isMysqlConnected = false;
-    return false;
-  }
-
-  public static async init(): Promise<void> {
-    if (this.initPromise) {
-      return this.initPromise;
-    }
-
-    this.initPromise = (async () => {
-      this.ensureDataDir();
-
-      // 1. Cargar lo que tengamos en disco primero como respaldo inmediato (<1ms)
-      const diskData = this.loadInitialCache();
-
-      // 2. Activar sincronización y keep-alive en segundo plano
-      this.startBackgroundSync();
-
-      // 3. Conectar a MySQL
-      const connected = await this.connectMysql();
-
-      if (!connected || !this.mysqlPool) {
-        console.warn('[Database] ⚠️ No se pudo conectar a MySQL tras probar candidatos. Operando con caché local (JSON). El temporizador en segundo plano reintentará conectar.');
-        this.isMysqlConnected = false;
-        return;
-      }
-
-      try {
-        // 4. Crear tabla permanente si no existe
-        await Promise.race([
-          this.mysqlPool.query(`
-            CREATE TABLE IF NOT EXISTS club_storage (
-              id VARCHAR(50) PRIMARY KEY,
-              data LONGTEXT NOT NULL,
-              updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-          `),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout CREATE TABLE')), 4000))
-        ]);
-
-        // 5. Consultar datos almacenados en MySQL
-        const [rows]: any = await Promise.race([
-          this.mysqlPool.query('SELECT data, updated_at FROM club_storage WHERE id = ?', ['main_club_data']),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout SELECT data')), 4000))
-        ]);
-
-        if (rows && rows.length > 0 && rows[0].data) {
-          try {
-            const parsed = JSON.parse(rows[0].data);
-            const dirty = this.validateAndEnrich(parsed);
-            this.memoryCache = parsed;
-            this.lastDbUpdatedAt = String(rows[0].updated_at || '');
-            this.writeToDiskAsync(parsed);
-
-            if (dirty) {
-              await this.mysqlPool.query(
-                'INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)',
-                ['main_club_data', JSON.stringify(parsed)]
-              ).catch(() => {});
-            }
-
-            this.isMysqlConnected = true;
-            console.log('[Database] ★ EXCELENTE: Base de Datos MySQL Activa (Hostinger) y datos sincronizados.');
-            console.log(`[Database] (Jugadores: ${parsed.players?.length || 0}, Noticias: ${parsed.news?.length || 0}, Jornadas: ${parsed.matches?.length || 0})`);
-            return;
-          } catch (parseErr) {
-            console.warn('[Database] Advertencia al parsear datos de MySQL:', parseErr);
-          }
-        }
-
-        // Si la tabla MySQL estaba vacía (primer arranque de la base de datos)
-        console.log('[Database] Inicializando tabla MySQL con los datos actuales del club...');
-        await this.mysqlPool.query(
-          'INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)',
-          ['main_club_data', JSON.stringify(diskData)]
-        );
-
-        const [freshRows]: any = await this.mysqlPool.query(
-          'SELECT updated_at FROM club_storage WHERE id = ?',
-          ['main_club_data']
-        );
-        if (freshRows && freshRows[0]?.updated_at) {
-          this.lastDbUpdatedAt = String(freshRows[0].updated_at);
-        }
-
-        this.isMysqlConnected = true;
-        console.log('[Database] ✓ Base de datos MySQL guardada y sincronizada correctamente en Hostinger.');
-      } catch (err: any) {
-        console.error('[Database] Error configurando tabla en MySQL:', err?.message || err);
-        this.isMysqlConnected = false;
-      }
-    })();
-
-    return this.initPromise;
-  }
-
-  private static syncInterval: any = null;
-
-  public static startBackgroundSync(intervalMs: number = 15000): void {
-    if (this.syncInterval) return;
-    this.syncInterval = setInterval(() => {
-      this.syncFromMysql().catch((err) => {
-        console.warn('[Database] Aviso en sincronización en segundo plano:', err?.message || err);
-      });
-    }, intervalMs);
-    if (this.syncInterval.unref) {
-      this.syncInterval.unref();
-    }
-  }
-
-  public static async syncFromMysql(): Promise<void> {
-    if (!this.isMysqlConnected || !this.mysqlPool) {
-      const now = Date.now();
-      if (now - this.lastReconnectAttempt > 15000 && !this.isReconnecting) {
-        this.lastReconnectAttempt = now;
-        this.isReconnecting = true;
-        try {
-          const reconnected = await this.connectMysql();
-          if (reconnected && this.mysqlPool) {
-            const [rows]: any = await Promise.race([
-              this.mysqlPool.query('SELECT data, updated_at FROM club_storage WHERE id = ?', ['main_club_data']),
-              new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout sync reconexión')), 3000))
-            ]);
-            if (rows && rows.length > 0 && rows[0].data) {
-              const parsed = JSON.parse(rows[0].data);
-              this.validateAndEnrich(parsed);
-              this.memoryCache = parsed;
-              this.lastDbUpdatedAt = String(rows[0].updated_at || '');
-              this.writeToDiskAsync(parsed);
-              this.isMysqlConnected = true;
-              console.log('[Database] ✓ Reconectado y resincronizado con MySQL en segundo plano.');
-            }
-          }
-        } catch (err: any) {
-          console.warn('[Database] Reintento de reconexión fallido:', err?.message || err);
-        } finally {
-          this.isReconnecting = false;
-        }
-      }
-      return;
-    }
-
-    // Ping / Comprobación ligera para sincronización entre workers y keep-alive
-    try {
-      const [rows]: any = await Promise.race([
-        this.mysqlPool.query('SELECT updated_at FROM club_storage WHERE id = ?', ['main_club_data']),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout comprobación updated_at')), 2000))
-      ]);
-
-      if (rows && rows.length > 0 && rows[0].updated_at) {
-        const currentUpdated = String(rows[0].updated_at);
-        if (currentUpdated !== this.lastDbUpdatedAt) {
-          const [dataRows]: any = await Promise.race([
-            this.mysqlPool.query('SELECT data, updated_at FROM club_storage WHERE id = ?', ['main_club_data']),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout descarga datos')), 3000))
-          ]);
-          if (dataRows && dataRows.length > 0 && dataRows[0].data) {
-            const parsed = JSON.parse(dataRows[0].data);
-            this.validateAndEnrich(parsed);
-            this.memoryCache = parsed;
-            this.lastDbUpdatedAt = String(dataRows[0].updated_at);
-            this.writeToDiskAsync(parsed);
-            console.log('[Database] 🔄 Datos resincronizados en tiempo real desde MySQL Hostinger.');
-          }
-        }
-      }
-    } catch (err: any) {
-      console.warn('[Database] Advertencia al verificar sincronización MySQL:', err?.message || err);
-      if (err?.code === 'PROTOCOL_CONNECTION_LOST' || err?.code === 'ECONNRESET' || err?.code === 'ETIMEDOUT') {
-        this.isMysqlConnected = false;
-      }
-    }
-  }
-
-  /**
-   * Garantiza que la caché en memoria esté disponible.
-   * Totalmente NO BLOQUEANTE para las peticiones de los usuarios.
-   */
-  public static async ensureFresh(): Promise<void> {
-    if (!this.memoryCache) {
-      this.loadInitialCache();
-    }
-  }
-
-  public static read(): ClubDatabase {
-    if (this.memoryCache) {
-      return this.memoryCache;
-    }
-    return this.loadInitialCache();
-  }
-
-  public static write(data: ClubDatabase): void {
-    // 1. Actualizar memoria inmediatamente para lecturas ultra-rápidas
-    this.memoryCache = data;
-
-    // 2. Guardar copia local de forma asíncrona (sin bloquear el Event Loop)
-    this.writeToDiskAsync(data);
-
-    // 3. Persistir de inmediato a MySQL si está conectado
-    if (this.isMysqlConnected && this.mysqlPool) {
-      const serialized = JSON.stringify(data);
-      this.mysqlPool.query(
-        'INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)',
-        ['main_club_data', serialized]
-      ).then(async () => {
-        try {
-          const [rows]: any = await this.mysqlPool.query(
-            'SELECT updated_at FROM club_storage WHERE id = ?',
-            ['main_club_data']
-          );
-          if (rows && rows[0]?.updated_at) {
-            this.lastDbUpdatedAt = String(rows[0].updated_at);
-          }
-        } catch {}
-      }).catch((sqlErr: any) => {
-        console.error('[Database] Error al persistir en MySQL:', sqlErr?.message || sqlErr);
-        if (sqlErr?.code === 'PROTOCOL_CONNECTION_LOST' || sqlErr?.code === 'ECONNRESET') {
-          this.isMysqlConnected = false;
-        }
-      });
-    }
-  }
-
-  public static getStatus(): { isMysql: boolean; host?: string; database?: string; lastSync?: string } {
-    return {
-      isMysql: this.isMysqlConnected,
-      host: this.activeHost || process.env.DB_HOST || '127.0.0.1',
-      database: process.env.DB_NAME || 'u512145639_rayo_bd',
-      lastSync: this.lastDbUpdatedAt || new Date().toISOString()
-    };
+    // 2. Escritura atómica para evitar corrupción ante interrupciones
+    const tempFile = `${STORAGE_FILE}.tmp_${Date.now()}`;
+    fs.writeFileSync(tempFile, serialized, 'utf-8');
+    fs.renameSync(tempFile, STORAGE_FILE);
   }
 }
-
