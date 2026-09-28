@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE } from '../config/api';
 import { AdminLoginForm } from '../components/admin/AdminLoginForm';
 import { AdminUsersManager } from '../components/admin/AdminUsersManager';
 import { AdminPlayersManager } from '../components/admin/AdminPlayersManager';
@@ -12,6 +13,16 @@ import { CLUB_INFO, INITIAL_PLAYERS, NEWS_DATA } from '../data/mockData';
 export const AdminPreviewPage: React.FC = () => {
   const { isAuthenticated, user, logout, isAdmin, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'players' | 'matches' | 'news' | 'multimedia' | 'users' | 'logs'>('dashboard');
+  const [dbStatus, setDbStatus] = useState<{ isMysql: boolean; database?: string } | null>(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/health`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.database) setDbStatus(d.database);
+      })
+      .catch(() => {});
+  }, []);
 
   // Si está verificando sesión en localStorage o backend
   if (loading) {
@@ -223,6 +234,24 @@ export const AdminPreviewPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            {dbStatus?.isMysql ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold tracking-wide" title={`MySQL Activo: ${dbStatus.database || 'u512145639_rayo_bd'}`}>
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span className="material-symbols-outlined text-xs">database</span>
+                <span>MySQL Activo</span>
+              </span>
+            ) : dbStatus === null ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-rayo-gold text-xs font-mono font-bold tracking-wide">
+                <span className="material-symbols-outlined text-xs animate-spin">sync</span>
+                <span>Comprobando DB...</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-mono font-bold tracking-wide">
+                <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                <span>DB Local</span>
+              </span>
+            )}
+
             <span className="px-3 py-1.5 rounded bg-rayo-burgundy/30 border border-rayo-burgundy/50 text-rose-300 text-xs font-semibold uppercase">
               Temporada 26/27 • Ibi
             </span>

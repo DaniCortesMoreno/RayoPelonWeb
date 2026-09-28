@@ -71,7 +71,20 @@ export const AdminLogsManager: React.FC = () => {
       const res = await fetch(`${API_BASE}/admin/db-status`, { headers: getAuthHeaders() });
       if (res.ok) {
         const data = await res.json();
-        setDbStatus(data.status);
+        if (data.status) {
+          setDbStatus(data.status);
+          return;
+        }
+      }
+    } catch {}
+
+    try {
+      const resHealth = await fetch(`${API_BASE}/health`);
+      if (resHealth.ok) {
+        const dataHealth = await resHealth.json();
+        if (dataHealth.database) {
+          setDbStatus(dataHealth.database);
+        }
       }
     } catch {}
   };
@@ -309,11 +322,17 @@ export const AdminLogsManager: React.FC = () => {
                 Exclusivo Rol Administrador
               </div>
 
-              {dbStatus?.isMysql ? (
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold tracking-wide">
+              {dbStatus === null ? (
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-rayo-gold text-xs font-mono font-bold tracking-wide">
+                  <span className="w-2 h-2 rounded-full bg-rayo-gold animate-ping"></span>
+                  <span className="material-symbols-outlined text-xs animate-spin">sync</span>
+                  <span>Comprobando MySQL...</span>
+                </div>
+              ) : dbStatus.isMysql ? (
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold tracking-wide" title={`Conectado a ${dbStatus.database || 'u512145639_rayo_bd'} en ${dbStatus.host || '127.0.0.1'}`}>
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                   <span className="material-symbols-outlined text-xs">database</span>
-                  <span>Base de Datos: MySQL Activa (Hostinger)</span>
+                  <span>Base de Datos: MySQL Activa ({dbStatus.database || 'u512145639_rayo_bd'})</span>
                 </div>
               ) : (
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-mono font-bold tracking-wide">
