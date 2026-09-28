@@ -74,7 +74,7 @@ export const ContactoPage: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white/[0.03] border border-white/[0.08] text-xs">
                   <span className="material-symbols-outlined text-rayo-gold text-base">stadium</span>
-                  <span className="text-rayo-bone/80 font-medium">Campo 1 Ibi</span>
+                  <span className="text-rayo-bone/80 font-medium">Estadio Climent</span>
                 </div>
                 <div className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white/[0.03] border border-white/[0.08] text-xs">
                   <span className="material-symbols-outlined text-rayo-gold text-base">military_tech</span>
@@ -101,7 +101,7 @@ export const ContactoPage: React.FC = () => {
                     Sede Deportiva e Instalaciones
                   </h2>
                   <p className="text-xs sm:text-sm text-rayo-bone/70 mt-1 leading-relaxed">
-                    El Rayo Pelón F7 disputa todos sus compromisos ligueros como local en las instalaciones municipales de Ibi.
+                    El Rayo Pelón F7 disputa todos sus compromisos ligueros como local en el Complejo Deportivo Estadio Climent (Ibi).
                   </p>
                 </div>
 
@@ -117,7 +117,7 @@ export const ContactoPage: React.FC = () => {
                           {CLUB_INFO.stadium}
                         </h3>
                         <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                          Activo
+                          Sede Oficial
                         </span>
                       </div>
                       <p className="text-xs text-rayo-bone/70 mt-1">
@@ -146,13 +146,13 @@ export const ContactoPage: React.FC = () => {
                         </div>
                       </div>
                       <div className="mt-2 px-3 py-1 rounded-md bg-[#07070F]/90 border border-white/20 text-[11px] font-bold text-white tracking-wider uppercase backdrop-blur-md">
-                        Campo 1 • Polideportivo Ibi
+                        Complejo Deportivo Estadio Climent
                       </div>
                     </div>
 
                     {/* Google Maps link button overlay */}
                     <a
-                      href="https://www.google.com/maps/search/?api=1&query=Polideportivo+Municipal+de+Ibi"
+                      href="https://maps.app.goo.gl/Ahug91q3zzPbfod79"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="absolute bottom-3 right-3 px-3.5 py-1.5 rounded-lg bg-rayo-gold hover:bg-rayo-goldLight text-rayo-carbon font-display text-[11px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md"
@@ -171,21 +171,29 @@ export const ContactoPage: React.FC = () => {
                       <span className="material-symbols-outlined text-lg">mail</span>
                     </div>
                     <h4 className="font-display font-semibold uppercase text-white text-xs tracking-wider">
-                      Email Oficial & Prensa
+                      Emails Oficiales
                     </h4>
-                    <p className="text-xs text-rayo-bone/80 font-mono mt-1 break-all">
-                      {CLUB_INFO.email}
-                    </p>
-                    <p className="text-[11px] text-rayo-bone/50 font-mono mt-0.5 break-all">
-                      {CLUB_INFO.emailAlt}
-                    </p>
-                    <button
-                      onClick={() => copyToClipboard(CLUB_INFO.email, 'email')}
-                      className="mt-3 text-[11px] font-semibold text-rayo-gold hover:text-white transition-colors flex items-center gap-1"
+                    <a
+                      href="mailto:danicortesmoreno@gmail.com"
+                      className="text-xs text-rayo-bone/90 font-mono mt-1 break-all hover:text-rayo-gold transition-colors block"
                     >
-                      <span className="material-symbols-outlined text-xs">content_copy</span>
-                      {copiedField === 'email' ? '¡Copiado!' : 'Copiar email'}
-                    </button>
+                      danicortesmoreno@gmail.com
+                    </a>
+                    <a
+                      href="mailto:mycmagency10@gmail.com"
+                      className="text-xs text-rayo-bone/90 font-mono mt-1 break-all hover:text-rayo-gold transition-colors block"
+                    >
+                      mycmagency10@gmail.com
+                    </a>
+                    <div className="flex items-center gap-2 mt-3">
+                      <button
+                        onClick={() => copyToClipboard('danicortesmoreno@gmail.com', 'email')}
+                        className="text-[11px] font-semibold text-rayo-gold hover:text-white transition-colors flex items-center gap-1"
+                      >
+                        <span className="material-symbols-outlined text-xs">content_copy</span>
+                        {copiedField === 'email' ? '¡Copiado!' : 'Copiar email'}
+                      </button>
+                    </div>
                   </div>
 
                   {/* WhatsApp / Teléfono Box */}
@@ -196,17 +204,22 @@ export const ContactoPage: React.FC = () => {
                     <h4 className="font-display font-semibold uppercase text-white text-xs tracking-wider">
                       WhatsApp Directiva
                     </h4>
-                    <p className="text-xs text-rayo-bone/80 font-mono mt-1">
-                      +34 622 841 902
-                    </p>
-                    <p className="text-[11px] text-rayo-bone/50 mt-0.5">
-                      Atención para partidos y dudas rápidas
-                    </p>
                     <a
-                      href="https://wa.me/34622841902"
+                      href="https://wa.me/34601438441"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
+                      className="text-xs text-rayo-bone/90 font-mono font-bold mt-1 block hover:text-emerald-400 transition-colors"
+                    >
+                      +34 601 43 84 41
+                    </a>
+                    <p className="text-[11px] text-rayo-bone/50 mt-0.5">
+                      Atención para partidos, dudas y patrocinios
+                    </p>
+                    <a
+                      href="https://wa.me/34601438441"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex items-center gap-1 px-3 py-1 rounded bg-emerald-500/15 border border-emerald-500/30 text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
                     >
                       <span className="material-symbols-outlined text-xs">send</span>
                       Abrir conversación
@@ -215,17 +228,23 @@ export const ContactoPage: React.FC = () => {
 
                   {/* Horarios Box */}
                   <div className="elite-card rounded-xl p-5 border border-white/[0.08] hover:border-rayo-gold/30 transition-all sm:col-span-2">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-start sm:items-center gap-3">
                       <div className="w-9 h-9 rounded-lg bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-rayo-gold flex-shrink-0">
                         <span className="material-symbols-outlined text-lg">schedule</span>
                       </div>
-                      <div>
+                      <div className="space-y-1">
                         <h4 className="font-display font-semibold uppercase text-white text-xs tracking-wider">
-                          Días de Juego y Sesiones
+                          Días de Juego y Entrenamientos
                         </h4>
-                        <p className="text-xs text-rayo-bone/70 mt-0.5">
-                          Partidos: <span className="text-white font-medium">Lunes noche (20:30h - 22:30h)</span> • Sesión táctica: <span className="text-white font-medium">Miércoles 21:00h</span>
-                        </p>
+                        <div className="text-xs text-rayo-bone/70 flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <span>
+                            ⚽ Partidos: <strong className="text-white">Viernes 21:00h o 22:00h</strong> y <strong className="text-white">Domingos 09:00h o 10:00h</strong>
+                          </span>
+                          <span>•</span>
+                          <span>
+                            🏃 Entrenamientos: <strong className="text-white">Miércoles a las 22:00h</strong>
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -289,19 +308,19 @@ export const ContactoPage: React.FC = () => {
                     </a>
 
                     <a
-                      href="https://whatsapp.com"
+                      href="https://wa.me/34601438441"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2.5 p-3 rounded-lg bg-white/[0.03] border border-white/[0.08] hover:border-rayo-gold/40 hover:bg-white/[0.06] transition-all group"
+                      className="flex items-center gap-2.5 p-3 rounded-lg bg-white/[0.03] border border-white/[0.08] hover:border-emerald-500/40 hover:bg-white/[0.06] transition-all group"
                     >
                       <span className="w-7 h-7 rounded-md bg-emerald-500 flex items-center justify-center text-white text-[11px] font-bold">
                         WA
                       </span>
                       <div>
-                        <div className="text-xs font-bold text-white group-hover:text-rayo-gold transition-colors">
-                          Comunidad
+                        <div className="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors">
+                          WhatsApp
                         </div>
-                        <div className="text-[10px] text-rayo-bone/50">Avisos Liga</div>
+                        <div className="text-[10px] text-rayo-bone/50">+34 601 43 84 41</div>
                       </div>
                     </a>
                   </div>

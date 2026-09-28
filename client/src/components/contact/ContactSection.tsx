@@ -33,6 +33,15 @@ export const ContactSection: React.FC = () => {
                     {CLUB_INFO.stadium}<br />
                     {CLUB_INFO.address}
                   </p>
+                  <a
+                    href={CLUB_INFO.mapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-rayo-gold hover:underline inline-flex items-center gap-1 font-mono text-[11px] mt-1.5 font-bold"
+                  >
+                    <span>Ver en Google Maps</span>
+                    <span className="material-symbols-outlined text-xs">open_in_new</span>
+                  </a>
                 </div>
               </div>
 
@@ -42,10 +51,37 @@ export const ContactSection: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="font-display font-semibold uppercase text-white text-sm">
-                    Email Directo de Directiva
+                    Emails Oficiales
                   </h4>
-                  <p className="text-xs text-rayo-bone/60 mt-0.5">
-                    {CLUB_INFO.email} • {CLUB_INFO.emailAlt}
+                  <div className="text-xs text-rayo-bone/80 mt-0.5 space-y-0.5 font-mono">
+                    <a href="mailto:danicortesmoreno@gmail.com" className="block hover:text-rayo-gold transition-colors">
+                      danicortesmoreno@gmail.com
+                    </a>
+                    <a href="mailto:mycmagency10@gmail.com" className="block hover:text-rayo-gold transition-colors">
+                      mycmagency10@gmail.com
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3.5">
+                <div className="w-10 h-10 rounded bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                  <span className="material-symbols-outlined text-xl">chat</span>
+                </div>
+                <div>
+                  <h4 className="font-display font-semibold uppercase text-white text-sm">
+                    WhatsApp Directiva
+                  </h4>
+                  <p className="text-xs text-rayo-bone/70 mt-0.5">
+                    <a
+                      href={CLUB_INFO.whatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-mono font-bold text-xs"
+                    >
+                      <span>{CLUB_INFO.whatsapp}</span>
+                      <span className="material-symbols-outlined text-xs">open_in_new</span>
+                    </a>
                   </p>
                 </div>
               </div>
@@ -56,10 +92,11 @@ export const ContactSection: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="font-display font-semibold uppercase text-white text-sm">
-                    Horarios de Competición
+                    Días de Juego y Entrenamientos
                   </h4>
-                  <p className="text-xs text-rayo-bone/60 mt-0.5">
-                    {CLUB_INFO.schedule} ({CLUB_INFO.league})
+                  <p className="text-xs text-rayo-bone/70 mt-0.5 leading-relaxed">
+                    Partidos: <span className="text-white font-medium">Viernes (21h o 22h) y Domingos (9h o 10h)</span><br />
+                    Entrenamientos: <span className="text-white font-medium">Miércoles a las 22h</span>
                   </p>
                 </div>
               </div>

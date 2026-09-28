@@ -741,11 +741,14 @@ const INITIAL_DATA = {
         name: 'Rayo Pelón F7',
         league: 'Liga Plata Ibi F7 • Liga Comarcal',
         season: 'Temporada 2026/27',
-        stadium: 'Polideportivo Municipal de Ibi (Campos F7 Hierba Artificial)',
+        stadium: 'Complejo Deportivo Estadio Climent',
         address: 'Calle Jaén s/n, 03440 Ibi (Alicante)',
-        email: 'contacto@rayopelonf7.es',
-        emailAlt: 'directiva.rayopelon@gmail.com',
-        schedule: 'Lunes y Miércoles: 20:30h - 22:30h'
+        mapsUrl: 'https://maps.app.goo.gl/Ahug91q3zzPbfod79',
+        email: 'danicortesmoreno@gmail.com',
+        emailAlt: 'mycmagency10@gmail.com',
+        whatsapp: '+34 601 43 84 41',
+        whatsappUrl: 'https://wa.me/34601438441',
+        schedule: 'Partidos: Viernes (21h/22h) y Domingos (9h/10h) • Entrenos: Miércoles 22h'
     },
     matchCenter: computeMatchCenter(INITIAL_MATCHES),
     players: [

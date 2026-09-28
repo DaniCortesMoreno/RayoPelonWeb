@@ -38,7 +38,7 @@ export const Footer: React.FC = () => {
         </div>
 
         <div className="mt-8 pt-5 border-t border-white/[0.06] flex flex-col sm:flex-row justify-between items-center text-[11px] text-rayo-bone/40 gap-3">
-          <p>© 2026/2027 RAYO PELÓN F7 • TODOS LOS DERECHOS RESERVADOS • POLIDEPORTIVO MUNICIPAL DE IBI</p>
+          <p>© 2026/2027 RAYO PELÓN F7 • TODOS LOS DERECHOS RESERVADOS • COMPLEJO DEPORTIVO ESTADIO CLIMENT</p>
           <p className="text-rayo-gold/80 font-medium">Diseño Deportivo de Alta Competición</p>
         </div>
       </div>
