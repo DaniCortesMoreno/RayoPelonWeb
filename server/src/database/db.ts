@@ -3,9 +3,16 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 import mysql from 'mysql2/promise';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 const DATA_DIR = path.resolve(__dirname, '../../data');
 const STORAGE_FILE = path.join(DATA_DIR, 'club_storage.json');
 const STORAGE_BAK_FILE = path.join(DATA_DIR, 'club_storage.bak.json');
@@ -1145,14 +1152,25 @@ const INITIAL_DATA: ClubDatabase = {
 };
 
 export class Database {
+  private static isMysqlActive: boolean = false;
+  private static currentCache: ClubDatabase | null = null;
   private static lastCheckResult: { success: boolean; message: string; timestamp: string } | null = null;
+
+  public static getMysqlConfig() {
+    const rawHost = process.env.DB_HOST || '127.0.0.1';
+    const host = rawHost === 'localhost' ? '127.0.0.1' : rawHost;
+    const user = process.env.DB_USER || 'u512145639_rayo_user';
+    const password = process.env.DB_PASSWORD || '1Cb=tf7V@mG';
+    const database = process.env.DB_NAME || 'u512145639_rayo_bd';
+    const port = Number(process.env.DB_PORT) || 3306;
+    return { host, user, password, database, port, connectTimeout: 3000 };
+  }
 
   private static ensureDataDir() {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
     }
 
-    // Si no existe club_storage.json, migrar desde db.json o inicializar con INITIAL_DATA
     if (!fs.existsSync(STORAGE_FILE)) {
       if (fs.existsSync(LEGACY_DB_FILE)) {
         try {
@@ -1167,54 +1185,182 @@ export class Database {
     }
   }
 
-  /**
-   * Test efímero y bajo demanda de conexión a MySQL de Hostinger.
-   * Abre la conexión, ejecuta un ping y la cierra de inmediato para
-   * evitar cualquier saturación de conexiones o bloqueos en LiteSpeed (504 Timeout).
-   */
-  public static async testMysqlConnection(): Promise<{ success: boolean; message: string }> {
-    const host = process.env.DB_HOST;
-    const user = process.env.DB_USER;
-    const password = process.env.DB_PASSWORD;
-    const database = process.env.DB_NAME;
-    const port = Number(process.env.DB_PORT) || 3306;
-
-    if (!user || !database) {
-      const res = { success: false, message: 'Variables DB_USER o DB_NAME no configuradas en el entorno.' };
-      this.lastCheckResult = { ...res, timestamp: new Date().toISOString() };
-      return res;
-    }
-
-    const effectiveHost = host === 'localhost' ? '127.0.0.1' : (host || '127.0.0.1');
-
+  private static async getMysqlConnection() {
+    const cfg = this.getMysqlConfig();
     try {
       const conn = await Promise.race([
-        mysql.createConnection({
-          host: effectiveHost,
-          user,
-          password: password || '',
-          database,
-          port,
-          connectTimeout: 2000
-        }),
+        mysql.createConnection(cfg),
         new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Timeout de 2 segundos al conectar con MySQL')), 2000)
+          setTimeout(() => reject(new Error('Timeout al conectar con MySQL')), 3000)
         )
       ]);
+      return conn;
+    } catch (err: any) {
+      console.warn('[Database] MySQL no disponible en este momento:', err?.message);
+      return null;
+    }
+  }
 
-      await conn.query('SELECT 1');
+  public static async initMysql(): Promise<boolean> {
+    const conn = await this.getMysqlConnection();
+    const cfg = this.getMysqlConfig();
+    if (!conn) {
+      this.isMysqlActive = false;
+      return false;
+    }
+
+    try {
+      // 1. Tabla principal de persistencia de datos del club
+      await conn.query(`
+        CREATE TABLE IF NOT EXISTS club_storage (
+          id VARCHAR(64) PRIMARY KEY,
+          data LONGTEXT NOT NULL,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
+      // 2. Tablas auxiliares para phpMyAdmin
+      await conn.query(`
+        CREATE TABLE IF NOT EXISTS club_users (
+          id VARCHAR(64) PRIMARY KEY,
+          username VARCHAR(64) NOT NULL,
+          password_hash VARCHAR(255) NOT NULL,
+          role VARCHAR(32) NOT NULL,
+          created_at VARCHAR(64)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
+      await conn.query(`
+        CREATE TABLE IF NOT EXISTS contact_messages (
+          id VARCHAR(64) PRIMARY KEY,
+          name VARCHAR(128) NOT NULL,
+          email VARCHAR(128) NOT NULL,
+          phone VARCHAR(64),
+          subject VARCHAR(128),
+          message TEXT,
+          created_at VARCHAR(64)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
+      await conn.query(`
+        CREATE TABLE IF NOT EXISTS audit_logs (
+          id VARCHAR(64) PRIMARY KEY,
+          timestamp VARCHAR(64) NOT NULL,
+          username VARCHAR(64) NOT NULL,
+          user_role VARCHAR(32) NOT NULL,
+          action VARCHAR(32) NOT NULL,
+          module VARCHAR(32) NOT NULL,
+          description TEXT
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `);
+
+      // 3. Comprobar si hay datos guardados en MySQL
+      const [rows]: any = await conn.query('SELECT data FROM club_storage WHERE id = ? LIMIT 1', ['main']);
+
+      if (Array.isArray(rows) && rows.length > 0 && rows[0]?.data) {
+        try {
+          const parsed = JSON.parse(rows[0].data);
+          this.currentCache = parsed;
+          this.writeLocalFile(parsed);
+          console.log('[Database] ✓ Datos cargados y activos desde MySQL Hostinger (127.0.0.1:3306)');
+        } catch {
+          console.warn('[Database] JSON en MySQL no válido, usando datos locales.');
+        }
+      } else {
+        // Primera sincronización hacia MySQL
+        const localData = this.readLocalFile();
+        await conn.query(
+          'INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)',
+          ['main', JSON.stringify(localData)]
+        );
+        this.currentCache = localData;
+        console.log('[Database] ✓ Datos locales sincronizados hacia MySQL Hostinger.');
+      }
+
       await conn.end();
+      this.isMysqlActive = true;
+      this.lastCheckResult = {
+        success: true,
+        message: `Motor MySQL activo y conectado (${cfg.host}:${cfg.port} - BD: ${cfg.database})`,
+        timestamp: new Date().toISOString()
+      };
+      return true;
+    } catch (err: any) {
+      console.warn('[Database] Error en initMysql:', err?.message);
+      try { await conn.end(); } catch {}
+      this.isMysqlActive = false;
+      return false;
+    }
+  }
 
+  public static async saveToMysql(data: ClubDatabase): Promise<boolean> {
+    const conn = await this.getMysqlConnection();
+    if (!conn) {
+      this.isMysqlActive = false;
+      return false;
+    }
+
+    try {
+      const jsonStr = JSON.stringify(data);
+      await conn.query(
+        'INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)',
+        ['main', jsonStr]
+      );
+
+      // Sincronizar usuarios a tabla club_users
+      if (Array.isArray(data.users)) {
+        for (const u of data.users) {
+          await conn.query(
+            'INSERT INTO club_users (id, username, password_hash, role, created_at) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE username = VALUES(username), password_hash = VALUES(password_hash), role = VALUES(role)',
+            [u.id, u.username, u.passwordHash, u.role, u.createdAt || new Date().toISOString()]
+          );
+        }
+      }
+
+      // Sincronizar últimos mensajes de contacto si existen
+      if (Array.isArray(data.contactMessages) && data.contactMessages.length > 0) {
+        for (const msg of data.contactMessages.slice(0, 10)) {
+          await conn.query(
+            'INSERT INTO contact_messages (id, name, email, phone, subject, message, created_at) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name)',
+            [msg.id, msg.name, msg.email, msg.phone || '', msg.subject || '', msg.message, msg.createdAt || new Date().toISOString()]
+          );
+        }
+      }
+
+      // Sincronizar logs de auditoría más recientes
+      if (Array.isArray(data.auditLogs) && data.auditLogs.length > 0) {
+        for (const log of data.auditLogs.slice(0, 20)) {
+          await conn.query(
+            'INSERT INTO audit_logs (id, timestamp, username, user_role, action, module, description) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE timestamp = VALUES(timestamp)',
+            [log.id, log.timestamp, log.username, log.userRole, log.action, log.module, log.description]
+          );
+        }
+      }
+
+      await conn.end();
+      this.isMysqlActive = true;
+      return true;
+    } catch (err: any) {
+      console.warn('[Database] Error al persistir en MySQL:', err?.message);
+      try { await conn.end(); } catch {}
+      return false;
+    }
+  }
+
+  public static async testMysqlConnection(): Promise<{ success: boolean; message: string }> {
+    const ok = await this.initMysql();
+    const cfg = this.getMysqlConfig();
+    if (ok) {
       const res = {
         success: true,
-        message: `Conexión exitosa a MySQL (${effectiveHost}:${port} - BD: ${database})`
+        message: `Conexión exitosa a MySQL (${cfg.host}:${cfg.port} - BD: ${cfg.database})`
       };
       this.lastCheckResult = { ...res, timestamp: new Date().toISOString() };
       return res;
-    } catch (err: any) {
+    } else {
       const res = {
         success: false,
-        message: `Error al conectar a MySQL: ${err?.message || err}`
+        message: `No se pudo conectar a MySQL (${cfg.host}:${cfg.port} - BD: ${cfg.database})`
       };
       this.lastCheckResult = { ...res, timestamp: new Date().toISOString() };
       return res;
@@ -1222,20 +1368,37 @@ export class Database {
   }
 
   public static getStatus() {
-    const hasConfig = Boolean(process.env.DB_USER && process.env.DB_NAME);
+    const cfg = this.getMysqlConfig();
     return {
-      storageEngine: 'JSON_STORAGE',
+      storageEngine: this.isMysqlActive ? 'MYSQL' : 'JSON_STORAGE',
+      isMysql: this.isMysqlActive,
       storageFile: 'server/data/club_storage.json',
-      sqlConfigured: hasConfig,
-      host: process.env.DB_HOST || 'localhost',
-      database: process.env.DB_NAME || 'u512145639_rayo_bd',
-      user: process.env.DB_USER || 'u512145639_rayo_user',
-      port: Number(process.env.DB_PORT) || 3306,
-      lastCheck: this.lastCheckResult
+      sqlConfigured: true,
+      host: cfg.host,
+      database: cfg.database,
+      user: cfg.user,
+      port: cfg.port,
+      lastCheck: this.lastCheckResult,
+      storageType: this.isMysqlActive ? 'MySQL / MariaDB (Hostinger)' : 'Almacenamiento Local (JSON)'
     };
   }
 
   public static read(): ClubDatabase {
+    if (this.currentCache) {
+      return this.currentCache;
+    }
+    const data = this.readLocalFile();
+    this.currentCache = data;
+    return data;
+  }
+
+  public static write(data: ClubDatabase): void {
+    this.currentCache = data;
+    this.writeLocalFile(data);
+    this.saveToMysql(data).catch(() => {});
+  }
+
+  private static readLocalFile(): ClubDatabase {
     this.ensureDataDir();
     try {
       let content = '';
@@ -1296,11 +1459,11 @@ export class Database {
         }
       }
       if (dirty) {
-        this.write(data);
+        this.writeLocalFile(data);
       }
       return data;
     } catch (err) {
-      console.warn('[Database] Advertencia al leer datos, buscando copia de seguridad:', err);
+      console.warn('[Database] Advertencia al leer datos locales, buscando copia de seguridad:', err);
       if (fs.existsSync(STORAGE_BAK_FILE)) {
         try {
           const bakContent = fs.readFileSync(STORAGE_BAK_FILE, 'utf-8');
@@ -1311,18 +1474,16 @@ export class Database {
     }
   }
 
-  public static write(data: ClubDatabase): void {
+  private static writeLocalFile(data: ClubDatabase): void {
     this.ensureDataDir();
     const serialized = JSON.stringify(data, null, 2);
 
-    // 1. Guardar copia previa como respaldo local
     if (fs.existsSync(STORAGE_FILE)) {
       try {
         fs.copyFileSync(STORAGE_FILE, STORAGE_BAK_FILE);
       } catch {}
     }
 
-    // 2. Escritura atómica local para evitar corrupción ante interrupciones
     const tempFile = `${STORAGE_FILE}.tmp_${Date.now()}`;
     fs.writeFileSync(tempFile, serialized, 'utf-8');
     fs.renameSync(tempFile, STORAGE_FILE);

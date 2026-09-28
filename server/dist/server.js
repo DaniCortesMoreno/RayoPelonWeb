@@ -4,10 +4,15 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
-import { Database, computeMatchCenter, INITIAL_MATCHES, createAuditLog } from './database/db.js';
-import { authMiddleware, requireRole, generateToken } from './auth.js';
+import dotenv from 'dotenv';
+dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+import { Database, computeMatchCenter, INITIAL_MATCHES, createAuditLog } from './database/db.js';
+import { authMiddleware, requireRole, generateToken } from './auth.js';
 const PLAYERS_DIR = path.resolve(__dirname, '../../client/public/players');
 const MEDIA_DIR = path.resolve(__dirname, '../../client/public/media');
 const MEDIA_IMAGES_DIR = path.join(MEDIA_DIR, 'images');
@@ -1120,6 +1125,13 @@ const startListening = () => {
     }
 };
 async function onServerReady() {
+    console.log('[Rayo Pelón F7] Inicializando motor de base de datos MySQL (Hostinger)...');
+    try {
+        await Database.initMysql();
+    }
+    catch (err) {
+        console.warn('[Rayo Pelón F7] Aviso al iniciar MySQL:', err?.message);
+    }
     console.log('[Rayo Pelón F7] Servidor inicializado y listo.');
 }
 startListening();
