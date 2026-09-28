@@ -857,7 +857,7 @@ const INITIAL_DATA: ClubDatabase = {
     league: 'Liga Plata Ibi F7 • Liga Comarcal',
     season: 'Temporada 2026/27',
     stadium: 'Complejo Deportivo Estadio Climent',
-    address: 'Calle Jaén s/n, 03440 Ibi (Alicante)',
+    address: 'C. Vicente Aleixandre, 17, 03440 Ibi, Alicante',
     mapsUrl: 'https://maps.app.goo.gl/Ahug91q3zzPbfod79',
     email: 'danicortesmoreno@gmail.com',
     emailAlt: 'mycmagency10@gmail.com',
