@@ -51,16 +51,11 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 app.use('/players', express.static(PLAYERS_DIR));
 app.use('/media', express.static(MEDIA_DIR));
 
-// Desactivar caché HTTP en la API y asegurar sincronización en tiempo real con MySQL entre workers
-app.use('/api', async (req: Request, res: Response, next) => {
+// Desactivar caché HTTP en la API para garantizar datos frescos al instante
+app.use('/api', (req: Request, res: Response, next) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
-  try {
-    await Database.ensureFresh();
-  } catch (err) {
-    console.error('[Server] Error en middleware Database.ensureFresh():', err);
-  }
   next();
 });
 
@@ -1250,20 +1245,19 @@ if (fs.existsSync(CLIENT_DIST)) {
   });
 }
 
-async function startServer() {
-  console.log('[Rayo Pelón F7 API] Inicializando base de datos MySQL...');
-  try {
-    await Database.init();
-  } catch (err) {
-    console.error('[Rayo Pelón F7 API] Error al inicializar DB:', err);
-  }
+// 1. Cargar datos en memoria de inmediato desde el almacenamiento local (<1ms)
+Database.loadInitialCache();
 
-  app.listen(PORT, () => {
+// 2. Iniciar la escucha del servidor de inmediato para que Nginx / Passenger nunca de 504 Gateway Timeout
+app.listen(PORT, () => {
+  console.log(`[Rayo Pelón F7 API] Servidor activo en http://localhost:${PORT}`);
+  
+  // 3. Conectar a MySQL y sincronizar en segundo plano de forma no bloqueante
+  Database.init().then(() => {
     const status = Database.getStatus();
-    console.log(`[Rayo Pelón F7 API] Servidor activo en http://localhost:${PORT}`);
     console.log(`[Database] Persistencia: ${status.isMysql ? `✓ MySQL Hostinger ACTIVA (${status.host} / ${status.database})` : '⚠️ Fallback Local JSON'}`);
+  }).catch((err) => {
+    console.error('[Rayo Pelón F7 API] Error al inicializar MySQL en segundo plano:', err);
   });
-}
-
-startServer();
+});
 
