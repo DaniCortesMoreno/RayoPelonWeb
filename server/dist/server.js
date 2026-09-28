@@ -1100,12 +1100,22 @@ app.delete('/api/media/clips/:id', authMiddleware, (req, res) => {
     Database.write(db);
     res.json({ success: true, message: 'Clip eliminado correctamente' });
 });
-// En producción, servir el frontend compilado (React/Vite)
+// En producción, servir el frontend compilado (React/Vite) con caché optimizada
 const CLIENT_DIST = path.resolve(__dirname, '../../client/dist');
 if (fs.existsSync(CLIENT_DIST)) {
-    app.use(express.static(CLIENT_DIST));
+    app.use(express.static(CLIENT_DIST, {
+        maxAge: '7d',
+        etag: true,
+        setHeaders: (res, filePath) => {
+            // index.html debe revalidarse siempre para cargar siempre los bundles nuevos
+            if (filePath.endsWith('.html')) {
+                res.setHeader('Cache-Control', 'no-cache');
+            }
+        }
+    }));
     app.get('*', (req, res) => {
         if (!req.path.startsWith('/api') && !req.path.startsWith('/media') && !req.path.startsWith('/players')) {
+            res.setHeader('Cache-Control', 'no-cache');
             res.sendFile(path.join(CLIENT_DIST, 'index.html'));
         }
     });
@@ -1133,5 +1143,10 @@ async function onServerReady() {
         console.warn('[Rayo Pelón F7] Aviso al iniciar MySQL:', err?.message);
     }
     console.log('[Rayo Pelón F7] Servidor inicializado y listo.');
+    // Anti-idle heartbeat: ping cada 3 minutos para evitar que LiteSpeed suspenda el proceso Node.js
+    const targetPort = typeof PORT === 'number' ? PORT : 3000;
+    setInterval(() => {
+        fetch(`http://127.0.0.1:${targetPort}/api/health`).catch(() => { });
+    }, 180000);
 }
 startListening();

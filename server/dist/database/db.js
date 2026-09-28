@@ -1072,144 +1072,152 @@ export class Database {
             }
         }
     }
-    static async getMysqlConnection() {
-        const cfg = this.getMysqlConfig();
-        try {
-            const conn = await Promise.race([
-                mysql.createConnection(cfg),
-                new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout al conectar con MySQL')), 3000))
-            ]);
-            return conn;
+    static pool = null;
+    static getMysqlPool() {
+        if (!this.pool) {
+            const cfg = this.getMysqlConfig();
+            this.pool = mysql.createPool({
+                host: cfg.host,
+                user: cfg.user,
+                password: cfg.password,
+                database: cfg.database,
+                port: cfg.port,
+                waitForConnections: true,
+                connectionLimit: 5,
+                maxIdle: 2,
+                idleTimeout: 60000,
+                queueLimit: 0,
+                connectTimeout: 3000
+            });
         }
-        catch (err) {
-            console.warn('[Database] MySQL no disponible en este momento:', err?.message);
-            return null;
-        }
+        return this.pool;
     }
     static async initMysql() {
-        const conn = await this.getMysqlConnection();
         const cfg = this.getMysqlConfig();
-        if (!conn) {
-            this.isMysqlActive = false;
-            return false;
-        }
         try {
-            // 1. Tabla principal de persistencia de datos del club
-            await conn.query(`
-        CREATE TABLE IF NOT EXISTS club_storage (
-          id VARCHAR(64) PRIMARY KEY,
-          data LONGTEXT NOT NULL,
-          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-      `);
-            // 2. Tablas auxiliares para phpMyAdmin
-            await conn.query(`
-        CREATE TABLE IF NOT EXISTS club_users (
-          id VARCHAR(64) PRIMARY KEY,
-          username VARCHAR(64) NOT NULL,
-          password_hash VARCHAR(255) NOT NULL,
-          role VARCHAR(32) NOT NULL,
-          created_at VARCHAR(64)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-      `);
-            await conn.query(`
-        CREATE TABLE IF NOT EXISTS contact_messages (
-          id VARCHAR(64) PRIMARY KEY,
-          name VARCHAR(128) NOT NULL,
-          email VARCHAR(128) NOT NULL,
-          phone VARCHAR(64),
-          subject VARCHAR(128),
-          message TEXT,
-          created_at VARCHAR(64)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-      `);
-            await conn.query(`
-        CREATE TABLE IF NOT EXISTS audit_logs (
-          id VARCHAR(64) PRIMARY KEY,
-          timestamp VARCHAR(64) NOT NULL,
-          username VARCHAR(64) NOT NULL,
-          user_role VARCHAR(32) NOT NULL,
-          action VARCHAR(32) NOT NULL,
-          module VARCHAR(32) NOT NULL,
-          description TEXT
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-      `);
-            // 3. Comprobar si hay datos guardados en MySQL
-            const [rows] = await conn.query('SELECT data FROM club_storage WHERE id = ? LIMIT 1', ['main']);
-            if (Array.isArray(rows) && rows.length > 0 && rows[0]?.data) {
-                try {
-                    const parsed = JSON.parse(rows[0].data);
-                    this.currentCache = parsed;
-                    this.writeLocalFile(parsed);
-                    console.log('[Database] ✓ Datos cargados y activos desde MySQL Hostinger (127.0.0.1:3306)');
+            const pool = this.getMysqlPool();
+            const conn = await Promise.race([
+                pool.getConnection(),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout al conectar con MySQL')), 3000))
+            ]);
+            try {
+                // 1. Tabla principal de persistencia de datos del club
+                await conn.query(`
+          CREATE TABLE IF NOT EXISTS club_storage (
+            id VARCHAR(64) PRIMARY KEY,
+            data LONGTEXT NOT NULL,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        `);
+                // 2. Tablas auxiliares para phpMyAdmin
+                await conn.query(`
+          CREATE TABLE IF NOT EXISTS club_users (
+            id VARCHAR(64) PRIMARY KEY,
+            username VARCHAR(64) NOT NULL,
+            password_hash VARCHAR(255) NOT NULL,
+            role VARCHAR(32) NOT NULL,
+            created_at VARCHAR(64)
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        `);
+                await conn.query(`
+          CREATE TABLE IF NOT EXISTS contact_messages (
+            id VARCHAR(64) PRIMARY KEY,
+            name VARCHAR(128) NOT NULL,
+            email VARCHAR(128) NOT NULL,
+            phone VARCHAR(64),
+            subject VARCHAR(128),
+            message TEXT,
+            created_at VARCHAR(64)
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        `);
+                await conn.query(`
+          CREATE TABLE IF NOT EXISTS audit_logs (
+            id VARCHAR(64) PRIMARY KEY,
+            timestamp VARCHAR(64) NOT NULL,
+            username VARCHAR(64) NOT NULL,
+            user_role VARCHAR(32) NOT NULL,
+            action VARCHAR(32) NOT NULL,
+            module VARCHAR(32) NOT NULL,
+            description TEXT
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        `);
+                // 3. Comprobar si hay datos guardados en MySQL
+                const [rows] = await conn.query('SELECT data FROM club_storage WHERE id = ? LIMIT 1', ['main']);
+                if (Array.isArray(rows) && rows.length > 0 && rows[0]?.data) {
+                    try {
+                        const parsed = JSON.parse(rows[0].data);
+                        this.currentCache = parsed;
+                        this.writeLocalFile(parsed);
+                        console.log('[Database] ✓ Datos cargados y activos desde MySQL Hostinger (127.0.0.1:3306)');
+                    }
+                    catch {
+                        console.warn('[Database] JSON en MySQL no válido, usando datos locales.');
+                    }
                 }
-                catch {
-                    console.warn('[Database] JSON en MySQL no válido, usando datos locales.');
+                else {
+                    // Primera sincronización hacia MySQL
+                    const localData = this.readLocalFile();
+                    await conn.query('INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)', ['main', JSON.stringify(localData)]);
+                    this.currentCache = localData;
+                    console.log('[Database] ✓ Datos locales sincronizados hacia MySQL Hostinger.');
                 }
+                this.isMysqlActive = true;
+                this.lastCheckResult = {
+                    success: true,
+                    message: `Motor MySQL activo y conectado (${cfg.host}:${cfg.port} - BD: ${cfg.database})`,
+                    timestamp: new Date().toISOString()
+                };
+                return true;
             }
-            else {
-                // Primera sincronización hacia MySQL
-                const localData = this.readLocalFile();
-                await conn.query('INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)', ['main', JSON.stringify(localData)]);
-                this.currentCache = localData;
-                console.log('[Database] ✓ Datos locales sincronizados hacia MySQL Hostinger.');
+            finally {
+                conn.release();
             }
-            await conn.end();
-            this.isMysqlActive = true;
-            this.lastCheckResult = {
-                success: true,
-                message: `Motor MySQL activo y conectado (${cfg.host}:${cfg.port} - BD: ${cfg.database})`,
-                timestamp: new Date().toISOString()
-            };
-            return true;
         }
         catch (err) {
             console.warn('[Database] Error en initMysql:', err?.message);
-            try {
-                await conn.end();
-            }
-            catch { }
             this.isMysqlActive = false;
+            this.lastCheckResult = {
+                success: false,
+                message: `No se pudo conectar a MySQL (${cfg.host}:${cfg.port} - BD: ${cfg.database}): ${err?.message}`,
+                timestamp: new Date().toISOString()
+            };
             return false;
         }
     }
     static async saveToMysql(data) {
-        const conn = await this.getMysqlConnection();
-        if (!conn) {
-            this.isMysqlActive = false;
-            return false;
-        }
         try {
+            const pool = this.getMysqlPool();
             const jsonStr = JSON.stringify(data);
-            await conn.query('INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)', ['main', jsonStr]);
-            // Sincronizar usuarios a tabla club_users
-            if (Array.isArray(data.users)) {
-                for (const u of data.users) {
-                    await conn.query('INSERT INTO club_users (id, username, password_hash, role, created_at) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE username = VALUES(username), password_hash = VALUES(password_hash), role = VALUES(role)', [u.id, u.username, u.passwordHash, u.role, u.createdAt || new Date().toISOString()]);
-                }
-            }
-            // Sincronizar últimos mensajes de contacto si existen
-            if (Array.isArray(data.contactMessages) && data.contactMessages.length > 0) {
-                for (const msg of data.contactMessages.slice(0, 10)) {
-                    await conn.query('INSERT INTO contact_messages (id, name, email, phone, subject, message, created_at) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name)', [msg.id, msg.name, msg.email, msg.phone || '', msg.subject || '', msg.message, msg.createdAt || new Date().toISOString()]);
-                }
-            }
-            // Sincronizar logs de auditoría más recientes
-            if (Array.isArray(data.auditLogs) && data.auditLogs.length > 0) {
-                for (const log of data.auditLogs.slice(0, 20)) {
-                    await conn.query('INSERT INTO audit_logs (id, timestamp, username, user_role, action, module, description) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE timestamp = VALUES(timestamp)', [log.id, log.timestamp, log.username, log.userRole, log.action, log.module, log.description]);
-                }
-            }
-            await conn.end();
+            await pool.query('INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)', ['main', jsonStr]);
             this.isMysqlActive = true;
+            // Sincronización secundaria en background sin bloquear la respuesta
+            setImmediate(async () => {
+                try {
+                    if (Array.isArray(data.users)) {
+                        for (const u of data.users) {
+                            await pool.query('INSERT INTO club_users (id, username, password_hash, role, created_at) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE username = VALUES(username), password_hash = VALUES(password_hash), role = VALUES(role)', [u.id, u.username, u.passwordHash, u.role, u.createdAt || new Date().toISOString()]);
+                        }
+                    }
+                    if (Array.isArray(data.contactMessages) && data.contactMessages.length > 0) {
+                        for (const msg of data.contactMessages.slice(0, 5)) {
+                            await pool.query('INSERT INTO contact_messages (id, name, email, phone, subject, message, created_at) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name)', [msg.id, msg.name, msg.email, msg.phone || '', msg.subject || '', msg.message, msg.createdAt || new Date().toISOString()]);
+                        }
+                    }
+                    if (Array.isArray(data.auditLogs) && data.auditLogs.length > 0) {
+                        for (const log of data.auditLogs.slice(0, 10)) {
+                            await pool.query('INSERT INTO audit_logs (id, timestamp, username, user_role, action, module, description) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE timestamp = VALUES(timestamp)', [log.id, log.timestamp, log.username, log.userRole, log.action, log.module, log.description]);
+                        }
+                    }
+                }
+                catch (err) {
+                    console.warn('[Database] Sync secundario en background:', err?.message);
+                }
+            });
             return true;
         }
         catch (err) {
             console.warn('[Database] Error al persistir en MySQL:', err?.message);
-            try {
-                await conn.end();
-            }
-            catch { }
+            this.isMysqlActive = false;
             return false;
         }
     }
