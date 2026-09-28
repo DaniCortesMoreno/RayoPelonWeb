@@ -375,6 +375,23 @@ app.delete('/api/admin/logs', authMiddleware, requireRole(['ADMIN']), (req: Auth
   });
 });
 
+// Estado de la Base de Datos (MySQL vs JSON Local)
+app.get('/api/admin/db-status', authMiddleware, requireRole(['ADMIN']), (req: AuthenticatedRequest, res: Response) => {
+  res.json({
+    success: true,
+    status: Database.getStatus()
+  });
+});
+
+// Reintentar conexión con MySQL en caliente
+app.post('/api/admin/db-reconnect', authMiddleware, requireRole(['ADMIN']), async (req: AuthenticatedRequest, res: Response) => {
+  const status = await Database.recheckConnection();
+  res.json({
+    success: true,
+    status
+  });
+});
+
 // ==========================================
 // COPIAS DE SEGURIDAD Y RESTAURACIÓN (SOLO ADMIN)
 // ==========================================
@@ -1352,6 +1369,11 @@ const startListening = () => {
 };
 
 async function onServerReady() {
+  // Inicialización de la base de datos (conectar a MySQL si hay variables de entorno en Hostinger)
+  Database.init().catch((dbErr) => {
+    console.warn('[Database] Error en inicialización asíncrona de BD:', dbErr?.message || dbErr);
+  });
+
   // Sincronización inicial automática al arrancar el servidor
   try {
     console.log('[AutoSync] Iniciando sincronización de clasificación con ligacomarcal.com...');

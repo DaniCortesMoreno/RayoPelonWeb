@@ -54,15 +54,61 @@ const MODULE_CONFIG: Record<AuditModule, { label: string; icon: string }> = {
   SISTEMA: { label: 'Sistema & Auditoría', icon: 'settings' }
 };
 
+interface DbStatusInfo {
+  isMysql: boolean;
+  host?: string;
+  database?: string;
+  user?: string;
+  port?: number;
+  error?: string | null;
+  lastCheck?: string;
+  storageType?: string;
+}
+
 export const AdminLogsManager: React.FC = () => {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [dbStatus, setDbStatus] = useState<DbStatusInfo | null>(null);
+  const [reconnecting, setReconnecting] = useState<boolean>(false);
+  const [showDbDetails, setShowDbDetails] = useState<boolean>(false);
 
   // Filters
   const [selectedModule, setSelectedModule] = useState<string>('TODOS');
   const [selectedAction, setSelectedAction] = useState<string>('TODAS');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Fetch DB status
+  const fetchDbStatus = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/admin/db-status`, {
+        headers: getAuthHeaders()
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setDbStatus(data.status);
+      }
+    } catch {}
+  };
+
+  // Reintentar conexión con MySQL en vivo
+  const handleReconnectDb = async () => {
+    setReconnecting(true);
+    try {
+      const res = await fetch(`${API_BASE}/admin/db-reconnect`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setDbStatus(data.status);
+      }
+    } catch {
+      alert('Error de conexión con el servidor backend');
+    } finally {
+      setReconnecting(false);
+    }
+  };
 
   // Fetch logs
   const fetchLogs = async () => {
@@ -91,6 +137,7 @@ export const AdminLogsManager: React.FC = () => {
 
   useEffect(() => {
     fetchLogs();
+    fetchDbStatus();
   }, []);
 
   // Clear logs
@@ -291,10 +338,42 @@ export const AdminLogsManager: React.FC = () => {
 
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rayo-gold/10 border border-rayo-gold/20 text-rayo-gold text-xs font-mono font-bold uppercase tracking-wider mb-3">
-              <span className="material-symbols-outlined text-sm">security</span>
-              Exclusivo Rol Administrador
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rayo-gold/10 border border-rayo-gold/20 text-rayo-gold text-xs font-mono font-bold uppercase tracking-wider">
+                <span className="material-symbols-outlined text-sm">security</span>
+                Exclusivo Rol Administrador
+              </div>
+
+              {/* Monitor de Estado de la Base de Datos */}
+              {dbStatus?.isMysql ? (
+                <button
+                  onClick={() => setShowDbDetails(!showDbDetails)}
+                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold tracking-wide hover:bg-emerald-500/25 transition-colors cursor-pointer"
+                  title="Haz clic para ver detalles de la conexión SQL"
+                >
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span className="material-symbols-outlined text-xs">database</span>
+                  <span>Base de Datos: MySQL Activa (Hostinger)</span>
+                  <span className="material-symbols-outlined text-xs text-emerald-400/60">
+                    {showDbDetails ? 'expand_less' : 'expand_more'}
+                  </span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowDbDetails(!showDbDetails)}
+                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-mono font-bold tracking-wide hover:bg-amber-500/25 transition-colors cursor-pointer"
+                  title="Haz clic para ver detalles del motor de base de datos"
+                >
+                  <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                  <span className="material-symbols-outlined text-xs">storage</span>
+                  <span>Base de Datos: Almacenamiento Local (JSON)</span>
+                  <span className="material-symbols-outlined text-xs text-amber-400/60">
+                    {showDbDetails ? 'expand_less' : 'expand_more'}
+                  </span>
+                </button>
+              )}
             </div>
+
             <h2 className="font-display text-2xl sm:text-3xl font-bold uppercase text-white tracking-wide">
               Auditoría & Registro de Actividad
             </h2>
@@ -362,6 +441,67 @@ export const AdminLogsManager: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* Panel de Diagnóstico del Motor de Base de Datos (SQL vs JSON) */}
+        {showDbDetails && (
+          <div className="mt-6 p-4 sm:p-5 rounded-xl bg-white/[0.03] border border-white/[0.1] relative">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-white/[0.06]">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-lg text-rayo-gold">database</span>
+                <span className="font-display text-sm font-bold uppercase tracking-wider text-white">
+                  Diagnóstico del Motor de Base de Datos
+                </span>
+              </div>
+              <button
+                onClick={handleReconnectDb}
+                disabled={reconnecting}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-rayo-gold/10 hover:bg-rayo-gold/20 text-rayo-gold border border-rayo-gold/30 text-xs font-mono font-bold uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                <span className={`material-symbols-outlined text-sm ${reconnecting ? 'animate-spin' : ''}`}>
+                  refresh
+                </span>
+                <span>{reconnecting ? 'Verificando SQL...' : 'Reintentar Conexión SQL'}</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 text-xs font-mono">
+              <div className="p-2.5 rounded-lg bg-black/30 border border-white/[0.05]">
+                <div className="text-[10px] text-rayo-bone/50 uppercase">Motor Activo</div>
+                <div className="font-bold text-white mt-0.5">
+                  {dbStatus?.isMysql ? (
+                    <span className="text-emerald-400">MySQL / MariaDB</span>
+                  ) : (
+                    <span className="text-amber-400">JSON Local Storage</span>
+                  )}
+                </div>
+              </div>
+              <div className="p-2.5 rounded-lg bg-black/30 border border-white/[0.05]">
+                <div className="text-[10px] text-rayo-bone/50 uppercase">Servidor (Host)</div>
+                <div className="font-bold text-white mt-0.5 truncate">{dbStatus?.host || 'localhost'}</div>
+              </div>
+              <div className="p-2.5 rounded-lg bg-black/30 border border-white/[0.05]">
+                <div className="text-[10px] text-rayo-bone/50 uppercase">Base de Datos</div>
+                <div className="font-bold text-white mt-0.5 truncate">{dbStatus?.database || 'u512145639_rayo_bd'}</div>
+              </div>
+              <div className="p-2.5 rounded-lg bg-black/30 border border-white/[0.05]">
+                <div className="text-[10px] text-rayo-bone/50 uppercase">Usuario SQL</div>
+                <div className="font-bold text-white mt-0.5 truncate">{dbStatus?.user || 'u512145639_rayo_user'}</div>
+              </div>
+            </div>
+
+            {dbStatus?.error && (
+              <div className="mt-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-start gap-2">
+                <span className="material-symbols-outlined text-base text-amber-400 flex-shrink-0 mt-0.5">info</span>
+                <div>
+                  <strong className="font-bold">Aviso de conexión:</strong> {dbStatus.error}
+                  <div className="text-[11px] text-amber-300/70 mt-0.5">
+                    El sistema está funcionando con total normalidad y rapidez guardando los datos en <code>server/data/club_storage.json</code>.
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-6 pt-6 border-t border-white/[0.06]">
