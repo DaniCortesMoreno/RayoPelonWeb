@@ -25,14 +25,34 @@ function logAudit(db, req, action, module, description, details) {
         details
     });
 }
+console.log('====================================================');
+console.log('[Rayo Pelón F7] Servidor Node.js inicializando...');
+console.log('Versión de Node:', process.version);
+console.log('PORT en entorno:', process.env.PORT);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('Directorio actual (cwd):', process.cwd());
+console.log('====================================================');
+process.on('uncaughtException', (err) => {
+    console.error('[CRITICAL UNCAUGHT EXCEPTION]:', err);
+});
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('[CRITICAL UNHANDLED REJECTION]:', reason);
+});
 // Ensure upload directories exist
-for (const dir of [PLAYERS_DIR, MEDIA_DIR, MEDIA_IMAGES_DIR, MEDIA_VIDEOS_DIR]) {
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
+try {
+    for (const dir of [PLAYERS_DIR, MEDIA_DIR, MEDIA_IMAGES_DIR, MEDIA_VIDEOS_DIR]) {
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
     }
 }
+catch (e) {
+    console.warn('[Storage] Advertencia al crear carpetas de media:', e);
+}
 const app = express();
-const PORT = Number(process.env.PORT) || 3000;
+const rawPort = process.env.PORT;
+const isNumericPort = rawPort && !isNaN(Number(rawPort));
+const PORT = isNumericPort ? Number(rawPort) : (rawPort || 3000);
 app.use(cors());
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
@@ -1132,8 +1152,21 @@ if (fs.existsSync(CLIENT_DIST)) {
         }
     });
 }
-app.listen(PORT, '0.0.0.0', async () => {
-    console.log(`[Rayo Pelón F7 API] Servidor activo en http://0.0.0.0:${PORT}`);
+const startListening = () => {
+    if (typeof PORT === 'number') {
+        return app.listen(PORT, '0.0.0.0', async () => {
+            console.log(`[Rayo Pelón F7 API] Servidor activo escuchando en http://0.0.0.0:${PORT}`);
+            onServerReady();
+        });
+    }
+    else {
+        return app.listen(PORT, async () => {
+            console.log(`[Rayo Pelón F7 API] Servidor activo escuchando en socket: ${PORT}`);
+            onServerReady();
+        });
+    }
+};
+async function onServerReady() {
     // Sincronización inicial automática al arrancar el servidor
     try {
         console.log('[AutoSync] Iniciando sincronización de clasificación con ligacomarcal.com...');
@@ -1154,40 +1187,41 @@ app.listen(PORT, '0.0.0.0', async () => {
     catch (err) {
         console.warn('[AutoSync] No se pudo completar la sincronización inicial:', err?.message);
     }
-    // Sincronizador inteligente adaptado a la jornada de fútbol:
-    // - Viernes noche: partidos a las 22h -> comprobación a las 23:45h, 00:00h y 00:30h
-    // - Domingo mañana: partidos a las 9h/10h -> comprobación a las 11:30h, 12:00h y 12:30h
-    // - Lunes 10:00h: consolidación semanal
-    // - 1 revisión diaria ligera a las 06:00h
-    const executedSlots = new Set();
-    setInterval(async () => {
-        try {
-            const now = new Date();
-            const check = checkScheduleWindow(now);
-            if (check.shouldRun && !executedSlots.has(check.slotKey)) {
-                executedSlots.add(check.slotKey);
-                console.log(`[SmartScheduler] Ejecutando sincronización programada: ${check.reason}...`);
-                const res = await fetchLiveStandings();
-                if (res.success && res.data.length > 0) {
-                    const db = Database.read();
-                    db.standings = res.data;
-                    Database.write(db);
-                    lastStandingsSync = {
-                        timestamp: res.timestamp,
-                        source: res.sourceUrl,
-                        success: true,
-                        count: res.teamsCount
-                    };
-                    console.log(`[SmartScheduler] ✓ Clasificación actualizada con éxito (${res.teamsCount} equipos) en ventana ${check.reason}.`);
-                }
-                // Limpieza de claves antiguas para evitar acumulación en memoria
-                if (executedSlots.size > 50) {
-                    executedSlots.clear();
-                }
+}
+startListening();
+// Sincronizador inteligente adaptado a la jornada de fútbol:
+// - Viernes noche: partidos a las 22h -> comprobación a las 23:45h, 00:00h y 00:30h
+// - Domingo mañana: partidos a las 9h/10h -> comprobación a las 11:30h, 12:00h y 12:30h
+// - Lunes 10:00h: consolidación semanal
+// - 1 revisión diaria ligera a las 06:00h
+const executedSlots = new Set();
+setInterval(async () => {
+    try {
+        const now = new Date();
+        const check = checkScheduleWindow(now);
+        if (check.shouldRun && !executedSlots.has(check.slotKey)) {
+            executedSlots.add(check.slotKey);
+            console.log(`[SmartScheduler] Ejecutando sincronización programada: ${check.reason}...`);
+            const res = await fetchLiveStandings();
+            if (res.success && res.data.length > 0) {
+                const db = Database.read();
+                db.standings = res.data;
+                Database.write(db);
+                lastStandingsSync = {
+                    timestamp: res.timestamp,
+                    source: res.sourceUrl,
+                    success: true,
+                    count: res.teamsCount
+                };
+                console.log(`[SmartScheduler] ✓ Clasificación actualizada con éxito (${res.teamsCount} equipos) en ventana ${check.reason}.`);
+            }
+            // Limpieza de claves antiguas para evitar acumulación en memoria
+            if (executedSlots.size > 50) {
+                executedSlots.clear();
             }
         }
-        catch (err) {
-            console.warn('[SmartScheduler] Error en evaluación de horario:', err?.message);
-        }
-    }, 2 * 60 * 1000); // Comprobación en memoria cada 2 minutos (sin tráfico web salvo que coincida la ventana)
-});
+    }
+    catch (err) {
+        console.warn('[SmartScheduler] Error en evaluación de horario:', err?.message);
+    }
+}, 2 * 60 * 1000); // Comprobación en memoria cada 2 minutos (sin tráfico web salvo que coincida la ventana)
