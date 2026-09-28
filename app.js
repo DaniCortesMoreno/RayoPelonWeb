@@ -1,11 +1,10 @@
-// Punto de entrada app.js para Hostinger / Node.js
-console.log('>>> [HOSTINGER ENTRYPOINT] app.js iniciado correctamente');
-console.log('>>> [HOSTINGER] Entorno NODE_ENV:', process.env.NODE_ENV, '| PORT:', process.env.PORT);
+// Punto de entrada app.js para Hostinger (LiteSpeed lsnode.js compatible)
+console.log('>>> [HOSTINGER ENTRYPOINT] app.js iniciado via LiteSpeed lsnode.js');
 
-try {
-  await import('./server/dist/server.js');
-  console.log('>>> [HOSTINGER] Servidor cargado con éxito');
-} catch (err) {
-  console.error('>>> [HOSTINGER CRASH] Error importando ./server/dist/server.js:', err);
-  process.exit(1);
-}
+import('./server/dist/server.js')
+  .then(() => {
+    console.log('>>> [HOSTINGER] Servidor Express cargado y listo.');
+  })
+  .catch((err) => {
+    console.error('>>> [HOSTINGER CRASH] Error importando ./server/dist/server.js:', err);
+  });
