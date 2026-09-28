@@ -12,6 +12,13 @@
     "postinstall": "npm --prefix server install && npm --prefix client install",
     "install:all": "npm install && npm --prefix client install && npm --prefix server install"
   },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.3"
+  },
   "devDependencies": {
     "concurrently": "^9.1.2"
   }
