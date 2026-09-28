@@ -1033,7 +1033,12 @@ const INITIAL_DATA = {
 export class Database {
     static mysqlPool = null;
     static isMysqlConnected = false;
+    static activeHost = 'localhost';
     static memoryCache = null;
+    static initPromise = null;
+    static lastCheckTime = 0;
+    static lastDbUpdatedAt = '';
+    static lastReconnectAttempt = 0;
     static ensureDataDir() {
         if (!fs.existsSync(DATA_DIR)) {
             fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -1164,125 +1169,179 @@ export class Database {
         fs.writeFileSync(tempFile, serialized, 'utf-8');
         fs.renameSync(tempFile, STORAGE_FILE);
     }
-    static async init() {
-        this.ensureDataDir();
-        // 1. Cargar lo que tengamos en disco primero como base
-        const diskData = this.readFromDisk();
-        this.memoryCache = diskData;
-        // 2. Extraer configuración de conexión MySQL
-        const host = process.env.DB_HOST;
-        const user = process.env.DB_USER;
-        const password = process.env.DB_PASSWORD;
-        const database = process.env.DB_NAME;
+    /**
+     * Intenta conectar con el servidor MySQL probando primero localhost (estándar en Hostinger)
+     * y luego 127.0.0.1 con tiempos de espera ultra rápidos para evitar tiempos de espera 504.
+     */
+    static async connectMysql() {
+        const user = process.env.DB_USER || 'u512145639_rayo_user';
+        const password = process.env.DB_PASSWORD || '1Cb=tf7V@mG';
+        const database = process.env.DB_NAME || 'u512145639_rayo_bd';
         const port = Number(process.env.DB_PORT) || 3306;
-        if (!user || !database) {
-            console.log('[Database] ℹ Sin credenciales MySQL configuradas (DB_USER o DB_NAME no detectadas). Operando en modo local (JSON).');
-            return;
-        }
-        const effectiveHost = host === 'localhost' ? '127.0.0.1' : (host || '127.0.0.1');
-        console.log(`[Database] 🔄 Conectando a MySQL Hostinger (${effectiveHost}:${port}, BD: ${database}, Usuario: ${user})...`);
-        try {
-            this.mysqlPool = mysql.createPool({
-                host: effectiveHost,
-                user,
-                password: password || '',
-                database,
-                port,
-                waitForConnections: true,
-                connectionLimit: 10,
-                queueLimit: 0,
-                connectTimeout: 15000,
-                enableKeepAlive: true,
-                keepAliveInitialDelay: 10000
-            });
-            // Verificar conectividad inmediata
-            const conn = await this.mysqlPool.getConnection();
-            console.log('[Database] ✓ Conexión establecida con éxito con el servidor MySQL de Hostinger.');
-            conn.release();
-            // Crear tabla permanente si no existe
-            await this.mysqlPool.query(`
-        CREATE TABLE IF NOT EXISTS club_storage (
-          id VARCHAR(50) PRIMARY KEY,
-          data LONGTEXT NOT NULL,
-          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-      `);
-            // Consultar si ya hay datos previos persistidos en MySQL
-            const [rows] = await this.mysqlPool.query('SELECT data FROM club_storage WHERE id = ?', ['main_club_data']);
-            if (rows && rows.length > 0 && rows[0].data) {
-                try {
-                    const parsed = JSON.parse(rows[0].data);
-                    const dirty = this.validateAndEnrich(parsed);
-                    this.memoryCache = parsed;
-                    this.writeToDisk(parsed); // Mantener sincronizada copia local
-                    if (dirty) {
-                        await this.mysqlPool.query('INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)', ['main_club_data', JSON.stringify(parsed)]).catch(() => { });
-                    }
-                    this.isMysqlConnected = true;
-                    console.log('[Database] ★ EXCELENTE: Datos del club recuperados íntegramente desde MySQL de Hostinger.');
-                    console.log(`[Database] (Jugadores: ${parsed.players?.length || 0}, Noticias: ${parsed.news?.length || 0}, Equipos Clasificación: ${parsed.standings?.length || 0})`);
-                    return;
-                }
-                catch (parseErr) {
-                    console.warn('[Database] Advertencia al parsear datos de MySQL, usando datos locales:', parseErr);
-                }
+        const configuredHost = process.env.DB_HOST || 'localhost';
+        // Priorizar 'localhost' en Hostinger para conexión directa sin latencia
+        const candidates = Array.from(new Set([configuredHost, 'localhost', '127.0.0.1']));
+        for (const hostCandidate of candidates) {
+            try {
+                console.log(`[Database] 🔄 Probando conexión a MySQL en "${hostCandidate}:${port}" (BD: ${database}, User: ${user})...`);
+                const pool = mysql.createPool({
+                    host: hostCandidate,
+                    user,
+                    password,
+                    database,
+                    port,
+                    waitForConnections: true,
+                    connectionLimit: 10,
+                    queueLimit: 0,
+                    connectTimeout: 3500, // Timeout corto: ¡nunca causar 504 Gateway Timeout!
+                    enableKeepAlive: true,
+                    keepAliveInitialDelay: 10000
+                });
+                // Test rápido de conectividad
+                const conn = await pool.getConnection();
+                await conn.ping();
+                conn.release();
+                // Si funciona, asignar pool activo
+                this.mysqlPool = pool;
+                this.activeHost = hostCandidate;
+                this.isMysqlConnected = true;
+                console.log(`[Database] ✓ Conexión MySQL establecida con éxito en "${hostCandidate}".`);
+                return true;
             }
-            // Si la tabla MySQL estaba vacía (primer arranque con la base de datos recién creada)
-            console.log('[Database] Inicializando tabla MySQL con los datos actuales del club...');
-            await this.mysqlPool.query('INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)', ['main_club_data', JSON.stringify(diskData)]);
-            this.isMysqlConnected = true;
-            console.log('[Database] ✓ Base de datos MySQL guardada y sincronizada correctamente. Los datos ahora son 100% permanentes ante futuros git push.');
+            catch (err) {
+                console.warn(`[Database] Aviso al conectar con host "${hostCandidate}": ${err?.message || err}`);
+            }
         }
-        catch (err) {
-            console.error('[Database] ⚠️ Error conectando a MySQL de Hostinger:', err?.message || err);
-            // Reintento con localhost si 127.0.0.1 falló
-            if (effectiveHost === '127.0.0.1') {
-                try {
-                    console.log('[Database] Probando alternativa con host "localhost"...');
-                    this.mysqlPool = mysql.createPool({
-                        host: 'localhost',
-                        user,
-                        password: password || '',
-                        database,
-                        port,
-                        waitForConnections: true,
-                        connectionLimit: 10,
-                        connectTimeout: 15000
-                    });
-                    const conn = await this.mysqlPool.getConnection();
-                    console.log('[Database] ✓ Conexión establecida con localhost.');
-                    conn.release();
-                    await this.mysqlPool.query(`
-            CREATE TABLE IF NOT EXISTS club_storage (
-              id VARCHAR(50) PRIMARY KEY,
-              data LONGTEXT NOT NULL,
-              updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-          `);
-                    const [rows] = await this.mysqlPool.query('SELECT data FROM club_storage WHERE id = ?', ['main_club_data']);
-                    if (rows && rows.length > 0 && rows[0].data) {
+        this.isMysqlConnected = false;
+        return false;
+    }
+    static async init() {
+        if (this.initPromise) {
+            return this.initPromise;
+        }
+        this.initPromise = (async () => {
+            this.ensureDataDir();
+            // 1. Cargar lo que tengamos en disco primero como respaldo inmediato
+            const diskData = this.readFromDisk();
+            this.memoryCache = diskData;
+            // 2. Conectar a MySQL
+            const connected = await this.connectMysql();
+            if (!connected || !this.mysqlPool) {
+                console.warn('[Database] ⚠️ No se pudo conectar a MySQL tras probar candidatos. Operando temporalmente con datos locales (JSON). Reintentando en segundo plano...');
+                this.isMysqlConnected = false;
+                return;
+            }
+            try {
+                // 3. Crear tabla permanente si no existe
+                await this.mysqlPool.query(`
+          CREATE TABLE IF NOT EXISTS club_storage (
+            id VARCHAR(50) PRIMARY KEY,
+            data LONGTEXT NOT NULL,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        `);
+                // 4. Consultar datos almacenados en MySQL
+                const [rows] = await this.mysqlPool.query('SELECT data, updated_at FROM club_storage WHERE id = ?', ['main_club_data']);
+                if (rows && rows.length > 0 && rows[0].data) {
+                    try {
                         const parsed = JSON.parse(rows[0].data);
                         const dirty = this.validateAndEnrich(parsed);
                         this.memoryCache = parsed;
-                        this.writeToDisk(parsed);
+                        this.lastDbUpdatedAt = String(rows[0].updated_at || '');
+                        this.writeToDisk(parsed); // Mantener sincronizada copia local
                         if (dirty) {
                             await this.mysqlPool.query('INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)', ['main_club_data', JSON.stringify(parsed)]).catch(() => { });
                         }
                         this.isMysqlConnected = true;
-                        console.log('[Database] ★ EXCELENTE: Datos cargados desde MySQL (localhost).');
+                        console.log('[Database] ★ EXCELENTE: Base de Datos MySQL Activa (Hostinger) y datos sincronizados.');
+                        console.log(`[Database] (Jugadores: ${parsed.players?.length || 0}, Noticias: ${parsed.news?.length || 0}, Jornadas: ${parsed.matches?.length || 0})`);
                         return;
                     }
-                    else {
-                        await this.mysqlPool.query('INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)', ['main_club_data', JSON.stringify(diskData)]);
-                        this.isMysqlConnected = true;
-                        console.log('[Database] ✓ MySQL inicializado vía localhost.');
-                        return;
+                    catch (parseErr) {
+                        console.warn('[Database] Advertencia al parsear datos de MySQL:', parseErr);
                     }
                 }
-                catch { }
+                // Si la tabla MySQL estaba vacía (primer arranque de la base de datos)
+                console.log('[Database] Inicializando tabla MySQL con los datos actuales del club...');
+                await this.mysqlPool.query('INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)', ['main_club_data', JSON.stringify(diskData)]);
+                const [freshRows] = await this.mysqlPool.query('SELECT updated_at FROM club_storage WHERE id = ?', ['main_club_data']);
+                if (freshRows && freshRows[0]?.updated_at) {
+                    this.lastDbUpdatedAt = String(freshRows[0].updated_at);
+                }
+                this.isMysqlConnected = true;
+                console.log('[Database] ✓ Base de datos MySQL guardada y sincronizada correctamente en Hostinger.');
             }
-            console.warn('[Database] Continuando en modo fallback local (JSON).');
-            this.isMysqlConnected = false;
+            catch (err) {
+                console.error('[Database] Error configurando tabla en MySQL:', err?.message || err);
+                this.isMysqlConnected = false;
+            }
+        })();
+        return this.initPromise;
+    }
+    /**
+     * Middleware/Hook invocado antes de cada petición a /api.
+     * Garantiza que el worker actual tenga siempre la última versión de MySQL
+     * y se sincronice en tiempo real con cambios realizados por otros procesos/workers.
+     */
+    static async ensureFresh() {
+        if (this.initPromise) {
+            await this.initPromise;
+        }
+        else if (!this.memoryCache) {
+            await this.init();
+        }
+        const now = Date.now();
+        // Si por alguna razón MySQL no está conectado o se cayó, reintentar reconexión cada 5s
+        if (!this.isMysqlConnected || !this.mysqlPool) {
+            if (now - this.lastReconnectAttempt > 5000) {
+                this.lastReconnectAttempt = now;
+                console.log('[Database] 🔄 Intentando reconectar con MySQL de Hostinger...');
+                const connected = await this.connectMysql();
+                if (connected && this.mysqlPool) {
+                    try {
+                        const [rows] = await this.mysqlPool.query('SELECT data, updated_at FROM club_storage WHERE id = ?', ['main_club_data']);
+                        if (rows && rows.length > 0 && rows[0].data) {
+                            const parsed = JSON.parse(rows[0].data);
+                            this.validateAndEnrich(parsed);
+                            this.memoryCache = parsed;
+                            this.lastDbUpdatedAt = String(rows[0].updated_at || '');
+                            this.writeToDisk(parsed);
+                            this.isMysqlConnected = true;
+                            console.log('[Database] ✓ Reconectado y resincronizado con MySQL.');
+                        }
+                    }
+                    catch { }
+                }
+            }
+            return;
+        }
+        // Comprobar si otro worker/proceso de Node ha modificado la BD en MySQL (cada 1s)
+        if (now - this.lastCheckTime > 1000) {
+            this.lastCheckTime = now;
+            try {
+                const [rows] = await this.mysqlPool.query('SELECT updated_at FROM club_storage WHERE id = ?', ['main_club_data']);
+                if (rows && rows.length > 0 && rows[0].updated_at) {
+                    const currentUpdated = String(rows[0].updated_at);
+                    if (currentUpdated !== this.lastDbUpdatedAt) {
+                        // Se detectó cambio remoto en MySQL: descargar datos frescos
+                        const [dataRows] = await this.mysqlPool.query('SELECT data, updated_at FROM club_storage WHERE id = ?', ['main_club_data']);
+                        if (dataRows && dataRows.length > 0 && dataRows[0].data) {
+                            const parsed = JSON.parse(dataRows[0].data);
+                            this.validateAndEnrich(parsed);
+                            this.memoryCache = parsed;
+                            this.lastDbUpdatedAt = String(dataRows[0].updated_at);
+                            this.writeToDisk(parsed);
+                            console.log('[Database] 🔄 Datos resincronizados en tiempo real desde MySQL Hostinger.');
+                        }
+                    }
+                }
+            }
+            catch (err) {
+                console.warn('[Database] Advertencia al verificar sincronización MySQL:', err?.message || err);
+                if (err?.code === 'PROTOCOL_CONNECTION_LOST' || err?.code === 'ECONNRESET') {
+                    this.isMysqlConnected = false;
+                }
+            }
         }
     }
     static read() {
@@ -1303,19 +1362,31 @@ export class Database {
         catch (diskErr) {
             console.warn('[Database] Error guardando archivo local:', diskErr);
         }
-        // 3. Persistir de forma asíncrona a MySQL si está conectado
+        // 3. Persistir de inmediato a MySQL si está conectado
         if (this.isMysqlConnected && this.mysqlPool) {
             const serialized = JSON.stringify(data);
-            this.mysqlPool.query('INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)', ['main_club_data', serialized]).catch((sqlErr) => {
+            this.mysqlPool.query('INSERT INTO club_storage (id, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)', ['main_club_data', serialized]).then(async () => {
+                try {
+                    const [rows] = await this.mysqlPool.query('SELECT updated_at FROM club_storage WHERE id = ?', ['main_club_data']);
+                    if (rows && rows[0]?.updated_at) {
+                        this.lastDbUpdatedAt = String(rows[0].updated_at);
+                    }
+                }
+                catch { }
+            }).catch((sqlErr) => {
                 console.error('[Database] Error al persistir en MySQL:', sqlErr?.message || sqlErr);
+                if (sqlErr?.code === 'PROTOCOL_CONNECTION_LOST' || sqlErr?.code === 'ECONNRESET') {
+                    this.isMysqlConnected = false;
+                }
             });
         }
     }
     static getStatus() {
         return {
             isMysql: this.isMysqlConnected,
-            host: process.env.DB_HOST || '127.0.0.1',
-            database: process.env.DB_NAME || 'local_json'
+            host: this.activeHost || process.env.DB_HOST || 'localhost',
+            database: process.env.DB_NAME || 'u512145639_rayo_bd',
+            lastSync: this.lastDbUpdatedAt || new Date().toISOString()
         };
     }
 }

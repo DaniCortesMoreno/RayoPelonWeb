@@ -51,12 +51,26 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 app.use('/players', express.static(PLAYERS_DIR));
 app.use('/media', express.static(MEDIA_DIR));
 
+// Desactivar caché HTTP en la API y asegurar sincronización en tiempo real con MySQL entre workers
+app.use('/api', async (req: Request, res: Response, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  try {
+    await Database.ensureFresh();
+  } catch (err) {
+    console.error('[Server] Error en middleware Database.ensureFresh():', err);
+  }
+  next();
+});
+
 // 1. Health Check
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({
     status: 'online',
     club: 'Rayo Pelón F7',
     league: 'Liga Plata de Ibi',
+    database: Database.getStatus(),
     timestamp: new Date().toISOString()
   });
 });
@@ -1236,9 +1250,20 @@ if (fs.existsSync(CLIENT_DIST)) {
   });
 }
 
-app.listen(PORT, async () => {
-  console.log(`[Rayo Pelón F7 API] Servidor activo en http://localhost:${PORT}`);
-  
-  // Inicialización de la base de datos (conectar a MySQL si hay variables de entorno, o fallback JSON)
-  await Database.init();
-});
+async function startServer() {
+  console.log('[Rayo Pelón F7 API] Inicializando base de datos MySQL...');
+  try {
+    await Database.init();
+  } catch (err) {
+    console.error('[Rayo Pelón F7 API] Error al inicializar DB:', err);
+  }
+
+  app.listen(PORT, () => {
+    const status = Database.getStatus();
+    console.log(`[Rayo Pelón F7 API] Servidor activo en http://localhost:${PORT}`);
+    console.log(`[Database] Persistencia: ${status.isMysql ? `✓ MySQL Hostinger ACTIVA (${status.host} / ${status.database})` : '⚠️ Fallback Local JSON'}`);
+  });
+}
+
+startServer();
+
