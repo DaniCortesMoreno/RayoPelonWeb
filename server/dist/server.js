@@ -317,12 +317,13 @@ app.get('/api/admin/db-status', authMiddleware, requireRole(['ADMIN']), (req, re
         status: Database.getStatus()
     });
 });
-// Reintentar conexión con MySQL en caliente
-app.post('/api/admin/db-reconnect', authMiddleware, requireRole(['ADMIN']), async (req, res) => {
-    const status = await Database.recheckConnection();
+// Testear conexión con MySQL bajo demanda
+app.post('/api/admin/db-test', authMiddleware, requireRole(['ADMIN']), async (req, res) => {
+    const testResult = await Database.testMysqlConnection();
     res.json({
         success: true,
-        status
+        result: testResult,
+        status: Database.getStatus()
     });
 });
 // ==========================================
@@ -1182,10 +1183,6 @@ const startListening = () => {
     }
 };
 async function onServerReady() {
-    // Inicialización de la base de datos (conectar a MySQL si hay variables de entorno en Hostinger)
-    Database.init().catch((dbErr) => {
-        console.warn('[Database] Error en inicialización asíncrona de BD:', dbErr?.message || dbErr);
-    });
     // Sincronización inicial automática al arrancar el servidor
     try {
         console.log('[AutoSync] Iniciando sincronización de clasificación con ligacomarcal.com...');

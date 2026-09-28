@@ -91,17 +91,22 @@ export const AdminLogsManager: React.FC = () => {
     } catch {}
   };
 
-  // Reintentar conexión con MySQL en vivo
-  const handleReconnectDb = async () => {
+  // Testear conexión con MySQL en vivo bajo demanda
+  const handleTestDb = async () => {
     setReconnecting(true);
     try {
-      const res = await fetch(`${API_BASE}/admin/db-reconnect`, {
+      const res = await fetch(`${API_BASE}/admin/db-test`, {
         method: 'POST',
         headers: getAuthHeaders()
       });
       if (res.ok) {
         const data = await res.json();
         setDbStatus(data.status);
+        if (data.result?.success) {
+          alert(`✓ ${data.result.message}`);
+        } else {
+          alert(`⚠️ ${data.result?.message || 'No se pudo conectar a MySQL'}`);
+        }
       }
     } catch {
       alert('Error de conexión con el servidor backend');
@@ -453,14 +458,14 @@ export const AdminLogsManager: React.FC = () => {
                 </span>
               </div>
               <button
-                onClick={handleReconnectDb}
+                onClick={handleTestDb}
                 disabled={reconnecting}
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-rayo-gold/10 hover:bg-rayo-gold/20 text-rayo-gold border border-rayo-gold/30 text-xs font-mono font-bold uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer"
               >
                 <span className={`material-symbols-outlined text-sm ${reconnecting ? 'animate-spin' : ''}`}>
                   refresh
                 </span>
-                <span>{reconnecting ? 'Verificando SQL...' : 'Reintentar Conexión SQL'}</span>
+                <span>{reconnecting ? 'Verificando SQL...' : 'Probar Conexión SQL'}</span>
               </button>
             </div>
 
