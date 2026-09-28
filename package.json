@@ -9,7 +9,7 @@
     "dev:server": "npm --prefix server run dev",
     "build": "npm --prefix client run build && npm --prefix server run build",
     "start": "node server/dist/server.js",
-    "postinstall": "npm --prefix server install && npm --prefix client install",
+    "postinstall": "npm --prefix server install && npm --prefix client install && npm run build",
     "install:all": "npm install && npm --prefix client install && npm --prefix server install"
   },
   "dependencies": {
