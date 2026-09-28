@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { STANDINGS_DATA, SEASON_MATCHES } from '../../data/mockData';
-import type { StandingTeam, SeasonMatch } from '../../types';
+import { SEASON_MATCHES } from '../../data/mockData';
+import type { SeasonMatch } from '../../types';
 import { API_BASE } from '../../config/api';
+
+const OFFICIAL_STANDINGS_URL = 'https://www.ligacomarcal.com/competicion/lc-futbol-7-ibi-plata-mtzfdn3f/clasificacion';
 
 const TEAM_BADGES: Record<string, string> = {
   'Rayo Pelón FC': '/escudo.png',
@@ -21,32 +23,12 @@ const TEAM_BADGES: Record<string, string> = {
 
 export const StandingsSection: React.FC = () => {
   const [viewMode, setViewMode] = useState<'standings' | 'matches'>('standings');
-  const [standings, setStandings] = useState<StandingTeam[]>(STANDINGS_DATA);
   const [matches, setMatches] = useState<SeasonMatch[]>(SEASON_MATCHES);
   const [matchFilter, setMatchFilter] = useState<'all' | 'pendientes' | 'jugados'>('all');
-  const [syncing, setSyncing] = useState(false);
-  const [lastSyncTime, setLastSyncTime] = useState<string | null>('En tiempo real');
-  const [syncMessage, setSyncMessage] = useState<string | null>(null);
 
-  // Carga inicial desde el backend si está activo
+  // Carga inicial del calendario desde el backend si está activo
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const resStandings = await fetch(`${API_BASE}/standings`);
-        if (resStandings.ok) {
-          const data = await resStandings.json();
-          if (data && Array.isArray(data.standings) && data.standings.length > 0) {
-            setStandings(data.standings);
-            if (data.lastSync?.timestamp) {
-              const date = new Date(data.lastSync.timestamp);
-              setLastSyncTime(date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }));
-            }
-          }
-        }
-      } catch {
-        // Fallback local
-      }
-
+    const fetchMatches = async () => {
       try {
         const resMatches = await fetch(`${API_BASE}/matches`);
         if (resMatches.ok) {
@@ -60,34 +42,8 @@ export const StandingsSection: React.FC = () => {
       }
     };
 
-    fetchData();
+    fetchMatches();
   }, []);
-
-  const handleSyncNow = async () => {
-    setSyncing(true);
-    setSyncMessage(null);
-    try {
-      const res = await fetch(`${API_BASE}/standings/sync`, { method: 'POST' });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.standings && Array.isArray(data.standings)) {
-          setStandings(data.standings);
-          const date = new Date();
-          setLastSyncTime(date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }));
-          setSyncMessage(`✓ Sincronizados ${data.standings.length} equipos con ligacomarcal.com`);
-          setTimeout(() => setSyncMessage(null), 4000);
-        }
-      } else {
-        setSyncMessage('Aviso: Mostrando la última versión guardada.');
-        setTimeout(() => setSyncMessage(null), 4000);
-      }
-    } catch {
-      setSyncMessage('Conectando en modo local.');
-      setTimeout(() => setSyncMessage(null), 3000);
-    } finally {
-      setSyncing(false);
-    }
-  };
 
   const getTeamBadge = (name: string) => {
     return TEAM_BADGES[name] || '';
@@ -116,7 +72,7 @@ export const StandingsSection: React.FC = () => {
               <span>Temporada Regular • 12 Equipos Oficiales • 22 Jornadas</span>
               <span>•</span>
               <a
-                href="https://www.ligacomarcal.com/competicion/lc-futbol-7-ibi-plata-mtzfdn3f/clasificacion"
+                href={OFFICIAL_STANDINGS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-rayo-gold hover:underline inline-flex items-center gap-1 font-mono"
@@ -155,179 +111,62 @@ export const StandingsSection: React.FC = () => {
           </div>
         </div>
 
-        {/* VIEW 1: CLASIFICACIÓN OFICIAL */}
+        {/* VIEW 1: CLASIFICACIÓN OFICIAL (BOTÓN Y ACCESO DIRECTO) */}
         {viewMode === 'standings' && (
-          <div className="space-y-4 animate-fadeIn">
-            {/* Action Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Zona Ascenso Oro (1º, 2º y 3º)
-                </span>
+          <div className="animate-fadeIn">
+            <div className="elite-card rounded-2xl p-8 sm:p-12 lg:p-16 border border-rayo-gold/30 bg-gradient-to-b from-[#121224] via-[#0A0A16] to-[#06060D] shadow-2xl relative overflow-hidden text-center">
+              {/* Decorative background glow & elements */}
+              <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-rayo-gold/10 rounded-full blur-3xl pointer-events-none"></div>
+              <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+                <span className="material-symbols-outlined text-[180px] text-rayo-gold">emoji_events</span>
               </div>
 
-              <div className="flex items-center gap-3">
-                {syncMessage && (
-                  <span className="px-3 py-1 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium animate-fadeIn">
-                    {syncMessage}
-                  </span>
-                )}
-                <button
-                  onClick={handleSyncNow}
-                  disabled={syncing}
-                  className="px-3.5 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] text-xs font-display font-semibold uppercase tracking-wider text-rayo-bone hover:text-white transition-all flex items-center gap-1.5 disabled:opacity-50"
-                  title="Comprobar cambios y actualizar datos de ligacomarcal.com"
-                >
-                  <span className={`material-symbols-outlined text-sm text-rayo-gold ${syncing ? 'animate-spin' : ''}`}>
-                    sync
-                  </span>
-                  <span>{syncing ? 'Sincronizando...' : 'Sincronizar en Directo'}</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Live Table */}
-            <div className="elite-card rounded-xl overflow-hidden border border-white/[0.08] shadow-2xl">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-[#0A0A16] text-[11px] font-display uppercase tracking-[0.14em] text-rayo-bone/60 border-b border-white/[0.08]">
-                      <th className="py-3 px-4 text-center w-14">Pos</th>
-                      <th className="py-3 px-4">Club</th>
-                      <th className="py-3 px-3 text-center w-12" title="Partidos Jugados">PJ</th>
-                      <th className="py-3 px-3 text-center w-12" title="Partidos Ganados">PG</th>
-                      <th className="py-3 px-3 text-center w-12" title="Partidos Empatados">PE</th>
-                      <th className="py-3 px-3 text-center w-12" title="Partidos Perdidos">PP</th>
-                      <th className="py-3 px-3 text-center w-14" title="Goles a Favor">GF</th>
-                      <th className="py-3 px-3 text-center w-14" title="Goles en Contra">GC</th>
-                      <th className="py-3 px-3 text-center w-14" title="Diferencia de Goles">DIF</th>
-                      <th className="py-3 px-5 text-center w-16 text-rayo-gold font-bold" title="Puntos">PTS</th>
-                      <th className="py-3 px-4 text-center w-28" title="Últimos Partidos">Racha</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/[0.04] text-xs">
-                    {standings.map((team) => (
-                      <tr
-                        key={team.teamName}
-                        className={`transition-colors ${
-                          team.isRayo
-                            ? 'bg-rayo-gold/[0.12] hover:bg-rayo-gold/[0.18] font-semibold border-l-4 border-l-rayo-gold'
-                            : team.position <= 3
-                            ? 'bg-emerald-500/[0.02] hover:bg-white/[0.03]'
-                            : 'hover:bg-white/[0.02]'
-                        }`}
-                      >
-                        <td className="py-3 px-4 text-center font-display font-bold text-sm">
-                          <span
-                            className={`inline-flex items-center justify-center w-6 h-6 rounded-md ${
-                              team.position <= 3
-                                ? 'bg-emerald-500/20 text-emerald-400 font-extrabold border border-emerald-500/30'
-                                : 'text-rayo-bone/80'
-                            }`}
-                          >
-                            {team.position}
-                          </span>
-                        </td>
-
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-black/40 border border-white/[0.08] flex items-center justify-center flex-shrink-0 p-1">
-                              {team.isRayo ? (
-                                <img
-                                  src="/escudo.png"
-                                  alt="Rayo Pelón"
-                                  className="w-full h-full object-contain filter drop-shadow-[0_2px_4px_rgba(197,160,89,0.4)]"
-                                />
-                              ) : team.badgeUrl ? (
-                                <img
-                                  src={team.badgeUrl}
-                                  alt={team.teamName}
-                                  className="w-full h-full object-contain"
-                                  loading="lazy"
-                                />
-                              ) : (
-                                <span className="font-display font-bold text-xs text-rayo-gold">
-                                  {team.teamCode}
-                                </span>
-                              )}
-                            </div>
-
-                            <div>
-                              <div className="font-display font-bold text-sm text-white tracking-wide flex items-center gap-2">
-                                <span>{team.teamName}</span>
-                                {team.isRayo && (
-                                  <span className="px-2 py-0.5 rounded text-[9px] font-mono uppercase bg-rayo-gold text-black font-extrabold tracking-wider">
-                                    NUESTRO CLUB
-                                  </span>
-                                )}
-                              </div>
-                              <span className="text-[10px] text-rayo-bone/50 font-mono">
-                                {team.isRayo ? 'Sede: Polideportivo Ibi' : 'Liga Plata Ibi F7'}
-                              </span>
-                            </div>
-                          </div>
-                        </td>
-
-                        <td className="py-3 px-3 text-center text-rayo-bone/90">{team.matchesPlayed}</td>
-                        <td className="py-3 px-3 text-center text-emerald-400 font-semibold">{team.won}</td>
-                        <td className="py-3 px-3 text-center text-rayo-bone/70">{team.drawn}</td>
-                        <td className="py-3 px-3 text-center text-rose-400">{team.lost}</td>
-                        <td className="py-3 px-3 text-center text-rayo-bone/80">{team.goalsFor}</td>
-                        <td className="py-3 px-3 text-center text-rayo-bone/80">{team.goalsAgainst}</td>
-                        <td
-                          className={`py-3 px-3 text-center font-semibold ${
-                            team.goalDifference > 0
-                              ? 'text-emerald-400'
-                              : team.goalDifference < 0
-                              ? 'text-rose-400'
-                              : 'text-rayo-bone/60'
-                          }`}
-                        >
-                          {team.goalDifference > 0 ? `+${team.goalDifference}` : team.goalDifference}
-                        </td>
-                        <td className="py-3 px-5 text-center font-display font-bold text-base text-white">
-                          {team.points}
-                        </td>
-
-                        <td className="py-3 px-4 text-center">
-                          <span className="inline-flex gap-1 text-[9px] font-bold justify-center">
-                            {team.form && team.form.length > 0 ? (
-                              team.form.map((f, i) => (
-                                <span
-                                  key={i}
-                                  className={`w-4 h-4 rounded flex items-center justify-center text-white ${
-                                    f === 'V'
-                                      ? 'bg-emerald-600'
-                                      : f === 'E'
-                                      ? 'bg-amber-500'
-                                      : 'bg-rose-600'
-                                  }`}
-                                >
-                                  {f}
-                                </span>
-                              ))
-                            ) : (
-                              <span className="text-rayo-bone/30">-</span>
-                            )}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Footer Bar */}
-              <div className="bg-[#0A0A16]/95 px-5 py-3.5 border-t border-white/[0.06] flex flex-col sm:flex-row justify-between items-center text-xs text-rayo-bone/60 gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                  <span>
-                    Actualización automática post-partidos: <strong className="text-white">Viernes noche</strong> y{' '}
-                    <strong className="text-white">Domingos mediodía</strong> (y en directo bajo demanda).
-                  </span>
+              <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
+                {/* Official League Badge */}
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rayo-gold/15 border border-rayo-gold/30 text-rayo-gold text-xs font-mono font-bold uppercase tracking-wider mb-6 shadow-inner">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  Liga Comarcal de Fútbol 7 • Ibi (Liga Plata)
                 </div>
-                <div className="flex items-center gap-2 font-mono text-[11px] text-rayo-gold flex-shrink-0">
-                  <span>Última comprobación: {lastSyncTime}</span>
+
+                {/* Trophy Icon */}
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-rayo-gold/20 via-black/40 to-rayo-gold/5 border border-rayo-gold/40 flex items-center justify-center text-rayo-gold mb-6 shadow-xl shadow-rayo-gold/10">
+                  <span className="material-symbols-outlined text-4xl">emoji_events</span>
+                </div>
+
+                <h3 className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold uppercase text-white tracking-tight mb-4">
+                  Clasificación Oficial de la Temporada
+                </h3>
+
+                <p className="text-sm sm:text-base text-rayo-bone/80 leading-relaxed mb-8 max-w-xl">
+                  Consulta las posiciones de los 12 equipos, puntos actualizados jornada a jornada, diferencia de goles y rachas directamente en el portal oficial de la Liga Comarcal.
+                </p>
+
+                {/* Main CTA Button */}
+                <a
+                  href={OFFICIAL_STANDINGS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-3 px-8 sm:px-10 py-4 sm:py-5 rounded-xl bg-gradient-to-r from-[#D4AF37] via-[#F3E5AB] to-[#C5A059] text-rayo-carbon font-display text-sm sm:text-base font-extrabold uppercase tracking-wider shadow-[0_4px_25px_rgba(212,175,55,0.4)] hover:shadow-[0_6px_35px_rgba(212,175,55,0.6)] hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 group"
+                >
+                  <span className="material-symbols-outlined text-2xl group-hover:rotate-12 transition-transform">leaderboard</span>
+                  <span>Ver Clasificación Oficial en Directo</span>
+                  <span className="material-symbols-outlined text-xl transition-transform group-hover:translate-x-1">open_in_new</span>
+                </a>
+
+                {/* Key league highlights */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-10 pt-8 border-t border-white/[0.08] text-xs">
+                  <div className="flex items-center justify-center gap-2 text-rayo-bone/80 bg-white/[0.03] py-2.5 px-3 rounded-lg border border-white/[0.05]">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span>Zona Ascenso: 1º, 2º y 3º</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2 text-rayo-bone/80 bg-white/[0.03] py-2.5 px-3 rounded-lg border border-white/[0.05]">
+                    <span className="material-symbols-outlined text-sm text-rayo-gold">sports_soccer</span>
+                    <span>12 Equipos Participantes</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2 text-rayo-bone/80 bg-white/[0.03] py-2.5 px-3 rounded-lg border border-white/[0.05]">
+                    <span className="material-symbols-outlined text-sm text-rayo-gold">verified</span>
+                    <span>ligacomarcal.com</span>
+                  </div>
                 </div>
               </div>
             </div>
