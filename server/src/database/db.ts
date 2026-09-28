@@ -1148,6 +1148,7 @@ export class Database {
   private static lastCheckTime = 0;
   private static lastDbUpdatedAt = '';
   private static lastReconnectAttempt = 0;
+  private static isReconnecting = false;
 
   private static ensureDataDir() {
     if (!fs.existsSync(DATA_DIR)) {
@@ -1284,16 +1285,12 @@ export class Database {
     fs.renameSync(tempFile, STORAGE_FILE);
   }
 
-  /**
-   * Intenta conectar con el servidor MySQL probando primero localhost (estándar en Hostinger)
-   * y luego 127.0.0.1 con tiempos de espera ultra rápidos para evitar tiempos de espera 504.
-   */
   private static async connectMysql(): Promise<boolean> {
-    const user = process.env.DB_USER || 'u512145639_rayo_user';
-    const password = process.env.DB_PASSWORD || '1Cb=tf7V@mG';
-    const database = process.env.DB_NAME || 'u512145639_rayo_bd';
-    const port = Number(process.env.DB_PORT) || 3306;
-    const configuredHost = process.env.DB_HOST || 'localhost';
+    const user = process.env.MYSQL_USER || process.env.DB_USER || 'u512145639_rayo_user';
+    const password = process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD || '1Cb=tf7V@mG';
+    const database = process.env.MYSQL_DATABASE || process.env.DB_NAME || 'u512145639_rayo_bd';
+    const port = Number(process.env.MYSQL_PORT || process.env.DB_PORT) || 3306;
+    const configuredHost = process.env.MYSQL_HOST || process.env.DB_HOST || 'localhost';
 
     // Priorizar 'localhost' en Hostinger para conexión directa sin latencia
     const candidates = Array.from(new Set([configuredHost, 'localhost', '127.0.0.1']));
@@ -1308,9 +1305,9 @@ export class Database {
           database,
           port,
           waitForConnections: true,
-          connectionLimit: 10,
+          connectionLimit: 3, // Reducido a 3 para evitar límites de max_user_connections en Hostinger al usar múltiples workers
           queueLimit: 0,
-          connectTimeout: 3500, // Timeout corto: ¡nunca causar 504 Gateway Timeout!
+          connectTimeout: 2500, // Timeout aún más corto para evitar bloqueos
           enableKeepAlive: true,
           keepAliveInitialDelay: 10000
         });
@@ -1328,7 +1325,7 @@ export class Database {
 
         return true;
       } catch (err: any) {
-        console.warn(`[Database] Aviso al conectar con host "${hostCandidate}": ${err?.message || err}`);
+        console.warn(`[Database] Aviso al conectar con host "${hostCandidate}": ${err?.code || ''} - ${err?.message || err}`);
       }
     }
 
@@ -1437,31 +1434,39 @@ export class Database {
 
     const now = Date.now();
 
-    // Si por alguna razón MySQL no está conectado o se cayó, reintentar reconexión cada 5s
+    // Si por alguna razón MySQL no está conectado o se cayó, reintentar reconexión cada 30s
     if (!this.isMysqlConnected || !this.mysqlPool) {
-      if (now - this.lastReconnectAttempt > 5000) {
-        this.lastReconnectAttempt = now;
-        console.log('[Database] 🔄 Intentando reconectar con MySQL de Hostinger...');
-        const connected = await this.connectMysql();
-        if (connected && this.mysqlPool) {
-          try {
-            const [rows]: any = await this.mysqlPool.query(
-              'SELECT data, updated_at FROM club_storage WHERE id = ?',
-              ['main_club_data']
-            );
-            if (rows && rows.length > 0 && rows[0].data) {
-              const parsed = JSON.parse(rows[0].data);
-              this.validateAndEnrich(parsed);
-              this.memoryCache = parsed;
-              this.lastDbUpdatedAt = String(rows[0].updated_at || '');
-              this.writeToDisk(parsed);
-              this.isMysqlConnected = true;
-              console.log('[Database] ✓ Reconectado y resincronizado con MySQL.');
+      if (now - this.lastReconnectAttempt > 15000 && !this.isReconnecting) {
+        this.lastReconnectAttempt = Date.now();
+        this.isReconnecting = true;
+        console.log('[Database] 🔄 Intentando reconectar con MySQL de Hostinger (en segundo plano)...');
+        
+        // Ejecutar la reconexión sin bloquear el hilo principal ni la petición (evita 504 Gateway Timeout)
+        this.connectMysql().then(async (connected) => {
+          if (connected && this.mysqlPool) {
+            try {
+              const [rows]: any = await this.mysqlPool.query(
+                'SELECT data, updated_at FROM club_storage WHERE id = ?',
+                ['main_club_data']
+              );
+              if (rows && rows.length > 0 && rows[0].data) {
+                const parsed = JSON.parse(rows[0].data);
+                this.validateAndEnrich(parsed);
+                this.memoryCache = parsed;
+                this.lastDbUpdatedAt = String(rows[0].updated_at || '');
+                this.writeToDisk(parsed);
+                this.isMysqlConnected = true;
+                console.log('[Database] ✓ Reconectado y resincronizado con MySQL en segundo plano.');
+              }
+            } catch (syncErr: any) {
+              console.warn('[Database] Error al sincronizar tras reconectar:', syncErr?.message || syncErr);
             }
-          } catch {}
-        }
+          }
+        }).finally(() => {
+          this.isReconnecting = false;
+        });
       }
-      return;
+      return; // Return immediately, continue serving JSON from memory cache!
     }
 
     // Comprobar si otro worker/proceso de Node ha modificado la BD en MySQL (cada 1s)
