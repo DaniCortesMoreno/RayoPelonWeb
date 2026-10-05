@@ -17,6 +17,12 @@ const PLAYERS_DIR = path.resolve(__dirname, '../../client/public/players');
 const MEDIA_DIR = path.resolve(__dirname, '../../client/public/media');
 const MEDIA_IMAGES_DIR = path.join(MEDIA_DIR, 'images');
 const MEDIA_VIDEOS_DIR = path.join(MEDIA_DIR, 'videos');
+// Directorios de subidas persistentes fuera del árbol de Git (NUNCA se borran con despliegues de Git)
+const UPLOADS_ROOT = path.resolve(process.cwd(), 'uploads');
+const UPLOADS_PLAYERS_DIR = path.join(UPLOADS_ROOT, 'players');
+const UPLOADS_MEDIA_DIR = path.join(UPLOADS_ROOT, 'media');
+const UPLOADS_MEDIA_IMAGES_DIR = path.join(UPLOADS_MEDIA_DIR, 'images');
+const UPLOADS_MEDIA_VIDEOS_DIR = path.join(UPLOADS_MEDIA_DIR, 'videos');
 // Helper para registrar acciones en la bitácora de auditoría
 function logAudit(db, req, action, module, description, details) {
     const authUser = req.user;
@@ -35,6 +41,7 @@ console.log('Versión de Node:', process.version);
 console.log('PORT en entorno:', process.env.PORT);
 console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('Directorio actual (cwd):', process.cwd());
+console.log('Uploads persistente:', UPLOADS_ROOT);
 console.log('====================================================');
 process.on('uncaughtException', (err) => {
     console.error('[CRITICAL UNCAUGHT EXCEPTION]:', err);
@@ -42,17 +49,43 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (reason, promise) => {
     console.error('[CRITICAL UNHANDLED REJECTION]:', reason);
 });
-// Ensure upload directories exist
+// Ensure upload directories exist and sync public assets into persistent storage
 try {
-    for (const dir of [PLAYERS_DIR, MEDIA_DIR, MEDIA_IMAGES_DIR, MEDIA_VIDEOS_DIR]) {
+    const allDirs = [
+        PLAYERS_DIR, MEDIA_DIR, MEDIA_IMAGES_DIR, MEDIA_VIDEOS_DIR,
+        UPLOADS_ROOT, UPLOADS_PLAYERS_DIR, UPLOADS_MEDIA_DIR, UPLOADS_MEDIA_IMAGES_DIR, UPLOADS_MEDIA_VIDEOS_DIR
+    ];
+    for (const dir of allDirs) {
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
+        }
+    }
+    // Sincronizar fotos empaquetadas en Git hacia la carpeta persistente (sin sobreescribir)
+    if (fs.existsSync(PLAYERS_DIR)) {
+        const playerFiles = fs.readdirSync(PLAYERS_DIR);
+        for (const file of playerFiles) {
+            const src = path.join(PLAYERS_DIR, file);
+            const dest = path.join(UPLOADS_PLAYERS_DIR, file);
+            if (fs.statSync(src).isFile() && !fs.existsSync(dest)) {
+                try {
+                    fs.copyFileSync(src, dest);
+                }
+                catch { }
+            }
         }
     }
 }
 catch (e) {
     console.warn('[Storage] Advertencia al crear carpetas de media:', e);
 }
+// Inicialización temprana de MySQL para que la primera petición ya disponga de la BD relacional
+Database.initMysql().then((ok) => {
+    if (ok) {
+        console.log('[Rayo Pelón F7] Motor relacional MySQL iniciado tempranamente con éxito.');
+    }
+}).catch((err) => {
+    console.warn('[Rayo Pelón F7] Advertencia en inicialización temprana de MySQL:', err?.message);
+});
 const app = express();
 const rawPort = process.env.PORT;
 const isNumericPort = rawPort && !isNaN(Number(rawPort));
@@ -60,7 +93,39 @@ const PORT = isNumericPort ? Number(rawPort) : (rawPort || 3000);
 app.use(cors());
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
+// Resolver inteligente para imágenes de jugadores (soporta fallback por prefijo si cambia timestamp)
+app.get('/players/:filename', (req, res, next) => {
+    const reqFile = req.params.filename;
+    // 1. Coincidencia exacta en directorio de subidas persistente
+    const uploadPath = path.join(UPLOADS_PLAYERS_DIR, reqFile);
+    if (fs.existsSync(uploadPath))
+        return res.sendFile(uploadPath);
+    // 2. Coincidencia exacta en directorio público
+    const publicPath = path.join(PLAYERS_DIR, reqFile);
+    if (fs.existsSync(publicPath))
+        return res.sendFile(publicPath);
+    // 3. Fallback inteligente: buscar por prefijo (ej: "albertcartaweb_179..." busca "albertcartaweb_*")
+    const prefixMatch = reqFile.match(/^([a-zA-Z0-9_-]+?)_\d+\.[a-zA-Z0-9]+$/i);
+    const prefix = prefixMatch ? prefixMatch[1] : reqFile.replace(/\.[^/.]+$/, '');
+    const searchDirs = [UPLOADS_PLAYERS_DIR, PLAYERS_DIR];
+    for (const dir of searchDirs) {
+        if (fs.existsSync(dir)) {
+            try {
+                const files = fs.readdirSync(dir);
+                const match = files.find(f => f.toLowerCase().startsWith(prefix.toLowerCase()));
+                if (match) {
+                    return res.sendFile(path.join(dir, match));
+                }
+            }
+            catch { }
+        }
+    }
+    next();
+});
+// Servir estáticos de ambas carpetas
+app.use('/players', express.static(UPLOADS_PLAYERS_DIR));
 app.use('/players', express.static(PLAYERS_DIR));
+app.use('/media', express.static(UPLOADS_MEDIA_DIR));
 app.use('/media', express.static(MEDIA_DIR));
 // 1. Health Check
 app.get('/api/health', (req, res) => {
@@ -667,12 +732,19 @@ app.post('/api/upload/player-photo', authMiddleware, (req, res) => {
             .replace(/[^a-z0-9_-]/g, '_')
             .slice(0, 30);
         const savedFileName = `${cleanBase || 'player'}_${Date.now()}.${ext}`;
-        if (!fs.existsSync(PLAYERS_DIR)) {
-            fs.mkdirSync(PLAYERS_DIR, { recursive: true });
-        }
-        const filePath = path.join(PLAYERS_DIR, savedFileName);
         const buffer = Buffer.from(base64Data, 'base64');
-        fs.writeFileSync(filePath, buffer);
+        // 1. Guardar en carpeta persistente (fuera de Git, garantizado que no se borra)
+        if (!fs.existsSync(UPLOADS_PLAYERS_DIR)) {
+            fs.mkdirSync(UPLOADS_PLAYERS_DIR, { recursive: true });
+        }
+        fs.writeFileSync(path.join(UPLOADS_PLAYERS_DIR, savedFileName), buffer);
+        // 2. Guardar también en client/public/players si existe para el dev server
+        if (fs.existsSync(PLAYERS_DIR)) {
+            try {
+                fs.writeFileSync(path.join(PLAYERS_DIR, savedFileName), buffer);
+            }
+            catch { }
+        }
         const publicUrl = `/players/${savedFileName}`;
         res.json({
             success: true,
@@ -949,13 +1021,21 @@ app.post('/api/upload/media-file', authMiddleware, (req, res) => {
             .slice(0, 30);
         const savedFileName = `${cleanBase || (isVideo ? 'video' : 'img')}_${Date.now()}.${ext}`;
         const targetDir = isVideo ? MEDIA_VIDEOS_DIR : MEDIA_IMAGES_DIR;
+        const persistentTargetDir = isVideo ? UPLOADS_MEDIA_VIDEOS_DIR : UPLOADS_MEDIA_IMAGES_DIR;
         const subfolder = isVideo ? 'videos' : 'images';
-        if (!fs.existsSync(targetDir)) {
-            fs.mkdirSync(targetDir, { recursive: true });
-        }
-        const filePath = path.join(targetDir, savedFileName);
         const buffer = Buffer.from(base64Data, 'base64');
-        fs.writeFileSync(filePath, buffer);
+        // 1. Guardar en carpeta persistente
+        if (!fs.existsSync(persistentTargetDir)) {
+            fs.mkdirSync(persistentTargetDir, { recursive: true });
+        }
+        fs.writeFileSync(path.join(persistentTargetDir, savedFileName), buffer);
+        // 2. Guardar en client/public/media si existe
+        if (fs.existsSync(targetDir)) {
+            try {
+                fs.writeFileSync(path.join(targetDir, savedFileName), buffer);
+            }
+            catch { }
+        }
         const publicUrl = `/media/${subfolder}/${savedFileName}`;
         res.json({
             success: true,

@@ -64,3 +64,8 @@ server/data/*.bak*
 server/data/*.tmp*
 server/data/backups/
 server/data/db.json
+
+# 9. Subidas de archivos en producción (uploads)
+uploads/
+server/uploads/
+
