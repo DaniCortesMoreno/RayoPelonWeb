@@ -1,6 +1,8 @@
 import React from 'react';
 import type { NewsArticle } from '../../types';
 
+import { formatMediaUrl } from '../../config/api';
+
 interface NewsHeroFeaturedProps {
   article: NewsArticle;
   onReadMore: (article: NewsArticle) => void;
@@ -16,7 +18,7 @@ export const NewsHeroFeatured: React.FC<NewsHeroFeaturedProps> = ({ article, onR
         {/* Cover Image (7 Cols) */}
         <div className="lg:col-span-7 relative min-h-[300px] lg:min-h-[420px] bg-black/60 overflow-hidden">
           <img
-            src={article.imageUrl}
+            src={formatMediaUrl(article.imageUrl)}
             alt={article.title}
             className="w-full h-full object-cover filter brightness-85 group-hover:scale-105 group-hover:brightness-95 transition-all duration-700"
           />

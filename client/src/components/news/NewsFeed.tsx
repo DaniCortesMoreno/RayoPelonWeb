@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import type { NewsArticle, NewsCategory } from '../../types';
+import { formatMediaUrl } from '../../config/api';
 
 interface NewsFeedProps {
   articles: NewsArticle[];
@@ -114,7 +115,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ articles, onSelectArticle })
                   {article.imageUrl && (
                     <div className="relative aspect-[16/9] -mx-6 -mt-6 mb-5 overflow-hidden bg-black/40">
                       <img
-                        src={article.imageUrl}
+                        src={formatMediaUrl(article.imageUrl)}
                         alt={article.title}
                         className="w-full h-full object-cover filter brightness-90 group-hover:scale-105 group-hover:brightness-100 transition-all duration-500"
                       />

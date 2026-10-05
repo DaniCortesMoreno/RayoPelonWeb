@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { NewsArticle, NewsCategory, MedicalDetails, Player } from '../../types';
 import { NEWS_DATA, INITIAL_PLAYERS } from '../../data/mockData';
 import { getAuthHeaders } from '../../context/AuthContext';
 import { NewsArticleModal } from '../news/NewsArticleModal';
-
-import { API_BASE } from '../../config/api';
+import { RichContentRenderer } from '../news/RichContentRenderer';
+import { API_BASE, formatMediaUrl } from '../../config/api';
 
 const CATEGORIES_CONFIG: {
   key: NewsCategory;
@@ -127,6 +127,10 @@ export const AdminNewsManager: React.FC = () => {
   // Image Upload helper
   const [uploadingImage, setUploadingImage] = useState<boolean>(false);
 
+  // Rich Text Editor State
+  const [editorTab, setEditorTab] = useState<'write' | 'preview'>('write');
+  const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
+
   // Load news and players
   const fetchNews = async () => {
     try {
@@ -215,6 +219,7 @@ export const AdminNewsManager: React.FC = () => {
     setFormExcerpt('');
     setFormContent('');
     setFormFeatured(news.length === 0);
+    setEditorTab('write');
     setIsModalOpen(true);
   };
 
@@ -247,6 +252,7 @@ export const AdminNewsManager: React.FC = () => {
       setMedCurrentStatus('Duda hasta última hora');
     }
 
+    setEditorTab('write');
     setIsModalOpen(true);
   };
 
@@ -301,6 +307,11 @@ export const AdminNewsManager: React.FC = () => {
       return;
     }
 
+    if (file.size > 20 * 1024 * 1024) {
+      showFeedback('error', 'La imagen seleccionada supera el límite máximo de 20MB');
+      return;
+    }
+
     setUploadingImage(true);
     const reader = new FileReader();
     reader.onload = async () => {
@@ -322,11 +333,11 @@ export const AdminNewsManager: React.FC = () => {
         if (res.ok) {
           const data = await res.json();
           setFormImageUrl(data.url);
-          showFeedback('success', 'Imagen subida correctamente al servidor');
+          showFeedback('success', '¡Imagen de portada subida con éxito!');
         } else {
           // Fallback to local base64 preview
           setFormImageUrl(base64);
-          showFeedback('success', 'Imagen cargada en memoria');
+          showFeedback('success', 'Imagen cargada en el formulario');
         }
       } catch {
         setFormImageUrl(reader.result as string);
@@ -335,7 +346,103 @@ export const AdminNewsManager: React.FC = () => {
         setUploadingImage(false);
       }
     };
+    reader.onerror = () => {
+      showFeedback('error', 'Error al procesar el archivo seleccionado');
+      setUploadingImage(false);
+    };
     reader.readAsDataURL(file);
+    // Allow re-selecting same file if desired
+    e.target.value = '';
+  };
+
+  // Insert formatting into content textarea
+  const insertFormat = (before: string, after: string = '', defaultPlaceholder: string = '') => {
+    const textarea = contentTextareaRef.current;
+    if (!textarea) {
+      setFormContent(prev => prev + before + defaultPlaceholder + after);
+      return;
+    }
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = formContent;
+    const selectedText = text.substring(start, end);
+    const textToInsert = selectedText || defaultPlaceholder;
+
+    const newContent = text.substring(0, start) + before + textToInsert + after + text.substring(end);
+    setFormContent(newContent);
+
+    setTimeout(() => {
+      textarea.focus();
+      if (selectedText) {
+        textarea.setSelectionRange(start, start + before.length + textToInsert.length + after.length);
+      } else {
+        textarea.setSelectionRange(start + before.length, start + before.length + textToInsert.length);
+      }
+    }, 10);
+  };
+
+  const insertCronicaTemplate = () => {
+    const template = `## Crónica: Victoria del Rayo Pelón F7 en una jornada memorable
+
+Gran exhibición de nuestro equipo en el Polideportivo Municipal ante un rival competitivo.
+
+### 📋 Ficha Técnica y Goleadores
+• **Alineación Titular:** Fran (P), Carlos, Dani (C), Álex, Héctor, Rafa, Mario
+• **Goles:** Álex López (min. 14), Dani Cortés (min. 38)
+• **MVP del Encuentro:** Álex ("Galgo")
+
+### ⚽ Crónica Minuto a Minuto
+1. **Minuto 14:** Golazo de vaselina tras una rápida recuperación en tres cuartos de campo.
+2. **Minuto 38:** Dani clava una falta directa por la escuadra que desata la locura en la grada.
+
+> "El compromiso defensivo y la efectividad arriba fueron las claves de estos tres puntos." — Capitán
+
+---
+Próximo partido el próximo sábado a las 18:00h. ¡Os esperamos a todos!`;
+    setFormContent(prev => (prev.trim() ? prev + '\n\n' + template : template));
+    showFeedback('success', 'Plantilla de Crónica insertada');
+  };
+
+  const insertParteMedicoTemplate = () => {
+    const template = `## Parte Médico Oficial: Informe de Lesión y Seguimiento
+
+Los Servicios Médicos y de Fisioterapia del Rayo Pelón F7 emiten el siguiente informe médico:
+
+### 1. Diagnóstico Clínico
+• [rojo]Diagnóstico:[/rojo] Esguince de ligamento lateral externo en tobillo derecho.
+• [oro]Gravedad:[/oro] Grado 1 (leve, descartada lesión ósea o rotura fibrilar).
+
+### 2. Tratamiento y Readaptación
+1. Crioterapia y fisioterapia manual intensiva durante las primeras 48 horas.
+2. Trabajo propioceptivo y fortalecimiento funcional en gimnasio.
+3. Incorporación progresiva al trabajo con balón según tolerancia al dolor.
+
+### 3. Plazo de Recuperación
+Se prevé un plazo estimado de baja de **5 a 7 días**, condicionando su disponibilidad al entrenamiento del viernes.
+
+> El club agradece las muestras de cariño de la afición y desea una pronta vuelta a los terrenos de juego.`;
+    setFormContent(prev => (prev.trim() ? prev + '\n\n' + template : template));
+    showFeedback('success', 'Plantilla de Parte Médico insertada');
+  };
+
+  const insertComunicadoTemplate = () => {
+    const template = `## COMUNICADO OFICIAL
+
+La Junta Directiva del Rayo Pelón F7 desea comunicar a socios, patrocinadores y aficionados:
+
+[grande]Acuerdo adoptado por la directiva del club[/grande]
+
+1. **Agradecimiento:** Queremos agradecer a la masa social su incondicional apoyo durante toda la temporada.
+2. **Nuevas Medidas:** Quedan fijados los horarios definitivos de entrenamientos en el Polideportivo.
+3. **Compromiso:** Seguimos trabajando para llevar el nombre del Rayo Pelón F7 a lo más alto de la liga.
+
+> "La unión entre equipo y afición es nuestra mayor fortaleza."
+
+---
+Gabinete de Comunicación y Prensa • Rayo Pelón F7`;
+    setFormContent(prev => (prev.trim() ? prev + '\n\n' + template : template));
+    showFeedback('success', 'Plantilla de Comunicado insertada');
   };
 
   // Save (Create or Update)
@@ -762,7 +869,7 @@ export const AdminNewsManager: React.FC = () => {
                   <div className="flex items-start gap-4 flex-1 min-w-0">
                     <div className="w-20 h-20 sm:w-28 sm:h-24 rounded-lg overflow-hidden bg-black/60 border border-white/10 flex-shrink-0 relative group-hover:scale-102 transition-transform">
                       <img
-                        src={item.imageUrl}
+                        src={formatMediaUrl(item.imageUrl)}
                         alt={item.title}
                         className="w-full h-full object-cover filter brightness-90"
                       />
@@ -1168,47 +1275,69 @@ export const AdminNewsManager: React.FC = () => {
 
                 {/* IMAGEN DE PORTADA */}
                 <div>
-                  <label className="block text-xs text-rayo-bone/70 uppercase mb-1.5">
-                    Imagen de Portada (URL o Subir archivo del ordenador)
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs text-rayo-bone/80 uppercase font-semibold">
+                      Imagen de Portada (Subir desde PC o URL externa)
+                    </label>
+                    {formImageUrl && (
+                      <span className="text-[10px] text-rayo-gold flex items-center gap-1 font-sans">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        {formImageUrl.startsWith('/media') || formImageUrl.startsWith('data:')
+                          ? 'Imagen cargada desde PC'
+                          : 'URL enlazada'}
+                      </span>
+                    )}
+                  </div>
                   
                   <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
                     <input
-                      type="url"
+                      type="text"
                       value={formImageUrl}
                       onChange={(e) => setFormImageUrl(e.target.value)}
-                      placeholder="https://images.unsplash.com/..."
+                      placeholder="Pega una URL o sube una imagen desde tu PC..."
                       className="flex-1 bg-[#080814] border border-white/10 focus:border-rayo-gold rounded-lg px-3 py-2 text-xs text-white focus:outline-none"
                     />
 
-                    {/* Subir archivo */}
-                    <label className="px-4 py-2 rounded-lg bg-white/[0.08] hover:bg-white/[0.15] text-white text-xs font-semibold uppercase tracking-wider cursor-pointer flex items-center gap-1.5 transition-colors flex-shrink-0">
+                    {/* Subir archivo desde el ordenador */}
+                    <label className="px-4 py-2 rounded-lg bg-rayo-gold/20 hover:bg-rayo-gold/30 text-rayo-gold border border-rayo-gold/40 text-xs font-semibold uppercase tracking-wider cursor-pointer flex items-center gap-1.5 transition-colors flex-shrink-0 shadow-sm">
                       <span className="material-symbols-outlined text-sm">
                         {uploadingImage ? 'sync' : 'upload_file'}
                       </span>
-                      {uploadingImage ? 'Subiendo...' : 'Subir desde PC'}
+                      {uploadingImage ? 'Subiendo imagen...' : 'Subir desde PC'}
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/png,image/jpeg,image/webp,image/jpg"
                         className="hidden"
                         onChange={handleImageFileUpload}
                         disabled={uploadingImage}
                       />
                     </label>
+
+                    {formImageUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setFormImageUrl('')}
+                        className="px-3 py-2 rounded-lg bg-white/[0.05] hover:bg-rose-900/40 text-rayo-bone/60 hover:text-rose-300 border border-white/10 text-xs transition-colors flex items-center gap-1"
+                        title="Quitar imagen de portada"
+                      >
+                        <span className="material-symbols-outlined text-sm">delete</span>
+                        Quitar
+                      </button>
+                    )}
                   </div>
 
                   {/* Preset Quick Images */}
-                  <div className="flex items-center gap-2 mt-2 overflow-x-auto pb-1">
-                    <span className="text-[10px] text-rayo-bone/40 uppercase whitespace-nowrap">Presets:</span>
+                  <div className="flex items-center gap-2 mt-2.5 overflow-x-auto pb-1">
+                    <span className="text-[10px] text-rayo-bone/40 uppercase whitespace-nowrap">Imágenes Rápidas:</span>
                     {PRESET_IMAGES.map((preset, idx) => (
                       <button
                         type="button"
                         key={idx}
                         onClick={() => setFormImageUrl(preset.url)}
-                        className={`text-[10px] px-2 py-0.5 rounded border whitespace-nowrap transition-colors ${
+                        className={`text-[10px] px-2.5 py-1 rounded-md border whitespace-nowrap transition-colors ${
                           formImageUrl === preset.url
                             ? 'bg-rayo-gold text-rayo-carbon font-bold border-rayo-gold'
-                            : 'bg-black/40 text-rayo-bone/60 border-white/10 hover:text-white'
+                            : 'bg-black/40 text-rayo-bone/60 border-white/10 hover:text-white hover:border-white/30'
                         }`}
                       >
                         {preset.label}
@@ -1218,15 +1347,20 @@ export const AdminNewsManager: React.FC = () => {
 
                   {/* Thumbnail preview */}
                   {formImageUrl && (
-                    <div className="mt-3 relative w-32 h-20 rounded-lg overflow-hidden border border-white/20 bg-black/60">
+                    <div className="mt-3 relative w-40 h-24 rounded-lg overflow-hidden border border-white/20 bg-black/60 shadow-md group">
                       <img
-                        src={formImageUrl}
+                        src={formatMediaUrl(formImageUrl)}
                         alt="Preview"
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           (e.target as HTMLElement).style.display = 'none';
                         }}
                       />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="text-[10px] text-white font-semibold uppercase tracking-wider bg-black/70 px-2 py-0.5 rounded">
+                          Vista previa portada
+                        </span>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1245,19 +1379,261 @@ export const AdminNewsManager: React.FC = () => {
                   />
                 </div>
 
-                {/* Contenido Completo */}
+                {/* Contenido Completo con Barra de Herramientas Enriquecida */}
                 <div>
-                  <label className="block text-xs text-rayo-bone/70 uppercase mb-1">
-                    Contenido Completo de la Noticia / Comunicado *
-                  </label>
-                  <textarea
-                    rows={8}
-                    value={formContent}
-                    onChange={(e) => setFormContent(e.target.value)}
-                    placeholder="Redacta aquí el texto íntegro del informe, crónica o comunicado..."
-                    required
-                    className="w-full bg-[#080814] border border-white/10 focus:border-rayo-gold rounded-lg p-3.5 text-xs text-white focus:outline-none leading-relaxed font-sans"
-                  />
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-2">
+                      <label className="text-xs font-display font-bold uppercase tracking-wider text-rayo-gold">
+                        Contenido Completo de la Noticia / Comunicado *
+                      </label>
+                      <span className="text-[10px] text-rayo-bone/50 font-mono">
+                        {(formContent || '').split(/\s+/).filter(Boolean).length} palabras • {(formContent || '').length} caracteres
+                      </span>
+                    </div>
+
+                    {/* Mode Toggle: Escribir vs Vista Previa */}
+                    <div className="flex items-center bg-black/60 p-0.5 rounded-lg border border-white/10">
+                      <button
+                        type="button"
+                        onClick={() => setEditorTab('write')}
+                        className={`px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                          editorTab === 'write'
+                            ? 'bg-rayo-gold text-rayo-carbon shadow-sm'
+                            : 'text-rayo-bone/60 hover:text-white'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-sm">edit_note</span>
+                        Redactar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditorTab('preview')}
+                        className={`px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                          editorTab === 'preview'
+                            ? 'bg-rayo-gold text-rayo-carbon shadow-sm'
+                            : 'text-rayo-bone/60 hover:text-white'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-sm">visibility</span>
+                        Vista Previa en Vivo
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Rich Text Toolbar (Shown in Write mode) */}
+                  {editorTab === 'write' && (
+                    <div className="bg-[#0e0f24] border border-white/15 rounded-t-xl p-2 flex flex-wrap items-center gap-1 shadow-sm">
+                      {/* TAMAÑOS DE LETRA / ENCABEZADOS */}
+                      <div className="flex items-center gap-0.5 bg-black/40 p-1 rounded border border-white/10">
+                        <span className="text-[9px] uppercase font-bold text-rayo-bone/40 px-1">Tamaño:</span>
+                        <button
+                          type="button"
+                          onClick={() => insertFormat('\n## ', '\n', 'Título Principal de Sección')}
+                          className="px-2 py-0.5 rounded bg-white/[0.06] hover:bg-white/[0.15] text-white text-[11px] font-bold font-display uppercase tracking-wider"
+                          title="Título Principal Grande (H2)"
+                        >
+                          H2 Título
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => insertFormat('\n### ', '\n', 'Subtítulo Destacado')}
+                          className="px-2 py-0.5 rounded bg-white/[0.06] hover:bg-white/[0.15] text-rayo-gold text-[11px] font-bold font-display uppercase tracking-wider"
+                          title="Subtítulo Mediano (H3)"
+                        >
+                          H3 Subtítulo
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => insertFormat('[grande]', '[/grande]', 'Texto en tamaño grande')}
+                          className="px-1.5 py-0.5 rounded bg-white/[0.06] hover:bg-white/[0.15] text-white text-xs font-bold"
+                          title="Texto Grande Destacado"
+                        >
+                          A+
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => insertFormat('[pequeño]', '[/pequeño]', 'Texto en tamaño pequeño')}
+                          className="px-1.5 py-0.5 rounded bg-white/[0.06] hover:bg-white/[0.15] text-rayo-bone/60 text-xs"
+                          title="Texto Pequeño / Aclaración"
+                        >
+                          A-
+                        </button>
+                      </div>
+
+                      <div className="h-5 w-[1px] bg-white/10 mx-0.5 hidden sm:block"></div>
+
+                      {/* FORMATO TIPOGRÁFICO: NEGRITA, CURSIVA, SUBRAYADO, TACHADO */}
+                      <div className="flex items-center gap-0.5 bg-black/40 p-1 rounded border border-white/10">
+                        <span className="text-[9px] uppercase font-bold text-rayo-bone/40 px-1">Estilo:</span>
+                        <button
+                          type="button"
+                          onClick={() => insertFormat('**', '**', 'Texto en negrita')}
+                          className="w-7 h-6 rounded bg-white/[0.06] hover:bg-rayo-gold hover:text-rayo-carbon text-white font-bold text-xs flex items-center justify-center transition-colors"
+                          title="Negrita (**texto**)"
+                        >
+                          B
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => insertFormat('*', '*', 'Texto en cursiva')}
+                          className="w-7 h-6 rounded bg-white/[0.06] hover:bg-rayo-gold hover:text-rayo-carbon text-white italic text-xs flex items-center justify-center transition-colors font-serif"
+                          title="Cursiva (*texto*)"
+                        >
+                          I
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => insertFormat('<u>', '</u>', 'Texto subrayado')}
+                          className="w-7 h-6 rounded bg-white/[0.06] hover:bg-rayo-gold hover:text-rayo-carbon text-white underline text-xs flex items-center justify-center transition-colors"
+                          title="Subrayado"
+                        >
+                          U
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => insertFormat('~~', '~~', 'Texto tachado')}
+                          className="w-7 h-6 rounded bg-white/[0.06] hover:bg-rayo-gold hover:text-rayo-carbon text-white line-through text-xs flex items-center justify-center transition-colors"
+                          title="Tachado"
+                        >
+                          S
+                        </button>
+                      </div>
+
+                      <div className="h-5 w-[1px] bg-white/10 mx-0.5 hidden sm:block"></div>
+
+                      {/* COLORES OFICIALES */}
+                      <div className="flex items-center gap-0.5 bg-black/40 p-1 rounded border border-white/10">
+                        <span className="text-[9px] uppercase font-bold text-rayo-bone/40 px-1">Colores:</span>
+                        <button
+                          type="button"
+                          onClick={() => insertFormat('[oro]', '[/oro]', 'Texto Dorado')}
+                          className="px-1.5 py-0.5 rounded bg-rayo-gold/20 text-rayo-gold hover:bg-rayo-gold/30 text-[11px] font-bold"
+                          title="Color Dorado Rayo"
+                        >
+                          ● Oro
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => insertFormat('[rojo]', '[/rojo]', 'Texto Alerta/Médico')}
+                          className="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 text-[11px] font-bold"
+                          title="Color Rojo Médico / Alerta"
+                        >
+                          ● Rojo
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => insertFormat('[cian]', '[/cian]', 'Texto Oficial')}
+                          className="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 text-[11px] font-bold"
+                          title="Color Cian Oficial"
+                        >
+                          ● Cian
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => insertFormat('[resaltar]', '[/resaltar]', 'Texto resaltado')}
+                          className="px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-200 hover:bg-amber-400/30 text-[11px] font-bold"
+                          title="Fondo Resaltador"
+                        >
+                          🖍️ Resaltar
+                        </button>
+                      </div>
+
+                      <div className="h-5 w-[1px] bg-white/10 mx-0.5 hidden sm:block"></div>
+
+                      {/* LISTAS, CITAS Y SEPARADORES */}
+                      <div className="flex items-center gap-0.5 bg-black/40 p-1 rounded border border-white/10">
+                        <button
+                          type="button"
+                          onClick={() => insertFormat('\n• ', '\n', 'Elemento de lista')}
+                          className="px-2 py-0.5 rounded bg-white/[0.06] hover:bg-white/[0.15] text-white text-xs flex items-center gap-1"
+                          title="Lista con viñetas"
+                        >
+                          <span className="material-symbols-outlined text-sm">format_list_bulleted</span>
+                          Viñetas
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => insertFormat('\n1. ', '\n', 'Primer punto')}
+                          className="px-2 py-0.5 rounded bg-white/[0.06] hover:bg-white/[0.15] text-white text-xs flex items-center gap-1"
+                          title="Lista numerada"
+                        >
+                          <span className="material-symbols-outlined text-sm">format_list_numbered</span>
+                          Numerada
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => insertFormat('\n> "', '"\n', 'Cita o declaración oficial...')}
+                          className="px-2 py-0.5 rounded bg-white/[0.06] hover:bg-white/[0.15] text-white text-xs flex items-center gap-1"
+                          title="Bloque de Cita"
+                        >
+                          <span className="material-symbols-outlined text-sm">format_quote</span>
+                          Cita
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => insertFormat('\n---\n')}
+                          className="px-2 py-0.5 rounded bg-white/[0.06] hover:bg-white/[0.15] text-white text-xs flex items-center gap-1"
+                          title="Línea separadora ⚡"
+                        >
+                          <span className="material-symbols-outlined text-sm">horizontal_rule</span>
+                          Separador
+                        </button>
+                      </div>
+
+                      {/* PLANTILLAS RÁPIDAS */}
+                      <div className="flex items-center gap-1 ml-auto">
+                        <span className="text-[9px] uppercase font-bold text-rayo-bone/40">Plantillas:</span>
+                        <button
+                          type="button"
+                          onClick={insertCronicaTemplate}
+                          className="px-2 py-0.5 rounded bg-rayo-gold/10 hover:bg-rayo-gold/20 text-rayo-gold border border-rayo-gold/30 text-[10px] font-bold uppercase tracking-wider"
+                          title="Insertar estructura de Crónica"
+                        >
+                          ⚽ Crónica
+                        </button>
+                        <button
+                          type="button"
+                          onClick={insertParteMedicoTemplate}
+                          className="px-2 py-0.5 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[10px] font-bold uppercase tracking-wider"
+                          title="Insertar estructura de Parte Médico"
+                        >
+                          🏥 Parte Médico
+                        </button>
+                        <button
+                          type="button"
+                          onClick={insertComunicadoTemplate}
+                          className="px-2 py-0.5 rounded bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[10px] font-bold uppercase tracking-wider"
+                          title="Insertar estructura de Comunicado"
+                        >
+                          📜 Comunicado
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mode: Write (Textarea) */}
+                  {editorTab === 'write' ? (
+                    <textarea
+                      ref={contentTextareaRef}
+                      rows={10}
+                      value={formContent}
+                      onChange={(e) => setFormContent(e.target.value)}
+                      placeholder="Redacta aquí el texto íntegro del informe, crónica o comunicado... Puedes usar los botones superiores para aplicar encabezados, tamaños de letra, negritas, colores y listas."
+                      required
+                      className="w-full bg-[#080814] border border-white/15 focus:border-rayo-gold rounded-b-xl p-4 text-xs sm:text-sm text-white focus:outline-none leading-relaxed font-sans shadow-inner"
+                    />
+                  ) : (
+                    /* Mode: Live Preview */
+                    <div className="w-full min-h-[240px] max-h-[380px] overflow-y-auto bg-[#080814] border border-white/15 rounded-xl p-5 shadow-inner">
+                      {formContent.trim() ? (
+                        <RichContentRenderer content={formContent} />
+                      ) : (
+                        <p className="text-xs text-rayo-bone/40 italic">
+                          No hay texto escrito aún. Cambia a la pestaña "Redactar" para empezar a escribir.
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* DESTACAR EN PORTADA TOGGLE */}
